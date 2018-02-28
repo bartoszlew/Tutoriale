@@ -1,0 +1,62 @@
+Tabela 2. Zakresy adresów IP zarezerwowane dla sieci lokalnych
+---------------------------------------------------------------
+Zakres adresów 	Maska podsieci
+10.0.0.0–10.255.255.255 	255.0.0.0
+172.16.0.0–172.31.255.255 	255.240.0.0
+192.168.0.0–92.168.255.255 	255.255.0.0
+
+arp
+----------
+Address Resolution Protocol (ARP) - protokół sieciowy umożliwiający mapowanie logicznych adresów warstwy sieciowej (warstwa 3) na fizyczne adresy warstwy łącza danych (2)
+IP na MAC
+
+arp - wyswietlanie tablicy arp:
+cat /proc/net/arp - wyswietlanie tablicy arp:
+arptables -L -n - 
+
+Wyłacznie odpowiedzi arp (zamiast eth0 odpowiedni interfejs)
+>> /etc/sysctl.conf
+net.ipv4.conf.all.ARP_ignore = 1
+net.ipv4.conf.eth0.ARP_ignore = 1
+net.ipv4.conf.all.ARP_announce = 2
+net.ipv4.conf.eth0.ARP_announce = 2
+
+wyjasnienie:
+net.ipv4.conf.all.ARP_ignore = 1 - Enable configuration of ARP_ignore option
+net.ipv4.conf.eth0.ARP_ignore = 1 - Do not respond to ARP requests if the requested IP address is configured on the “lo” (loopback) device or any virtual eth0:X device.
+net.ipv4.conf.all.ARP_announce = 2 - Enable configuration of ARP_announce option
+net.ipv4.conf.eth0.ARP_announce = 2 - As the source IP address of ARP requests is entered into the ARP cache on the destination, it has the effect of announcing this address. 
+									  This is undesirable for the lo or any other virtual interfaces from the real servers.
+
+ARP can be disabled on a per-interface basis. ip link show <device> will inndicate "NOARP" in if it is disabled. For example:
+ip link show eth0
+ip a 
+
+
+zarzadzanie interfejsami ("z palca")
+----------------------------------------
+ip link set dev eth0 up - podnoszenie interfejsu eth0 
+
+
+sprzet/infgo sieciowe
+----------------------
+lspci | grep -i network
+lshw -class network - sprzet sieciowy (doklanidej) 
+ethtool - query or control network driver and hardware settings
+/proc/net/
+/sys/class/net/ - interfejsy sieciowe
+
+
+do sprawdzania co wylazi na porcie sieciowym
+---------------------------------------------------------
+netstat -dlp | grep 10514
+tcp        0      0 0.0.0.0:10514           0.0.0.0:*               LISTEN      5819/kafka_log_prod
+- wimy ze cos wyawla na port 10514 na localhoscie, no to np.
+	ngrep -d lo "" "dst port 10514"
+		albo 
+	tcpdump
+		albo 
+	nc -l -p 4444
+
+-------
+nmap

@@ -1,0 +1,116 @@
+bounding, teaming kart sieciowch pod linuksem
+---------------------------------------------------------------------
+https://www.unixmen.com/linux-basics-create-network-bonding-on-ubuntu-14-10/
+http://www.tecmint.com/network-nic-bonding-teaming-in-debian-linux/
+https://en.wikipedia.org/wiki/Link_aggregation
+
+mode=0 (balance-rr)	Round-robin policy
+	Jest to tryb domyślny. Przesyła pakiety w kolejności sekwencyjnej poprzez wszystkie dostepne karty sieciowe . 
+	Tryb ten zapewnia równoważenie obciążenia i odporność na awarie.
+	
+mode=1 (active-backup)	Active-backup policy
+	Podstawowy mechanizm, którego działanie polega na tym, że jak jedna karta przestaje działać, uruchamiana jest druga. 
+	Tryb ten zapewnia równoważenie odporność na awarie.
+	
+mode=2 (balance-xor)	XOR policy
+	Transmit network packets based on a hash of the packet's source and destination. The default algorithm only considers MAC addresses (layer2). 
+	Newer versions allow selection of additional policies based on IP addresses (layer2+3) and TCP/UDP port numbers (layer3+4). 
+	This selects the same NIC slave for each destination MAC address, IP address, or IP address and port combination, respectively. This mode provides load balancing and fault tolerance.
+	
+mode=3 (broadcast)	Broadcast policy
+	Przesyła wszystkie pakiety na wszystkie karty sieciowe. Jest bardzo malo zastasowan tej konfiguracji.
+	Tryb ten zapewnia równoważenie odporność na awarie.
+	
+mode=4 (802.3ad)	EEE 802.3ad Dynamic link aggregation
+	Najbardziej rozbudowany i uniwersalny tryb „all inclusive”, w którym rozdział i balansowanie ruchu odbywa się dynamicznie, zapewniając jednocześnie i zwiększenie przepustowości i bezpieczeństwo. 
+	Karty sieciowe mogą pracować z różnymi prędkościami. Ten tryb jest zalecany, jeżeli tylko switch w pełni obsługuje tryb 802.3ad.
+	Creates aggregation groups that share the same speed and duplex settings. Utilizes all slave network interfaces in the active aggregator group according to the 802.3ad specification. 
+	This mode is similar to the XOR mode above and supports the same balancing policies. The link is set up dynamically between two LACP-supporting peers.
+	
+mode=5 (balance-tlb)		Transmit load balancing
+	Zapewnia zwielokrotnienie pasma na ruchu wyjsciowym i dba o to, aby wszystkie karty były równmiernie obciążone . 
+	Jeśli jedno z połączeń przestaje funkcjonować, ruch sieciowy jest kierowany na pozostałe sprawne. 
+	The outgoing traffic is distributed according to the current load (computed relative to the speed) on each slave. 
+	Incoming traffic is received by the current slave. If the receiving slave fails, another slave takes over the MAC address of the failed receiving slave.
+	
+mode=6 (balance-alb)	Adaptive load balancing
+	To samo co balance-tlb ale z zwielokrotnieniem ruchu na wejsciu.
+	Includes balance-tlb plus receive load balancing (rlb) for IPV4 traffic, and does not require any special switch support. 
+	The receive load balancing is achieved by ARP negotiation. The bonding driver intercepts the ARP Replies sent by the local system 
+	on their way out and overwrites the source hardware address with the unique hardware address of one of the slaves in the bond such 
+	that different peers use different hardware addresses for the server.
+
+Konfiguracja:
+-----------------------
+/etc/modules
+	bonding
+	
+1) Debian:
+	/etc/network/interfaces
+
+# bonded interface
+auto bond0
+iface bond0 inet static
+address 192.168.1.200
+gateway 192.168.1.1
+netmask 255.255.255.0
+bond-mode active-backup
+bond-miimon 100
+bond-slaves eth0 rth1
+
+#eth1 configuration
+auto eth0
+iface eth0 inet manual
+bond-master bond0
+bond-primary eth1
+
+#eth2 configuration
+auto eth1
+iface eth1 inet manual
+bond-master bond0
+
+
+
+ifup bond0
+
+2) Redhat:
+	/etc/sysconfig/network-scripts/ifcfg-bond0
+DEVICE=bond0
+IPADDR=192.168.122.12
+NETMASK=255.255.255.0
+GATEWAY=192.168.122.1
+NM_CONTROLLED=no
+BOOTPROTO=none
+ONBOOT=yes
+USERCTL=no
+	
+	/etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE=eth0
+USERCTL=no
+ONBOOT=yes
+NM_CONTROLLED=no
+MASTER=bond0
+SLAVE=yes
+BOOTPROTO=none
+
+	/etc/sysconfig/network-scripts/ifcfg-eth1
+DEVICE=eth1
+USERCTL=no
+ONBOOT=yes
+NM_CONTROLLED=no
+MASTER=bond0
+SLAVE=yes
+BOOTPROTO=none
+
+Sprawdzenie statusu interfejsu:
+- cat /proc/net/bonding/bond0 
+
+dodawanie/usuwanie inferfejsow z bonda
+----------------------------------------
+ifenslave -d bond0 eth3 - usuwa interfejs eth3 z bond0
+ifenslave bond1 eth3 - dodaje interfejst eth3 do bonda1
+
+przydatne polecenia
+---------------------
+ethtool bond0 - info, m.in szybkość (powinna byc suma szybkosci wszystkich interfejsow w bondzie)
+cat /proc/net/bonding/bond0

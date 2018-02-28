@@ -1,0 +1,37 @@
+Uruchamianie polecen przez SSH (Run Multiple Command On Remote Machine using SSH)
+--------------------------------------------------- 
+1. Simple bash syntax to run multiple commands on remote machine
+	$ ssh user@host "date ; uname -a"
+
+2. Bash here document syntax
+	ssh user@hostname << EOF
+	date
+	hostname
+	cat /etc/resolv.conf
+	EOF
+	
+	With sudo command type:
+	ssh -t user@hostname << EOF
+	uname -a 
+	sudo /sbin/shutdown -h 0
+	EOF
+	
+3. Pipe script to a remote server
+	cat some-script | ssh -t user@hostname 
+	
+	###Please note that the -t option will get rid of "Sorry, you must have a tty to run sudo/insert your-command-here" error message. For more info see your ssh and bash command man page.
+
+4. Przekazywanie zmiennych po ssh
+	http://stackoverflow.com/questions/305035/how-to-use-ssh-to-run-shell-script-on-a-remote-machine
+
+	Also, don't forget to escape variables if you want to pick them up from the destination host.
+eg.
+	user@host> ssh user2@host2 "echo \$HOME"  -  prints out /home/user2
+while
+	user@host> ssh user2@host2 "echo $HOME"	 -  prints out /home/user
+eg.
+	user@host> ssh user2@host2 "echo hello world | awk '{print \$1}'"  -  prints out "hello" correctly.
+	
+4. Export bash function over SSH
+5. S	cripting MySQL from BASH over SSH
+

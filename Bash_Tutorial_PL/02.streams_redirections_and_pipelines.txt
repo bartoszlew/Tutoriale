@@ -1,0 +1,125 @@
+====================================================================================================
+Streams, Redirection and Pipelines (Przekierowania, strumienie danych i potoki)
+====================================================================================================
+
+Standardowe strumienie
+---------------------------------
+Standardowe strumienie są to kanały komunikacji między programem komputerowym a środowiskiem, w którym program jest uruchamiany (zwykle terminalem). 
+Kanały te są podłączane w początkowym procesie uruchamiania programu. 
+Każdy uruchomiony w Linuxie proces skądś pobiera dane, gdzieś wysyła wyniki swojego działania i komunikaty o błędach. 
+Tak więc procesowi przypisane są trzy strumienie danych:
+    stdin (ang. standard input) czyli standardowe wejście, skąd proces pobiera dane, domyślnie jest to klawiatura
+    stdout (ang. standard otuput) to standardowe wyjście, gdzie wysyłany jest wynik działania procesu, domyślnie to ekran
+    stderr (ang. standard error) standardowe wyjście błędów, tam trafiają wszystkie komunikaty o błędach, domyślnie ekran 
+
+Deskryptory plików
+---------------------------------
+Z pojęciem strumienia związane jest również inne ważne pojęcie – deskryptor pliku. 
+Deskryptor pliku jest to identyfikator używany przez system operacyjny do obsługi operacji wejścia/wyjścia.
+Linux wszystko traktuje jako plik, niezależnie od tego czy to jest plik zwykły, katalog, urządzenie blokowe (klawiatura, ekran) itd. 
+Nie inaczej jest ze strumieniami, BASH identyfikuje je za pomocą przyporządkowanych im liczb całkowitych ( od 0 do 2 ) tak zwanych deskryptorów plików.
+Każdy proces po uruchomieniu ma standardowo otwarte 3 deskryptory plików:
+	0 - stdin 	- to plik z którego proces pobiera dane stdin
+    1 - stdout 	- to plik do którego proces pisze wyniki swojego działania stdout
+    2 - stderr	- to plik do którego trafiają komunikaty o błędach stderr 
+
+PRZEKIEROWANIA (Redirection)
+--------------------------------------------------
+Za pomocą operatorów przypisania można manipulować strumieniami, poprzez przypisanie deskryptorów: 0, 1, 2 innym plikom, niż tym reprezentującym klawiaturę i ekran.
+
+> 			- przekierowauje standardowe wyjscie (to samo co  1>  )
+2> 		- przekierowauje standardowe wyjscie błędów
+>> 		- przekierowauje standardowe wyjscie, nie nadpisuje pliku (to samo co  1>>  )
+< 			- przekierowanie ze standardowego wejścia, (to samo co  <0 ) np. moj_program < dane_wejsciowe.txt 
+&>  		- przekierowauje standardowe wyjście i error  (to samo vo 2>&1)
+&>>  	- przekierowauje standardowe wyjście i error, nie nadpisuje pliku
+<<<		- przekierowanie zmiennej/stringu/tekstu na standardowe wejście polecenia //doczytac!!
+
+>&- 	- zamykanie deskryptora (taki sam efekt jak przekierowanie na /dev/null) 
+			  np. moj_program 2>&- 	<- 	wyłączenia wypisywania błędów
+			
+Przy operacji przekierowania deksryptorów możemy odnieść się do konkretnego, używając składni: N>PLIK gdzie N to numer deskryptora, 
+możemy np. przekierować standardowe wyjście do pliku z danymi, a wyjście diagnostyczne do pliku z logami błędów:
+np.
+	moj_program 1> wynik.txt 2> błedy.log
+	moj_program > wynik.txt 2> /dev/null
+
+Należy zauważyc, że zapis 1> jest równoznaczny z > (domyślnie dotyczy deskryptora nr 1, podobnie jak < dotyczy tego z numerem 0).
+>	 	= 		1>
+>> 		= 		1>>
+< 		= 		<0
+
+Łączenie deskryptorów:
+Aby połączyć deskryptory, należy skorzystać z następującej składni: N>&M nastapi to połączenie deskryptora N z deskryptorem M. 
+	np. 
+		moj_program > out.log 2>&1   (to samo co &>)
+
+Przykłady:
+$ cat klienci_krakow.db klienci_warszawa.db > klienci.db
+	# połączyliśmy bazę klientów z dwóch miast
+$ cat klienci_gransk.db >> klienci.db
+	# dokładamy jeszcze klientów z Gdańska
+$ sort < klienci.db > klienci-posortowani.db
+	# sortujemy klientów i zapisujemy wynik
+$ cat klienci-posortowani.db > /media/pendrive/baza.db
+	# Kopiujemy plik
+$ cp klienci-posortowani.db /media/pendrive/baza.db
+	# Równoznaczne z poprzednim		
+
+Here document (dokument wbudowany,włączony)
+-------------------------------------------------------------------
+Operator << powoduje, że do procesu zostaną przekazane dane ze standardowego wejścia aż do napotkania wskazanego napisu.
+Polecenie po operatorze << traktujemy jako plik, czyli np. zeby wyswietlic zawartość to nie "echo costam" tylko "cat costam".
+
+Konstrukcja (nazywana dokumentem wbudowanym, ang. here document):
+     prog ... << EOF
+     ...
+     EOF
+spowoduje, że linie od występującej bezpośrednio za komenda prog aż do linii EOF będą standardowym wejściem dla komendy prog. 
+EOF może być dowolnym ciągiem znaków, ważne jest jedynie by do zakończenia dokumentu wbudowanego użyć tego samego ciągu znaków, 
+którego użyto po podwójnym znaku mniejszości.
+np.
+	cat <<  przerwa
+	> Ala ma kota
+	> Kot ma Ale
+	> przerwa
+	Ala ma kota
+	Kot ma Ale.
+
+Here document is most commonly used for setting scripts for interactive commands as telnet
+	np. telnet << KONIECCC   	#slowo "KONIECCC" jest "znakiem konca dokumentu wbudowanego"
+		podajemy ip
+		podajemy login haslo
+		wysylamy maia z logiem mail -s "log z jakiejs maszyny" < /var/log/error_log
+		quit
+		KONNIECCC
+
+
+Potoki (pipelines) 
+------------------------
+Potok  jest to mechanizm komunikacji międzyprocesowej, przekierowuje standardowe wyjście jednego procesu na standardowe wejście drugiego.
+	np. 
+			cat baza-klientów.txt | grep "Kraków" | cut -d " " -f 4 | sort | uniq
+
+"Czarna dziura"
+----------------------
+Istnieją dwa pliki czarnych dziur w systemie (data sinks):
+        /dev/null
+        /dev/zero
+Wszelkie dane zapisane do tych plików zostają automatycznie usunięte (zignorowane).
+
+noclobber #doczytac
+-----------------------------------
+set -o noclobber - prevents file from overwriting throught redirection 
+	if you want to overwrite output files protected by noclobber, you can
+	use the >| operator to do this (przydatne jak jest uzywanych duzo przekierowan)
+	n>|filename
+
+linki:
+http://regalis.com.pl/tajemnice-wejscia-wyjscia/
+http://ux.up.krakow.pl/~bar/KURSY/KURSBASHA/stream.html
+http://www.arturpyszczuk.pl/files/bash/bash.pdf
+http://wazniak.mimuw.edu.pl/images/e/ee/Sop_04_lab.pdf
+http://www.ire.pw.edu.pl/~awroble/Ania_pliki/powloka_UNIX.html
+unix_sztuczki_i_chwyty.pdf
+

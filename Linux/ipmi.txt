@@ -1,0 +1,43 @@
+IPMI - ipmitool
+===========================================
+https://www.thomas-krenn.com/pl/wiki/Podstawowe_informacje_o_IPMI
+http://www.openfusion.net/linux/ipmi_on_centos
+https://discuss.pivotal.io/hc/en-us/articles/206396927-How-to-work-on-IPMI-and-IPMITOOL
+https://www.thomas-krenn.com/pl/wiki/Konfiguracja_IPMI_pod_Linuksem
+
+# info:
+ipmitool mc info - check firmware version
+ipmitool channel info 1
+ipmitool chassis status
+ipmitool lan print 1 - siec
+ipmitool fru print - info o sprzecie 
+
+# konfiguracja sieci imm
+ipmitool lan set 1 ipsrc [ static | dhcp ]
+ipmitool lan set 1 ipaddr 192.168.1.101
+ipmitool lan set 1 netmask 255.255.255.0
+ipmitool lan set 1 defgw ipaddr 192.168.1.254
+	
+
+# połaczenie zdalne d IMMA
+ipmitool -I lanplus -H <IPADDR> -U root -P ??
+
+# Wyłączenie vlan-a na intefejsie IMM
+ipmitool lan set <channel> vlan id off
+	np. ipmitool lan set 1 vlan id off
+
+#Zmiana interfejsu IMM O(sharowany/dedykowany) !!!
+Tryb pracy vlan na fexie musi byc ustawiony na nietagowany.
+a) dla serwerów Lenovo x3550 M5 and x3650 M5
+1. Verify current 'mode' of IMM connection
+	ipmitool raw 0xc 0x2 0x1 0xc0 0x0 0x0
+The output will be one of the following:
+	11 00 00 - indicates shared on-board (expected here)
+	11 01 00 - indicates dedicated on-board
+	11 02 00 - indicates shared add-in (via ML2 adapter)
+2. Assuming the output above indicates that the system is set to shared on-board mode, change the mode to dedicated on-board:
+  	ipmitool raw 0xc 0x1 0x1 0xc0 0x1   //zmiana amoze potrwac kilkanascie sekund
+
+3. Change the mode back to shared on-board mode with the following command:
+  	ipmitool raw 0xc 0x1 0x1 0xc0 0x0   //zmiana amoze potrwac kilkanascie sekund
+

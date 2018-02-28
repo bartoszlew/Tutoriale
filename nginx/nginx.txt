@@ -1,0 +1,12 @@
+nginx
+============
+nginx -s <signal>
+
+Where signal may be one of the following:
+	stop — fast shutdown
+    quit — graceful shutdown
+    reload — reloading the configuration file
+    reopen — reopening the log files
+
+nginx -t -> test konfiguracji nginx
+nginx -c -> wczytuje konfig z podanej sciezki

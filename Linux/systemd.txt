@@ -1,0 +1,120 @@
+systemd 
+-----------
+man systemd.unit
+https://www.dobreprogramy.pl/mariushko/Poradnik-systemd-cz.-1,67627.html
+
+
+systemctl list-unit-files --all
+systemctl cat sshd.service 
+systemctl daemon-reload - jeśli zmienimy konfiguracja unitów (zawartość plików unitów, 
+						ale również plików konfiguracyjnych takich jak: /etc/fstab, 
+						na podstawie których systemd generuje unity), to należy poinformować o tym systemd:
+systemd-delta - pokazuje wszystkie różnice/powiązania między unitami z /usr a /etc
+
+
+	
+
+Forma nazwy pliku unitu systemd: unit_name.type_extension
+
+
+
+Systemd Unit Files Locations
+-----------------------------
+	/usr/lib/systemd/system/ - pliki konfiguracyjne unitów "systemowych" - pochodzące z pakietów instalacyjnych
+	/run/systemd/system/ 	Systemd unit files created at run time. This directory takes precedence over the directory with installed service unit files.
+	/etc/systemd/system/ 	Systemd unit files created by systemctl enable as well as unit files added for extending a service. This directory takes precedence over the directory with runtime unit files. 
+
+Unity 
+kolejnosc priorytetu konfiguracji (od najwyzszego)
+	/run -> /etc ->  /usr -> /etc/init.d
+
+.service file
+----------------------------
+https://www.dobreprogramy.pl/mariushko/Poradnik-systemd-cz.-2,67878.html
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/sect-Managing_Services_with_systemd-Unit_Files.html
+https://www.freedesktop.org/software/systemd/man/systemd.unit.html#After=
+https://www.freedesktop.org/software/systemd/man/systemd.service.html#BusName=
+
+[Unit] - opisuje meta informacje i zależności
+	wazniejsze opcje sekcji:
+	Description
+	Documentation
+	After
+	Requires
+	Wants
+	Conflicts	
+[Service] - opisuje co i jak ma być uruchomione
+	wazniejsze opcje sekcji:
+	Type 	[simple, forking, oneshot, dbus, notify, idle]
+	ExecStart
+	ExecStop
+	ExecReload
+	Restart
+	RemainAfterExit
+[Install] - opisuje do jakiego targetu będzie dołączona ta usługa po jej włączeniu 
+	wazniejsze opcje sekcji:
+	Alias
+	RequiredBy
+	WantedBy
+	Also
+	DefaultInstance
+	
+
+Instantiated Services - Unit templates
+----------------------------------------
+https://fedoramagazine.org/systemd-template-unit-files/
+
+
+
+targety
+--------------------
+systemctl list-dependencies multi-user.target | grep '.target$'
+
+Log
+-------------
+https://www.loggly.com/ultimate-guide/using-journalctl/
+https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
+
+Boot log
+journalctl -b 		-> boot log
+journalctl -b -1 	-> ostatni boot log
+journalctl --list-boots -> lista logow ze startu pytania (jesli jest ustawiona opcja zachowywania wszystkich logow bootowania w journald.conf)
+journalctl -k 	-> kernem message
+journalctl -k -b -5  -> kernel messages, since five boots ago
+
+Time Ranges
+journalctl --since "1 hour ago"
+journalctl --since yesterday
+journalctl --since "2015-06-26 23:15:00" --until "2015-06-26 23:20:00"
+
+By Unit
+journalctl -u nginx.service
+journalctl -u nginx.service -u mysql.service
+
+Follow or Tail
+journalctl -f
+journalctl -u mysql.service -f
+journalctl -n 50 
+
+By Priority
+journalctl -b -1  -p "crit"
+    0: emerg
+    1: alert
+    2: crit
+    3: err
+    4: warning
+    5: notice
+    6: info
+    7: debug
+
+By User
+journalctl _UID=108
+
+By Component Path
+journalctl /usr/bin/bash
+
+Format logu
+
+systemd templates
+------------------
+https://fedoramagazine.org/systemd-template-unit-files/

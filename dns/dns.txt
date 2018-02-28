@@ -1,0 +1,65 @@
+dns
+===============
+http://www.cs.put.poznan.pl/ddwornikowski/sieci/sieci2/dns.html
+ee
+http://slow7.pl/sieci-komputerowe/item/152-co-w-sieci-siedzi-protokol-dns
+http://di.com.pl/jak-to-dziala-czyli-wiecej-o-systemie-dns-25984
+https://pl.wikipedia.org/wiki/Domain_Name_System
+https://www.youtube.com/watch?v=uKUu0w4VDT8
+http://docplayer.pl/8013989-Plan-wykladu-domain-name-system-definicja-dns-po-co-nazwy-przestrzen-nazw-domen-strefy-i-ich-obsluga-zapytania-wlasciwosci.html
+
+
+Format nazwy domenowej:
+- element nazwy najbardziej z prawej strony oznacza domenę TLD, np. dla domeny www.put.poznan.pl, domeną TLD jest pl
+- hierarchię nazw domenowych odczytujemy od prawej strony, np. poznan.pl jest poddomeną pl.
+- każdy element nazwy domenowej może zawierać 63 znaki, pełna nazwa nie może przekraczać 253 znaków
+
+Zapytania DNS
+rekurencyjne
+iteracyjne
+
+Na pojęcie DNS składają się trzy podstawowe elementy: 
+1.DOMAIN NAME SPACE oraz RESOURCE RECORDS
+2.NAME SERVERS 
+3.RESOLVERS
+
+Klasy domen
+Przyjmuje się, że adres IP o postaci A.B.C.D reprezentuje poszczególne klasy domen. 
+Klasa A to top level domain - numery są przyznawane wyłącznie przez organizację GIS (w U.S.A.) i RIPE (w Europie). 
+		Kody krajów są ustalone podobnie jak kody nazw domen poszczególnych krajów (np. numery przyznane Polsce to 149 natomiast ciąg znaków określający domenę Polska to pl).
+Klasa B - niegdyś przyznawane dla organizacji do subnetting'u, obecnie z uwagi na małą ilość wolnych numerów IP przyznawane jest bardzo niechętnie i po wnikliwej analizie sytuacji.
+Klasa C - przyznawane bez większych problemów w miarę potrzeb, oczywiscie zapotrzebowanie musi zostać uzasadnione (służy do tego specjalny formularz RIPE).
+Klasa D - numer IP przyznany już konkretnemu komputerowi przez administratora sieci lokalnej. 
+
+Typy serwerów DNS
+autorytatywne - to właśnie one przechowują konfiguracje domen (czyli np. ns1.stronax.pl oraz ns2.stronax.pl). 
+				Odpowiadają jedynie na zapytania innych serwerów DNS - nie odpowiadają na zapytania tzw. resolverów (programów które rozwiązują dla nas nazwę domeny).
+rekurencyjne - serwery których zadaniem jest znaleźć adres IP dla danej domeny - takie właśnie typy serwerów, zapisane są w konfiguracji sieci komputerów. 
+
+
+Rekordy:
+A		lub rekord adresu IPv4 (ang. address record) - mapuje nazwę domeny DNS na jej 32-bitowy adres IPv4. Jest rekordem wyszukiwania w przód.
+AAAA	lub rekord adresu IPv6 (ang. IPv6 address record) - mapuje nazwę domeny DNS na jej 128 bitowy adres IPv6. Rekord AAAA podobnie jak rekord A jest rekordem wyszukiwania w przód.
+CNAME	lub rekord nazwy kanonicznej (ang. canonical name record) - ustanawia alias nazwy domeny czyli pozwala na użycie kilku rekordów zasobów odnoszących się do jednego hosta.
+MX		lub rekord wymiany poczty (ang. mail exchange record) - mapuje nazwę domeny DNS na nazwę serwera mailowego, obsługującego pocztę dla danej domeny. 
+		 Rekordów MX w danej strefie może być kilka, różnią się one priorytetem. W pierwszej kolejności wybierane są te z niższym priorytetem - serwer z wyższym priorytetem 
+		 jest wybierany w sytuacji w której serwer do którego został przypisany priorytet niższy nie działa.
+PTR		lub rekord wskaźnika (ang. pointer record) - mapuje adres IPv4 na nazwę kanoniczną hosta. Rekord PTR w przeciwieństwie do np. rekordów typu A bądź AAAA jest rekordem wyszukiwania wstecznego, 
+		 który łączy adres IP z nazwę hosta. Rekordy PTR mogą mieć postać adresów IPv4 lub IPv6.
+NS		lub rekord serwera nazw (ang. name server record) - mapuje oraz identyfikuje serwer DNS autorytatywny dla danej domeny.
+SOA		rekord SOA (ang. start of authority record) - ustala serwer DNS dostarczający autorytatywne informacje o domenie internetowej (adresy serwerów nazw, 
+		 parametry czasowe transferu stref czy numer konfiguracji).
+TXT		 rekord ten pozwala dołączyć dowolny tekst do rekordu DNS (używany głównie przez usługę SPF do walki ze spamem )
+SRV		 lub rekord usługi (ang. service record) pozwala na zawarcie dodatkowych informacji dotyczących lokalizacji danej usługi, którą udostępnia serwer wskazywany przez adres DNS.
+
+Reverse DNS
+
+Polecenia:
+nslookup
+host
+dig
+dig +trace domena
+nscd deamon - DNS cache na hoscie (Name Service Caching Daemon)
+
+Listy domen gTLD i ccTLD
+https://www.iana.org/domains/root/db

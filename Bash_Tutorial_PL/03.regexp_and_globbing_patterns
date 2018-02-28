@@ -1,0 +1,229 @@
+========================================================================================================================================
+Wyrazenia regularne podstawowe i rozszerzone (regexp) + globbing patterns
+========================================================================================================================================
+
+Znaki globalne (globbing patterns = globbing = filename expansion = glob) 
+-----------------------------------------------------------------------------------------------------
+Jak powiada man 7 glob, wzorzec ze znakami globalnymi (ang. wildcard pattern), 
+jest to ciag znaków, zawierajacy co najmniej jeden ze znaków ?, * lub [. 
+Wyrazenie globalne jest nastepnie rozwijane w liste sciezek pasujacych do wzorca.
+
+Can be used by: Standard wildcards are used by nearly any command (including mv, cp, rm and many others) to work with multiple files.
+man 7 glob 
+
+
+? 	this can represent any single character. If you specified something at the command line like "hd?" GNU/Linux would look for hda, hdb, hdc and every other letter/number between a-z, 0-9.
+* 	this can represent any number of characters (including zero, in other words, zero or more characters). If you specified a "cd*" it would use "cda", "cdrom", "cdrecord" and anything that starts with cd also including cd itself. "m*l" could by mill, mull, ml, and anything that starts with an m and ends with an l.
+[]  specifies a range. If you did m[a,o,u]m it can become: mam, mum, mom if you did: m[a-d]m it can become anything that starts and ends with m and has any character a to d inbetween. For example, these would work: mam, mbm, mcm, mdm. This kind of wildcard specifies an or relationship (you only need one to match).
+	np.	[abc] np. file0[147] -> file01,file04,file07
+		[a-d] np. data_[a-c] -> data_a,data_b,data_d
+		[a-ce-g] np. log[1-36-8] -> log1,log2,log3,log6,log7,log8
+		[^] lub [!] This construct is similar to the [ ] construct, except rather than matching any characters inside the brackets, 
+	it'll match any character, as long as it is not listed between the [ and ]. This is a logical NOT. 
+	For example rm myfile[!9] will remove all myfiles* (ie. myfiles1, myfiles2 etc) but won't remove a file with the number 9 anywhere within it's name.
+	np.
+		ls [!w]* -> wyrzuci wszystkie pliki ktore nie zaczynaja sie na w
+\ 	is used as an "escape" character, i.e. to protect a subsequent special character. Thus, "\\ searches for a backslash. Note you may need to use quotation marks and backslash(es).
+{N,M}  terms are separated by commas and each term must be the name of something or a wildcard. This wildcard will copy anything that matches either wildcard(s), or exact name(s) (an or relationship, one or the other).
+	eg., this would be valid:
+		cp {*.doc,*.pdf} ~
+		This will copy anything ending with .doc or .pdf to the users home directory. Note that spaces are not allowed after the commas (or anywhere else).
+	
+W klasach znaków (nawiasach kwadratowych) kazdy znak oznacza sam siebie. Np. do wyrazenia [*] pasuje znak gwiazdki.
+
+Uzycie:
+np.
+ for f in *.tar; do
+       tar tvf "$f"
+ done
+
+Extended glob (rozszerzenie dla standardowych znakow globalnych, standardowo wylaczone w bashu)
+----------------------------------------------------------------------------------------
+#doczytac, ale chyba rzadko uzywane
+http://mywiki.wooledge.org/glob
+http://www.linuxjournal.com/content/bash-extended-globbing
+shopt -s extglob - wlacza extglob w bashu
+
+Extended globs allow you to solve a number of problems which otherwise require a rather surprising amount of ugly hacking; for example,
+To remove all the files except ones matching *.jpg:
+    rm !(*.jpg)
+All except *.jpg and *.gif and *.png:
+    rm !(*.jpg|*.gif|*.png)
+	
+	
+Regular Expressions (man egrep)
+---------------------------------------------------
+Wyrazenia regularne (regexp) sa narzezdiem sluzacym do dopasowania wzorcow. Wykorzystywane sa tam gdzie potrzebne jest narzedzie do wyszukiwania tekstu spelniajacego pewne kryteria.
+man egrep 
+Tip: If your regular expressions don't seem to be working then you probably need to use single quotation marks over the sentence and then use backslashes on every single special character.
+
+egrep or grep -E  - Run grep with extended regular expressions.
+	-i	ignoruje wielkosc liter (Ignore case)
+	-v	odwraca znaczenie (Return all lines which don't match the pattern)
+	-w	wyszukuje konkretne slowo tzn. jesli zazyczymy sobie ciag 'ma' to zwróci tylko te wiersze w których wystapil dwuliterowy wyraz 'ma' a nie np. 'mam' 
+		(Select only matches that form whole words)
+	-c	zlicza liczbe wynikow (Print a count of matching lines)
+		Can be combined with the -v option to print a count of non matchine lines.
+	-l	Print the name of each file which contains a match.
+		Normally used when grep is invoked with wildcards for the file argument.
+		(Podaje nazwy plikow ktore zawieraja pattern)
+	-n	pokazuje numer linii (Print the line number before each line that matches)
+	-r	Recursive, read all files in given directory and subdirectories.
+	-o  pokazuje tylko wynik a nie cale linie 
+	--color koloruje wyszykiwane wyrazenie
+	-A liczba - wyświetla  LICZBĘ  wierszy  z kontekstem, następujących po dopasowanym wierszu
+	-B liczba - wyświetla  LICZBĘ  wierszy  z kontekstem, poprzedzających dopasowane wierszu
+
+In basic regular expressions the metacharacters "?", "+", "{", "|", "(", and ")" lose their special meaning; instead use the backslashed versions "\?", "\+", "\{", "\|", "\(", and "\)".
+	.	will match any single character, equivalent to ? in standard wildcard expressions. Thus, "m.a" matches "mpa" and "mea" but not "ma" or "mppa".
+	[]	Range. ie any one of these characters'
+	[^]	Not range. A character that is not one of those enclosed.
+	()	Group these characters and remember for later.
+	\n	Replace n with a number. Recall the charactes matched in that set of brackets.
+		May also be used to rename files or directories.
+	|	The logical 'or' operation.
+	\	In front of a character, removes it's special meaning. 
+np.
+	(aut)* zgrupowany ciag znaków, pojawi sie cale wyrazenie z nawiasu np.: autaut autautaut itd. 
+
+
+########## polaczyc z tym co powyzej##############
+	. 	will match any single character, equivalent to ? in standard wildcard expressions. Thus, "m.a" matches "mpa" and "mea" but not "ma" or "mppa". 
+\ 	is used as an "escape" character, i.e. to protect a subsequent special character. Thus, "\\" searches for a backslash. Note you may need to use quotation marks and backslash(es).
+.* 	is used to match any string, equivalent to * in globbing.
+* 	the proceeding item is to be matched zero or more times. ie. n* will match n, nn, nnnn, nnnnnnn but not na or any other character.
+^ (caret)	means "the beginning of the line". So "^a" means find a line starting with an "a".
+$ 	means "the end of the line". So "a$" means find a line ending with an "a".
+    For example, this command searches the file myfile for lines starting with an "s" and ending with an "n", and prints them to the standard output (screen):
+    cat myfile | grep '^s.*n$'
+[ ] (square brackets) 	specifies a range. If you did m[a,o,u]m it can become: mam, mum, mom if you did: m[a-d]m it can become anything that starts and ends with m and has any character a to d inbetween. For example, these would work: mam, mbm, mcm, mdm. This kind of wildcard specifies an or relationship (you only need one to match).
+|	This wildcard makes a logical OR relationship between wildcards. This way you can search for something or something else (possibly using two different regular expressions). You may need to add a '\' (backslash) before this command to work, because the shell may attempt to interpret this as a pipe.
+[^]	This is the equivalent of [!] in standard wildcards. This performs a logical not. 
+	This will match anything that is not listed within those square brackets. 
+	eg., rm myfile[^9] will remove all myfiles* (ie. myfiles1, myfiles2 etc) but won't remove a file with the number 9 anywhere within it's name.
+###################################################
+	
+	
+Repetition/Multipliers
+A regular expression may be followed by one of several repetition operators:
+	?      The preceding item is optional and matched at most once.
+    *      The preceding item will be matched zero or more times.
+    +      The preceding item will be matched one or more times.
+    {n}    The preceding item is matched exactly n times.
+    {n,}   The preceding item is matched n or more times.  //  nie dziala??
+    {,m}   The preceding item is matched at most m times.  //  nie dziala??
+    {n,m}  The preceding item is matched at least n times, but not more than m times.  //  nie dziala??
+np.
+	.* 		is used to match any string, equivalent to * in globbing.
+
+Extended Regular Expressions
+/////////////////////////////////////////////ogarnac!!! skleic w jedno!!!
+Anchoring/Znaki specjalne/Metacharacters of Regular Expression/
+	^	(caret)	means "the beginning of the line". So "^a" means find a line starting with an "a".
+	$	means "the end of the line". So "a$" means find a line ending with an "a".
+		For example, this command searches the file myfile for lines starting with an "s" and ending with an "n", and prints them to the standard output (screen):
+		cat myfile | grep '^s.*n$'	
+	\<	match the empty string at the beginning of a word
+	\>	match the empty string at the end of a word	
+		np. "\<the\>" matches the word "the," but not the words "them," "there," "other," etc.
+	\b	Matches the empty string at the edge of a word.
+	\B	Matches the empty string provided it's not at the edge of a word.
+	\w 	is a synonym for [[:alnum:]]
+	\W 	is a synonym for [^[:alnum:]]
+	Tip: \b \B \w \W chyba trzeba wrzucac w pojedynczy cudzyslow '' zeby dzialaly 
+
+\d	Cyfra: [0-9]
+\D	Nie-cyfra: [^0-9]
+\s	"Biały" znak: [ \t\n\x0B\f\r]
+\S	Każdy znak, oprócz "białego": [^\s]
+\w	Jeden ze znaków: [a-zA-Z0-9],  znak "dopuszczalny w słowie"
+\W	Znak nie będący literą lub cyfrą [^\w]	
+	
+[abc] Dowolny znak ze wskazanego zbioru 
+[^abc] Dowolny znak ró�ny od tych w zbiorze 
+[a-z0-9] Dowolny znak z zakresu 
+\w Dowolny znak typu: litera, cyfra, podkre�lnik 
+\W Dowolny znak inny ni�: litera, cyfra, podkre�lnik 
+\s Dowolny bia�y znak (spacja, ) 
+\S Dowolny znak ró�ny ni� znak bia�y 
+\d Dowolna cyfra 
+\D Dowolny znak inny ni� cyfra	
+
+\a - sygnał dźwiękowy BEL, jak chr(7)
+\c - klawisz ctrl, np. \cM oznacza ctrl-M
+\d - dowolna cyfra
+\D - dowolny znak nie będący cyfrą
+\e - escape, jak chr(27)
+\E - koniec modyfikacji
+\f - znak wysuwu strony, jak chr(12)
+\h - znak tabulatora chr(9) lub nowego wiersza chr(10)
+\H - znak nie będący tabulatorem i znakiem chr(10)
+\n - znak nowego wiersza, jak @LF, chr(10)
+\N - nowy wiersz (patrz: Inne nowości w wersji 3.3.10.2 AutoIt'a)
+\Q - wyłączenie interpretacji metaznaków we wzorcu, aż do napotkania \E
+\r - znak powrotu kursora, jak @CR, chr(13)
+\R - nowy wiersz (patrz: Nowości w wersji 3.3.10.2 AutoIt'a)
+\s - dowolny biały znak (znaki od chr(9) do chr(13))
+\S - dowolny czarny znak
+\t - tabulatora poziomy, jak chr(9)
+\v - tabulator pionowy, jak chr(10), chr(11), chr(12) lub chr(13)
+\V - znak nie będący tabulatorem pionowym
+\w - znak słowa, znaki alfanumeryczne a-z, A-Z, 0-9 i podkreślenie _
+\W - dowolny znak nie będący znakiem słowa
+\### - znak o kodzie podanym ósemkowo, np. \327
+\x## - znak o kodzie podanym szesnastkowo, np. \x4b to wielka litera K
+\x{####} - znak UNICODE, np. \x{20AC} to symbol Euro €
+
+b	Matches a word boundary, that is, the position between a word and a space.
+B	Matches a nonword boundary. 'erB' matches the 'er' in "verb" but not the 'er' in "never".
+d	Matches a digit character.
+D	Matches a non-digit character.
+f	Matches a form-feed character.
+n	Matches a newline character.
+r	Matches a carriage return character.
+s	Matches any whitespace character including space, tab, form-feed, etc.
+S	Matches any non-whitespace character.
+t	Matches a tab character.
+v	Matches a vertical tab character.
+w	Matches any word character including underscore.
+W	Matches any non-word character.
+un	Matches n, where n is a Unicode character expressed as four hexadecimal digits. For example, u00A9 matches the copyright symbol
+
+\\ Dosłowny odwrotny ukośnik (backslash), `\'.
+\a Znak alarmu (dzwonek, "alert"), Control-g, kod ASCII 7 (BEL).
+\b Backspace, Control-h, kod ASCII 8 (BS).
+\f Wysuw strony, formfeed, Control-l, kod ASCII 12 (FF).
+\n Nowa linia, newline, Control-j, kod ASCII 10 (LF).
+\r Powrót karetki, carriage return, Control-m, kod ASCII 13 (CR).
+\t Tabulacja pozioma, Control-i, kod ASCII 9 (HT).
+\v Tabulacja pionowa, Control-k, kod ASCII 11 (VT).
+\nnn Wartość ósemkowa nnn, gdzie nnn to jedna do trzech cyfr od `0' do `7'. Na przykład, kodem znaku ASCII ESC (escape) jest `\033'.
+\xhh... Wartość szesnastkowa hh, gdzie hh są cyframi szesnastkowymi (`0' do `9' i albo `A' do `F' albo `a' do `f'). Podobnie jak w takiej samej konstrukcji w C, sekwencja specjalna rozciąga się do napotkania pierwszego znaku nie będącego cyfrą szesnastkową. Jednak użycie więcej niż dwu cyfr szesnastkowych daje niezdefiniowane rezultaty. (Sekwencja specjalna `\x' nie jest dozwolona w POSIX-owym awk.)
+\/ Dosłowny ukośnik (niezbędny tylko w stałych regexp). Sekwencji tej używa się chcąc zapisać stałą regexp zawierającą ukośnik. Ponieważ samo wyrażenie regularne jest ograniczone ukośnikami, należy zacytować ukośnik będący częścią wzorca, sygnalizując awk, by przetwarzał resztę wyrażenia.
+\" Dosłowny cudzysłów (niezbędny tylko w stałych łańcuchowych). Używany tylko gdy chcemy zapisać stałą łańcuchową zawierającą cudzysłów. Ponieważ łańcuch ograniczany jest cudzysłowami, należy zacytować ukośnik będący częścią łańcucha, sygnalizując awk, by przetwarzał resztę łańcucha.
+	//////////////////////////////////////////////////////////////////////////////////////////////	
+Metacharacter
+() 	The ( (open parenthesis) and ) (close parenthesis) may be used to group (or bind) parts of our search expression together. 
+	Officially this is called a subexpression (a.k.a. a submatch or group) and subexpressions may be nested to any depth. 
+	Parentheses (subexpresions) also capture the matched element into a variable that may be used as a backreference. 
+	See this example for its use in binding OR more about subexpressions (aka grouping or submatching) and their use as backreferences.
+| 	The | (vertical bar or pipe) is called alternation in techspeak and means find the left hand OR right values, 
+	eg., gr(a|e)y will find 'gray' or 'grey' and has the sense that - having found 
+	the literal characters 'gr' - if the first test is not valid (a) the second will be tried (e), if the first is valid 
+	the second will not be tried. Alternation can be nested within each expression, thus gr((a|e)|i)y will find 'gray', 'grey' and 'griy'.
+	
+Typu POSIX, których równiez mozemy uzywac np. za pomoca komendy grep:
+(nawiasy kwadratowe sa czescia nazwy tych klass i jesli chcemy umiescic jako zakres tak jak np [0-9] to trzeba je wrzucic w nawiasy kwadratowe, np. grep [[:upper:]])
+	[:upper:] - wielka litera
+	[:lower:] - mala litera
+	[:alpha:] - litery
+	[:alnum:] - litery i cyfry
+	[:digit:] - cyfry
+	[:punct:] - znak interpunkcyjny
+	[:blank:] - spacja lub tabulator
+	[:space:] - spacja
+	[:word:] - litery, cyfry i znaki podkreslenia
+np.
+	Aby wyszukac w katalogu nazwy w których jest 6 cyfr:	
+		ls /katalog |grep -E '[[:digit:]]{6}'
+========================================================================================================================================

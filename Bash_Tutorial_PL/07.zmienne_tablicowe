@@ -1,0 +1,95 @@
+==============================================================================================================================
+Zmienne tablocowe (Arrays)
+==============================================================================================================================
+http://wiki.bash-hackers.org/syntax/arrays
+
+BASH pozwala na stosowanie zmiennych tablicowych jednowymiarowych. Czym jest tablica? To zmienna która przechowuje 
+liste jakichs wartosci (rozdzielonych spacjami), w BASH'u nie ma maksymalnego rozmiaru tablic. 
+Kolejne wartosci zmiennej tablicowej indexowane sa przy pomocy liczb calkowitych, zaczynajac od 0.
+
+Skladnia:
+----------------------------------------------
+Przypisywanie kilku zmiennych:
+tablica=(wartosc1 wartosc2 wartosc3 wartoscn) 
+
+Przypisywanie pojedynczej zmiennej:
+tablica[index]=wartosc		np. name[0]=Aaron
+
+Dodanie zmiennej na ostatniej pozycji w tablicy:
+tablica+=( wartosc ) 		np. tablica+=( Saskatchewan ), tablica+=( Alberta "British Columbia" "Nova Scotia" )
+			
+Odpytywanie zmiennej:
+${tablica[index]} 	np. printf "%s\n" ${tablica[index]}
+
+Usuwanie wartosci z tablicy (usuwa element tablicy):
+unset tablica[index]		np. unset tablica[2]
+
+Usuniecie calej tablicy:
+unset -v tablica
+unset -v tablica[@]
+unset -v tablica[*]
+	
+${tablica[*]} 	- listuje wszystkie elementy tablicy jako jeden argument
+${tablica[@]}	- listuje wszystkie elementy tablicy jako osobne argumenty
+${!tablica[*]} 	- 
+${!tablica[*]:n} - 
+${!tablica[*]:n:x} - 
+${#tablica[*]} - # uzyty z * lub @ daje ilosc wszystkich zmiennych w tablicy
+${#tablica[n]} - # uzyty z konkretnym elementem tabeli, daje dlugosc tego elementu 
+
+Info:
+----------------------------------------------
+Hash przed zmienna zwraca ilosc elementow tablicy jestli podany jest index * lub @ i zwraca dlugosc pojedynczego elementu 
+jesli podany jest wskaznik/index tablicy.
+	np. printf "%s\n" "${#BASH_VERSINFO[*]}" 
+
+Various parameter expansions work on arrays; for example, to get the second and third elements from an array, use this:
+	$ printf "%s\n" "${BASH_VERSINFO[@]:1:2}" ## minor version number and patch level
+		0
+		10
+
+
+Polcenia tablicy:
+---------------------------------------
+declare 	Declares variables and sets their attributes
+eval 		Expands arguments and executes the resulting command
+export		Places variables into the environment so that they are available to child processes
+shift		Deletes and renumbers positional parameters
+shopt 		Sets shell options
+unset 		usuwa element tablicy lub cala tablice, np. unset tablica[2], unset tablica[*]
+			
+
+Associative arrays 
+--------------------------------------------
+Tablica zamiast indexow 0,1,2..itd. pozwala uzywac znakow/nazw np. a,b, hello, tab, cokolwiek... itd.
+Introduced in bash in version 4.0, use strings as subscripts and must be declared before being used:
+
+$ declare -A array
+$ for subscript in a b c d e
+> do
+>   array[$subscript]="$subscript $RANDOM"
+> done
+$ printf ":%s:\n" "${array["c"]}" ## print one element
+:c 1574:
+$ printf ":%s:\n" "${array[@]}" ## print the entire array
+:a 13856:
+:b 6235:		
+
+TIPS:
+------------------------------------------------------
+Warto wspomniec ze liczba wszystkiech elementow tablicy zawiera rowniez elementy niezdefiniowane tzn. jesli napiszemy:
+		klasa[25]="ziemniak"
+				to polecenie wyswietlajace ilosc wszystkich elementów tablicy
+		echo ${#klasa[*]}
+				wyswietli 26 .
+	Po prostu bash liczy elementy od zera do ostatniego elementu, nie sprawdzajac czy pod danym indeksem znajduje sie sensowna wartosc. 
+	Jesli zalezy nam na sprawdzeniu ile elementów jest rzeczywiscie przypisanych - mozna to sprawdzic za pomoca petli:
+	
+	liczba_elem=${#klasa[*]}
+	i=0
+	while [ $i -lt $liczba_elem ]
+		do
+	echo ${klasa[i]} # Wyswietl biezacy element
+	i=$[i+1] # Zwieksz licznik o 1
+		done 	
+		

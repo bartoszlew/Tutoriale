@@ -1,0 +1,49 @@
+http://www.linuxvirtualserver.org/whatis.html
+http://www.ia.pw.edu.pl/~tkruk/openssi/lvs_rkuzmiak.pdf
+http://www.austintek.com/LVS/LVS-HOWTO/HOWTO/LVS-HOWTO.what_is_an_LVS.html
+https://www.suse.com/c/load-balancing-howto-lvs-ldirectord-heartbeat-2/
+http://www.austintek.com/LVS/LVS-HOWTO/HOWTO/LVS-HOWTO.what_is_an_LVS.html
+https://www.lisenet.com/2015/setting-up-a-load-balancing-lvs-direct-routing-cluster-with-piranha/
+
+LVS ogólnie..
+-------------------
+Management of the LVS is through the user space utility ipvsadm and schedulers, which is used to add/removed realservers/services and to handle failout. 
+LVS itself does not detect failure conditions; these are detected by external agents, which then update the state of the LVS through ipvsadm
+
+Terminology:
+-   piranha This is a package that provides a configuration interface for setting up LVS.
+-   IVPS The name of the module that allows a load-balancing on Linux.
+-   ipvsadm A package (and a command) that makes administrating ipvs possible. Be aware, you either user piranha-gui or /etc/sysconfig/ipvsadm to configure ipvs.
+-   LVS Linux Virtual Server - the project name of all tools used in this document.
+-   pulse A service (/etc/init.d/pulse) that runs on both active and backup machine and opens a port to make checking possible. piranha-gui configures everything, pulse actually activates all configurations.
+-   nat Network Address Translation. A common combination with LVS. In case NAT is uses, the loadbalancer/director/LVS accepts traffic on one the VIP and sends traffic to the realservers. Be aware, the current implementation of ipvsadm does not properly use Source NAT, it currently does not rewrite the source address.
+-   direct routing A method of routing available in LVS. Traffic is received on the VIP, sent through to the realservers. The realservers receive the traffic as if it was sent to the VIP, so the VIP must be configured on the realservers. To avoid arp-caches to register the wrong MAC-address-IP-address combination, a few "tricks" must be done.
+-   wlc Weighted Least Connections, an algorithm to balance load to realservers.
+-   RS (real servers) - these are the machines providing the actual service. This can be Linux, Windows, whatever.
+-	director - This is the machine that redistribute the load among the “real-servers”. The director is basically a router, with routing tables set up for the LVS function. 
+	These tables allow the director to forward packets to realservers for services that are being LVS’ed.
+-   VIP Virtual IP. The IP-address the service is configured on. When a client connects to the VIP, the director forwards the client’s packets to one particular realserver 
+	for the duration of the client’s connection to the LVS. This connection is chosen and managed by the director. The LVS presents one IP on the director (the virtual IP, VIP) to clients.
+-   RIP Real server IP. The IP-address of a real-server.
+-	ldircetor
+
+Methods of balancing used by LVS
+---------------------------------
+With ipvsadm you can select a method to forward packets from the balancing box to the real servers, the main methods are:
+-	LVS-DR (direct routing - uting bezpośredni) where the MAC addresses on the packet are changed and the packet forwarded to the realserver
+-   LVS-NAT (Network Adress Translation (NAT) - translacja adresów sieciowych) based on network address translation.
+-	LVS-Tun (IP tunneling - tunelowanie pakietów IP) where the packet is IPIP encapsulated and forwarded to the realserver.
+
+
+
+ARP Problem
+-----------
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/4/html/Virtual_Server_Administration/s2-lvs-direct-iptables-VSA.html
+
+Albo wyłaczamy arp na rs albo ustawiamy direct routinf na firewallu (dnat na rs-ie)
+
+
+
+Zadządzanie
+-----------
+ipvsadm

@@ -1,0 +1,232 @@
+TROUBLESHOOTING LINUX
+########################################################################
+http://www.tecmint.com/command-line-tools-to-monitor-linux-performance/
+http://www.linuxjournal.com/magazine/hack-and-linux-troubleshooting-part-i-high-load?page=0,2
+
+Analiza problemu na linuksie, pierwsze 60sek.
+uptime
+dmesg | tail
+vmstat 1
+mpstat -P ALL 1
+pidstat 1
+iostat -xz 1
+free -m
+sar -n DEV 1
+sar -n TCP,ETCP 1
+top
+szczegóły: http://techblog.netflix.com/2015/11/linux-performance-analysis-in-60s.html
+
+
+NAJWAZNIEJSZE LOGI:
+--------------------
+/var/log/boot.log
+/var/log/dmesg -  dmesg	
+/var/log/messages
+/var/log/secure
+
+
+MONITOROWANIE:
+-------------------------
+http://www.dedoimedo.com/computers/linux-system-debugging-super.html
+http://www.varlog.pl/2010/02/10-narzedzi-ktore-musi-znac-kazdy-administrator/
+
+ps -aux
+uptime
+pstree
+top -
+vmstat, np. vmstat 5 4 -wykorzystanie cpu
+cat /proc/cpuinfo ; devices; modules; pci;  itd.
+	(lscpu, lsblk, lsmod, lspci, meminfo)
+free - bieżące zużycie pamięci RAM i swap 
+iostat –  reports CPU, disk I/O, and NFS statistics. 
+mpstat - 
+dmesg - zapis wszystkiego na temat sprzętu, co zostało wykryte przez jądro; podaje zawsze aktualne informacje, nawet jeśli zmieniamy konfigurację sprzętu podłączając/odłączając urządzenia USB
+/proc/
+	devices
+	filesystems
+	meminfo
+	modules
+	pci
+	scsi
+	version
+ulimit -a wyswietlanie,ustawianie limitu zasobow 
+perf
+
+top
+-----------
+load average: 0.02, 0.12, 0.13  (load avarege jest wyswietlane w top,upime,w, poierane z cat /proc/loadavg)
+	Średnia ilość procesów w kolejce do wykonania w okresie, odpowiednio 1, 5 i 15 minut.Innymi słowy, jest to miara obciążenia systemu procesami. 
+No dobrze, to teraz jaka wartość Load Averago to dużo? To oczywiście zależy ile mamy procesorów. Jeśli mamy 2 CPU a każdy po 4 rdzenie, to mamy w sumie tych rdzeni 8. W takim przypadku jeśli parametr LA dochodzi do wartości 8, to jest to wartość graniczna po której procesy nie będą działać optymalnie, ponieważ w danym przedziale czasu jest więcej procesów oczekujących na wykonanie niż dostępnych procesorów. 
+
+cat /proc/loadavg 
+0.10 0.11 0.09 1/366 5354 - 4 kolumna - liczba aktualnie dzialajacych processow/liczba wszystkich procesow, 5 kolumna - id ostatniego uzytego procesu
+
+
+Bardziej aawansowane:
+-----------
+pmap -x $pid  - narzędzie raportujące mapę pamięci dla procesu, dzięki niemu możemy dokładnie odczytać ilość pamięci wykorzystywanej przez proces.
+strace - bardzo zaawansowane narzędzie służące do monitorowania pracy naszych procesów
+ltrace – jest to analogicznie działające narzędzie do strace, z tym, że zamiast funkcji systemowych, ltrace pozwala na śledzenie wywołań bibliotecznych.
+lsof - lista otwartych plikow. mozna wyszukac jaki proces,uzytkownik  ma jakie pliki otwarte 
+	lsof is a command meaning "list open files", which is used in many Unix-like systems to report a list of all open 	  files and the processes that opened them. 
+	http://www.thegeekstuff.com/2012/08/lsof-command-examples/
+sar
+watch <komenda> - powtarza komende co kilka sek. (domyslnie 2), np. watch ls
+
+linki:
+http://www.dedoimedo.com/computers/linux-system-debugging-super.html
+http://www.varlog.pl/2010/02/10-narzedzi-ktore-musi-znac-kazdy-administrator/
+http://www.thegeekstuff.com/2012/08/lsof-command-examples/
+http://techblog.netflix.com/2015/11/linux-performance-analysis-in-60s.html !!!
+
+
+INFORMACJE O urzĄDZENIACH
+---------------------
+dmidecode
+dmesg
+lshw
+lspci
+lsusb
+
+
+Co sie dzieje na maszynie?
+-----------------------------------------
+w - lista zalogowanych userów + info
+top
+netstat -tulpn
+
+TROUBLESHOOTING Pliki
+-----------------------------
+jesli nie mozna usunac/zmienic pliku:
+- sprawdzic selinuxa ls -laZ
+- lsattr <plik> - jesli jest atrybut "i" to nawet root nie skasuje/nadpisze pliku
+- lsof | grep plik - mozna sprawdzic czy jakis proces uzywa pliku
+- stat plik - daty modyfikacji
+- sprwadzic acl-ki getfacl
+
+- Wyszukiwanie skasowanych otwartych plikow (zapychaja miejsce a nie widac ich na dysku)
+https://unix.stackexchange.com/questions/68523/find-and-remove-large-files-that-are-open-but-have-been-deleted
+find /proc/*/fd -ls | grep  '(deleted)' 
+lsof -nP | grep '(deleted)'
+- Wyszukiwanie procesow korzystajacych z plikow
+fuser, np. wg montowania dysku fuser -uvm /mnt/punkt_montowania
+lsof /mnt/pkt_montowania
+- Search for deleted processes occupying the filesystem
+ lsof +aL1 /var
+
+TROUBLESHOOTING Memory
+-----------------------------
+cat /proc/meminfo
+cat /proc/meminfo | head -n 1
+sudo dd if=/dev/mem | cat | strings  - podejrzenie co jest w pamieci ram
+
+vmstat
+
+free -m
+swappiness -jest odpowiedzialny za to, z jaką łatwością system wykorzystuje swap. Jeśli swappiess ma wysoką wartość, to system chętnie korzysta ze swap, rezerwując RAM do późniejszego wykorzystania. Jeśli swappiness ma niską wartość system wykorzystuje swap niechętnie. Dostęp do dysku jest około 100 razy wolniejszy od dostępu do RAM, zatem im mniej system wykorzystuje, swap tym jest szybszy.
+	cat /proc/sys/vm/swappiness
+	sysctl -w vm.swappiness=10 zmiana swappiness dla biezacego uruchomienia
+	/etc/sysctl.conf - permanentna zmiana
+		vm.swappiness=10
+
+Sprawdzanie który proces korzysta ze swapa:
+grep -r VmSwap /proc/*/status
+for file in /proc/*/status ; do awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' $file; done | sort -k 2 -n -r | less
+
+
+TROUBLESHOOTING Procesor
+------------------------
+http://www.brendangregg.com/blog/2017-08-08/linux-load-averages.html
+cat /proc/cpuinfo
+lscpu
+
+uptime
+top
+
+TROUBLESHOOTING Disk
+------------------------
+https://www.opsdash.com/blog/disk-monitoring-linux.html
+http://bencane.com/2012/08/06/troubleshooting-high-io-wait-in-linux/
+
+lsblk -o TRAN /dev/sdg  - info po jakim interfejsie jest podlaczony dysk, np. usb, sata
+fdisk -l
+df -h
+smartctl
+iostat
+iotop (jak top tylko ze dla dysku)
+smartctl -a /dev/DEVICE
+testdisk - odzyskiwanie danych z dysku
+fsck - sprawdzanie bledow na dysku (musi byc odmontowany)
+badblocks
+
+xfs:
+xfs_repair -n /dev/sda1 - sprawdza bledy na dysku
+xfs_repair /dev/sda1	- naprawia bledy na dysku
+
+smartctl
+-----------
+https://informatyka-porady.blogspot.com/2014/12/linux-smartmontools-smartctl-i-smartd.html
+
+smartctl -i /dev/hda
+
+Read error log:
+	smartctl -l error /dev/hdb
+Testing hard disk (short or long test):
+	smartctl -t short /dev/hdb
+	smartctl -t long /dev/hdb
+
+	
+badblocks
+-------------
+Checking for badblocks. where badblocks.log file that records the number of dead blocks.
+badblocks- v -s /dev/sda1
+Marking bad blocks (marked blocks will be ignored by the system in future):
+e2fsck -l ??????
+
+fix hdd
+-----------
+fsck -c -f 
+
+
+RAID
+----------------
+https://wiki.debian.org/LinuxRaidForAdmins
+
+softwarowy:
+mdadm --detail /dev/md0
+cat /proc/mdstat
+
+sprzętowy:
+dmidecode
+dmesg
+lspci
+
+huawei serwery sprawdzanie stanu raidu (kontroler SAS2308_2) :
+lspci| grep -i lsi
+sas2ircu LIST	
+sas2ircu 0 DISPLAY
+
+
+NARZEDZIA
+-------------
+
+ulimit - limit zasobow systemu
+kill
+killall 
+kill QUIT/INT - dla rcesow ktore nie chca sie zatrzymac (zombie)
+nice (ps -l -> daje NI - liczbe nicw) - ustawienie prorytetu procesu
+renice - zmiana priorytetu dzialajacego procesu
+  np. renice liczba_nice pid_procesu
+sysctl - zmiana parametrow kernela
+who -r  -  bieżący poziom działania systemu i czas uruchomienia maszyny
+file - info o pliku
+stat - info o pliku
+
+
+vmstat
+------------------
+http://www.continuum.com.pl/index.php/unixlinux/unixlinux-vmstat.html
+
+
+
+

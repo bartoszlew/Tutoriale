@@ -1,0 +1,491 @@
+SELinux
+------------------------------------------------
+linki:
+http://www.linuxexpert.pl/posts/1509/selinux-podstawy/
+http://margib.blogspot.com/2013/09/linux-rhs333-selinux-security-context.html
+https://github.com/TresysTechnology/refpolicy/wiki
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide
+https://wiki.gentoo.org/wiki/SELinux/Tutorials
+info o module chefa:
+/home/blewandowski/chef/chef-repo/cookbooks/selinux_policy/README.md
+
+Selinux jest jakby firewallwalem aplikacyjnym
+man -k selinux 
+
+Pliki konfiguracyjne;
+/etc/sysconfig/selinux = /etc/selinux/config
+
+GUI do konfiguracji - system-config-selinux
+
+SELinux: What's in the package:
+	* The kernel security core: The LSM (Linux Security Modules)
+    * ''The example policy'': The basic security rules used
+    * Policy modules: Rules specific to certain applications
+    * Filesystem extension to allow extra attributes (the context) for each file.
+    * User-space utilities and daemons directly interacting with the LSM.
+    * Housekeeping utilities (essential to configure SELinux, but don't interact with the kernel, such as the rules compiler).
+    * SELinux aware versions of common utilities: ls, ps, id, find, etc.
+
+
+1.SELinux tryby:
+--------------------------------------------------
+1. enforcing - dziala i chroni
+2. permissive - dziala, ale nie chroni (loguje)	(w logach jest pisane co by selinux zrobil gdyby dzialal)
+	przelaczanie pojedynczej aplikacji/typu w tryb permissive - semanage poermissive -a httod_tww
+	
+3. disabled - wylaczony
+
+getenforce,sestatus -> sprawdzamy w jakim trybie dziala selinux
+Włączenie lub wyłączenie usługi może być realizowane komendą : setenforce 1|0 
+	setenforce 0 -> Permissive
+	setenforce 1 -> enforcing
+
+jesli selinux zostanie zaladowany podczas startu systemu
+to nie moze byc wyladowany
+
+nie mozna przejsc disabled<->enforcing nie da sie!
+
+Kiedy permissive:
+1) chce produkcyjnie zrobic enforcing ale sie boje
+2) jesli chce "na chwile" wylaczyc ochrone to wchodze w permissive
+
+enforcing<->permissive - tu moge przechodzic
+
+When switching from Disabled to either Permissive or Enforcing mode, it is highly recommended that the system be rebooted and the filesystem relabeled. 
+
+
+2. Polityki pracy SElinux (Binary Policy, also know as the kernel policy)
+--------------------------------------------------------------------------------
+http://www.billauer.co.il/selinux-policy-module-howto.html #Concepts (najlepiej wytlumaczone co to sa polityki w SELinuksie)
+targeted - 	Polityka oparta na paradygmacie, że tylko niektóre wybrane aplikacje powinny zostać ograniczone przez SELinux. Cała inna działalność polega standardowym zabezpieczeniu systemu UNIX
+			SElinux chroni wybrane elementy systemu, głownie ważne usługi i demony (domyślna.. i chyba jedyna rozsądna polityka)
+minimum - Modification of targeted policy. Only selected processes are protected. 
+mls - Multi Level Security protection.
+
+
+3. Kontrola dostepu SELinux (Selinux stosuje kombinacje trzech form kontroli dostepu - RBAC, TE i MLS/MCS)
+---------------------------------------------------------------------------------------------------------------
+linki:
+https://wiki.centos.org/HowTos/SELinux#head-4f1e4e4307ab4e76c81ae5fbebc24a907b24fd92
+https://wiki.gentoo.org/wiki/SELinux/Quick_introduction#Multi-level_security
+
+In RHEL, SELinux provides a combination of Role-Based Access Control (RBAC), Type Enforcement (TE), and, optionally, Multi-Level Security (MLS/MCS). 
+ 
+1) Type Enforcement (TE): Type Enforcement is the primary mechanism of access control used in the targeted policy.
+The type defines a domain for processes, and a type for files. SELinux policy rules define how types can access each other, 
+whether it be a domain accessing a type, or a domain accessing another domain. Access is only allowed if a specific SELinux policy rule exists that allows it. 
+In SELinux, type enforcement is implemented based on the labels of the subjects and objects. 
+SELinux by itself does not have rules that say "/bin/bash can execute /bin/ls". Instead, it has rules similar to "Processes with the label user_t can execute regular files labeled bin_t." 
+The fact that SELinux uses labels means that it does not care which process is running with that label. The label itself is what SELinux works with. 
+Access decisions are purely taken based on the label. Other aspects of the subject (process) do not play any role. 
+
+Type Enforcement is the main permission control used in SELinux targeted policy. 
+For the most part, SELinux users and roles can be ignored, so, when overriding the SELinux context with -o context, use the SELinux system_u user and object_r role, 
+and concentrate on the type. If you are not using the MLS policy or multi-category security, use the s0 level. 
+
+
+2) Role-Based Access Control (RBAC): Based around SELinux users (not necessarily the same as the Linux user), but not used in the default configuration of the targeted policy. 
+
+a) Role (Role-based access control)(RBAC)- dla procesów
+seinfo -r -> listuje wszystkie role w systemie
+seinfo -r nazwa_roli -x -> wyswietla liste domen do ktorych rola ma dostęp
+newrole -r sysadmin_r
+In SELinux, roles decide which types a process context can be in. The user_r role has the right to have processes run in the user_t type. 
+Types for processes are also called domains. So the role-based access control decides which domains a role is allowed to have. 		
+An unprivileged user might only have access to one role (user_r) whereas an administrator might have access to several roles (staff_r for regular operations, and sysadm_r for system administrative tasks).
+
+b) User (User-based access control)(RBAC) - dla userów
+seinfo -u  -> listuje wszystkich userow selinux w systemie
+semanage user -l -> lista uzytkownikow z przypisanymi rolami i zaresem MLS/MCS
+seinfo -u selinux_user  -x  -> szczegółowe info nt. usera 
+semanage login -l -> pokazuje mapowanie uzytkownikow system user <-> selinux user
+User SELinuxa to nie to samo co user systemu.
+On SELinux systems, Linux users are mapped to a SELinux user. This mapping is what decides what a user is allowed to do on a system. 
+
+
+3) Multi-Level Security (MLS): Sensitivity
+   Multi-Category Security(MCS): Category
+https://wiki.gentoo.org/wiki/SELinux/Quick_introduction#Multi-level_security
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/mls.html
+
+Aby uzywac MLS trzeba doinstalować paczke 'selinux-policy-mls' i ustawic 'SELINUXTYPE=mls' w /etc/selinux/config
+W trybie 'targeted' jest tylko jeden poziom sensitivity (MLS) - s0
+RHEL wspiera do 1024 kategorii (MCS) od c0 do c1023
+	np. s0-s0:c0.c1023 is sensitivity s0 and authorized for all categories
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+3. Konteksty
+----------------------------------------------------------------------
+http://gentoo-handbook.lugons.org/proj/pl/hardened/selinux/selinux-handbook.xml?part=3&chap=1
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/chap-Security-Enhanced_Linux-SELinux_Contexts.html
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/sect-Security-Enhanced_Linux-Working_with_SELinux-SELinux_Contexts_Labeling_Files.html
+https://fedoraproject.org/wiki/Security_context?rd=SELinux/SecurityContext
+man -k _selinux
+
+
+On systems running SELinux, all processes and files are labeled in a way that represents security-relevant information. This information is called the SELinux context. 
+SELinux contexts are used on processes, Linux users, and files
+Kazdy plik i kazdy program ma tzw context czyli role.
+SELinux policy rules are checked after DAC rules. SELinux policy rules are not used if DAC rules deny access first. 
+Kontekst jest najważniejszą wartością podczas determinowania dostępu. 
+
+Kontekst sklada się z trzech modeli bezpieczeństwa i posiada składnię: user:rola:typ/domena:sensitivity_level(MLS)(opcjonalnie):category_level(MCS)(opcjonalnie) (typ dla procesu nazywany jest domeną)
+	np.system_u:object_r:acct_data_t:s0:c1
+	
+	user: 
+		  Uzytkownik moze korzystac tylko z przypisanych ról i zakresow MLS/MCS (czyli np. s1:c2)
+		  semanage user -l -> lista userow selinux + lista domen i zakresow do ktorych maja dostep
+		  seinfo -u user -x  -> lista domen i zakresow MLS/MCS do ktorych user ma dostep 
+	rola: 
+		  seinfo -r -> lista roli  //doczytac
+	typ:
+		  jest atrybutem (TE) Type enforcement  //doczytac
+	level:
+		  sensitivity (MLS), w RHEL w domyslnej polityce 'targeted' uzywany jest tylko jeden poziom - s0 
+		  category (MCS), np. c1, c0.c3 -  w sumie 1024 kategorie 
+		  
+		  opis "humanreadable" mapowania poziomow -> /etc/selinux/targeted/setrans.conf
+		  
+		  
+There are multiple commands for managing the SELinux context for files, such as chcon, semanage fcontext, and restorecon. 
+semanage fcontext -l - lista wszystkich kontekstów w systemie
+baza kontekstow -> /etc/selinux/targeted/contexts/files/file_contexts
+baza dodanych recznie konteksow -> /etc/selinux/targeted/contexts/files/file_contexts.local
+
+Listowanie kontekstów: 
+ls -lZ -> 	wyswietlanie contextow (albo alias ll -Z)
+id -Z> kontekst biezacego uzytkownika
+ps -eZ  -> kontekst procesow
+netstat -Z  
+seinfo --portcon -> wyswietla kontekst portow	
+/etc/selinux/targeted/contexts/files/
+matchpathcon -V wyswietla kontext i porownuje z domyslnym
+newrole -r nowa_rola - zmiana bieżącej roli (tożsamośći) uzytkownika
+
+Każdy proces którego typ jest określony jako unconfined_t nie podlega restrykcją SELinux. 
+
+Zmiana kontekstu
+------------------
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/sect-Security-Enhanced_Linux-Working_with_SELinux-SELinux_Contexts_Labeling_Files.html
+
+'chcon' sluzy do tymczsasowej zmiany kontekstow, podobnie jak mozna zmienic standardowe uprawnienia chmodem i chownem.
+Zmodyfikowany kontekst "przezyje" reboot systemu tylko dopoki partycja na ktorej byl plik nie zostenie "zrelebelowana".
+Wlasciwym rozwiazaniem jest utworzeni osobnej ruli (Policy Module) przez 'semanage' i dodanie jej do bazy "defaultowych contextow", 
+wtedy zmiana bedzie permanentna nawet po relebelingu.
+
+
+sposob-1: (!nie stostowac!)
+chcon -> 	zmienia kontekst, np. 	chcon -t http_sys_content_t jakis_plik  
+									chcon -R -t httpd_sys_content_t  /virtuals/
+chcon ->	--reference=plik1 plik2 - ustaw kontekst pliku2 taki jaki ma plik1?
+
+sposob-2: (lepszy, po restarcie bedzie dzialac) -jesli chcemy ustawic jakis kontekst to powinnismy zrobic to semanage a potem restorecon
+semanage fcontext -a -t httpd_sys_content_t "/virtuals(/.*)?"
+	-a append = dodaj
+	-t typ
+restorecon -Rv /virtuals/
+
+
+semanage fcontext -a -t httpd_sys_content_t "/virtuals(/.*)?" - dodaje nowy kontekst do bazy domyslnych kontekstow
+restorecon jakis_plik -->  przywraca domyslna wartosc kontekstu ( z bazy "defaultowych contextow")
+	np. restorecon -Rv /virtuals/	
+
+Przykladowe konteksty:
+httpd_sys_content_t - WWW
+public_content_t - NFS SAMBA FTP
+public_content_rw_t - NFS SAMBA FTP
+samba_share_t - SAMBA
+
+
+
+Rebeling - przywrocenie domyslnego kontekstu
+restorecon -> pliki,katalogi 
+touch /.autorelabel ; reboot -> robi relabeling calego filesystemu 
+
+np.
+jesli po pijaku zrobie tak:
+chcon -R -t httpd_sys_content_t / var/www/html 
+
+to naprawiam:
+touch /.autorelabel ; reboot 
+
+Tworzenie nowego typu kontekstu!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+--------------------------------------------------
+http://fedoraproject.org/wiki/PackagingDrafts/SELinux#Creating_new_types
+//w skrocie tworzy sie nowa polityke z podanym 'typem'
+
+
+5.Allowing Access to a Port
+--------------------------
+semanage port -l  -> lista wszystkich dozwolonych portow
+semanage port -a -t http_port_t -p tcp 81  -> dodanie portu do http_port_t
+semanage port -d -t http_port_t -p tcp 3001 -> usuniecie portu z http_port_t
+
+http://danwalsh.livejournal.com/47533.html
+jesli port jest przypisany do innej polityki a chcemy go przypisac do innej
+	np. semanage port -m -t polityk_do_ktore_chemy_przypisac -p tcp 8008
+jesli chcemy wylaczyc/zabornic to przypisujemy do polityki unreserved_port_t
+	np. semanage port -m -t unreserved_port_t -p tcp 8008
+
+6.Zmienna logiczna on/off (Booleans): 
+--------------------------------------------------------------------------
+!!Uważąć!! niektóre booleany daja b.duze uprawnienia (np. nis_enabled)
+
+Dodatkowe predefiniowane ustawienia polityk SELinuxa on/off, bez potrzeby dodawania/zmiany polityk SELinux.
+
+Booleans allow parts of SELinux policy to be changed at runtime, without any knowledge of SELinux policy writing. 
+This allows changes, such as allowing services access to NFS volumes, without reloading or recompiling SELinux policy. 
+
+getsebool -a -> listuje wyjatki i sprawdza czy on/off
+semanage boolean -l -> to samoe co getsebool + opis
+setsebool wyjatek on/off (dziala tylko do restartu!!)
+setsebool -P wyjatek on/off -> permanentne ustawienie (bedzie dzialac po restarcie)
+np. setsebool -P httpd_enable_homedirs on
+	setsebool -P allow_smbd_anon_write=on
+	
+albo
+
+system-config-selinux !!!!!
+
+
+
+6. Moduły polityki SELinux (SELinux Policy Modules) 
+-----------------------------------------------------------------------------------------
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/Security-Enhanced_Linux-prioritizing_selinux_modules.html
+
+Rules specific to certain applications.
+//Wychodzi na to ze sa to moduly (tak jak w kernelu) do glownej polityki np.targeted? i te polityki dzialaja globalnie, czyli pozwalaja jakiemus procesowi na jakies dostepy
+Policy modules (binaries) can be loaded and unloaded at any time 
+
+semodule -l -> listowanie aktywnych modulow 
+semodule -lfull -> listowanie wszystkich modulow z priorytetem i info jesli wylaczony
+semodule -lfull | grep disabled -> listowanie wylaczonych modulow
+semodule -d -> wyłączenie modulu
+semodule -e -> wlaczenie insteniejacego modulu
+/usr/share/selinux/targeted/default/active/modules/100/ albo /etc/selinux/targeted/active/modules
+
+//przydalby sie podglad/info co te moduly zawieraja
+
+
+
+7.Lokalne moduły polityki SELinux  ??????
+------------------------------------------
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Fixing_Problems-Allowing_Access_audit2allow.html
+http://danwalsh.livejournal.com/24750.html
+http://selinuxproject.org/page/Building_a_Basic_Policy
+breczne tworzenie polityk:
+https://wiki.centos.org/HowTos/SELinux "7.1. Manually Customizing Policy Modules"
+http://gentoo-handbook.lugons.org/proj/pl/hardened/selinux/selinux-handbook.xml?part=3&chap=5ww
+http://www.billauer.co.il/selinux-policy-module-howto.html
+https://wiki.gentoo.org/wiki/SELinux/Tutorials/Creating_your_own_policy_module_file
+
+??Chyba dzialaja jako globalne ustawienia?? 
+
+Policy is written using a .te file (type enforcement) and an optional .fc file (file contexts) and .if file (interfaces). 
+Policy modules are build based on the above files, resulting in a loadable .pp file.
+
+a) Tworzenie własnych polityk:
+https://relativkreativ.at/articles/how-to-compile-a-selinux-policy-package
+
+
+podglad polityki (typu?) - sesearch --allow -s httpd_t
+sesearch -b nis_enabled -AC
+
+a) Na podstawie audit2allow (najprościej)
+-------------------------------------------------------------------------------------
+"audit2allow - generate SELinux policy allow rules from logs of denied operations"
+audit2allow - tworzy polityke dla grup na podstawie bledow z logu, moze byc dla wszystkich bledow,
+			  ale standardowo tworzy sie dla jednego (trzeba wygreopwac jak jest wiecej niz jeden blad w logu)
+			  np. grep "1501169674.917:382"  /var/log/audit/audit.log | audit2allow -a -M jakas-nazwa
+					-M option creates a Type Enforcement file (.te) 
+1. Szukamy w audit.log błędu
+2. Grepujemy jedna linie z błędem i tworzymy plik polityki selinuxa '.te'
+	np. grep costam /var/log/audit/audit.log | audit2allow -m nazwa_polityki > nazwa_polityki.te 
+3. sprawdzamy i ewentualnie poprawiamy plik .te
+4. Tworzymy modul polityki (policy package) '.pp' z pliku '.te'
+	make -f /usr/share/selinux/devel/Makefile nazwa_polityki.pp  //najszybsza i najprostsza opcja
+albo
+	pierw trzeba przekonwertowac plik .te do .mod - policy module     //po kiego wała to nie wiem :(
+		checkmodule -M -m -o nazwa_polityki.mod nazwa_polityki.te
+	potem kompilujemy .mod do .pp - policy package
+		semodule_package -o myapp.pp -m myapp.mod
+ablo 
+	od razu do .pp (bez sensu bo nie mozna wczesniej sprawdzic i ewentualnie naniesc poprawek)	
+		grep costam /var/log/audit/audit.log | audit2allow -M nazwa_polityki
+5. Ładujemy moduł do polityk SELinuxa
+	semodule -i mazwa_polityki.pp
+6. Jesli updatujemy localny polityke to pierw trzeba ja "wyładowac" 
+	semodule -r nazwa_polityki
+
+Najszybciej jak wywala denied duzo dla jednego kontekstu:
+grep "denied.*zabbix_agent" /var/log/audit/audit.log | audit2allow -m test
+
+przyklad rozbudowania polityki:
+https://serverfault.com/questions/763472/how-can-i-tell-selinux-to-permit-nginx-access-to-a-unix-socket-without-audit2all/763492
+
+
+b) Budowanie własnej polityki od podstaw i tworzenie nowego typu
+-------------------------------------------------------------------------------------
+https://wiki.gentoo.org/wiki/SELinux/Tutorials/Creating_a_daemon_domain
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/4/html/SELinux_Guide/selg-section-0128.html
+http://www.billauer.co.il/selinux-policy-module-howto.html
+http://fedoraproject.org/wiki/PackagingDrafts/SELinux#Creating_new_types
+
+Jesli chcemy zeby polityka byla caly czas w trybie permissive to wrzucamy do niejL 
+
+
+
+9.Logi:
+--------------------------------------------------------------------------------------------
+/var/log/audit/audit.log
+/var/log/messages - jesli auditd demon nie jest uruchomiony
+SELinux log messages are labeled with the "AVC" keyword so that they might be easily filtered from other messages.	
+GUI -> sealert -b 
+
+logi sa nieczytelne ale mozna dociagnac 3pakiety setroubleshoot - daje czytelny log selinuxa
+setroubleshoot-plugins-3.0.40-1.el6.noarch
+setroubleshoot-3.0.47-2.el6.x86_64
+setroubleshoot-server-3.0.47-2.el6.x86_64
+
+/var/log/messages pojawia sie:
+	selinux wygenerowal znowu jakas glupote, jesli chcesz
+	znac szczegoly uzyj komendy sealert -l 434553-535345-5435453
+
+ausearch -m AVC,USER_AVC,SELINUX_ERR,USER_SELINUX_ERR -i -> polecenie do przegladania loguort -a --> raport z logu audit.log
+ausearch -m avc -ts 08/28/2017  -te 08/28/2017 - zakres dat
+aureport -a
+
+
+			
+			
+			
+10.Troubleshooting
+-------------------------------------------------------------------------------------
+https://wiki.centos.org/HowTos/SELinux
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/sect-Security-Enhanced_Linux-Troubleshooting-Fixing_Problems.html#sect-Security-Enhanced_Linux-Fixing_Problems-Searching_For_and_Viewing_Denials
+
+!! Mozna wrzucic pojedynczy proces w permissive mode!!
+	np. semanage permissive -a zabbix_agent_t (typ musi istniec)
+	http://danwalsh.livejournal.com/42394.html
+	https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Fixing_Problems-Permissive_Domains.html
+
+avcstat - Display SELinux AVC statistics
+seinfo
+ausearch - wyszukuje deniale w audit logu 
+	np. ausearch -m avc -c httpd
+		ausearch -m avc -ts today  --> deniale z dzisaij
+		usearch -m avc -ts recent	--> deniale z ostatnich 10min
+		-m (avc,user_avc,selinux_err,user_selinux_err)
+		-c nazwa procesu
+Run a command or script in a specific context: runcon -t initrc_t -r system_r -u user_u yourcommandhere
+
+Jesli bedziemy podejrzewac ze selinux cos blokuje to najlepiej przelaczyc domene selinuxowa w tryb permissive,
+lub eewentualnie (mniej zalecane) system w tryb permissive, odpalic usluge i sprawdzic czy dziala poprawnie, 
+jesli dziala poprawnie a przy wlaczonym selinuxie nie dziala to wiadomo ze cos jest nie tak z ustawieniem selinuxa.
+ 
+Jesli dzialamy w trybie enforcing i jakis program zostaje blokowany to zamiast ustawiac caly system w permissive, 
+mozemy to zrobic dla pojedynczej domeny selinuxowej. Domene znajdujemy na podstawie pola 'scontext' w audit.log
+semanage permissive -a jakas_domena -> ustawienie domeny w permissive
+semanage permissive -d jakas_domena -> ustawienie domeny w enforcing
+
+Postepowanie w celu odblokowania zablokowanego pliku/procesu:
+1.Zmiana kontekstu
+2.Zmiana reguły logicznej (boolean)
+3.Stworzenie nowej polityki 
+4.Jeśli to jest port to dodac port do polityki/domeny selinux
+
+You can use the sesearch utility to search for a particular rule in the policy. It is possible to search either policy source files or the binary file
+
+audit2why - translates SELinux audit messages into a description of why  the  accesswas denied
+	np. grep denied /var/log/audit/audit.log | audit2why 
+			//chyba robi to samo
+			-a czyta caly plik
+			-w daje czytelny dla czlowieka komunikat
+			
+			
+PROBLEM: "Failed to load SELinux policy, freezing"
+---------------------------------------------------
+W grubie ustawiamy za vmliuz/linux16 itp. selinux=0
+- boot server, press "e"
+- at the end ot the "linux16" line : added selinux=0 (to disable SELinux and allow boot to succeed as described by Terrence)
+- ctrl+x 
+
+Przeinstalowac selinux-policy-targeted
+- yum reinstall selinux-policy-targeted
+- touch /.autorelabel
+- systemctl reboot
+
+Jesli powyższe nie pomoze to:
+semodule -B -R (przebudowanie i reload polityk)
+jesli wywala bledy z lokalnymi politykami to przeniesc je z 
+/etc/selinux/targeted/active/modules/400/ do /tmp
+semodule -B -R
+			
+
+11. Selinux chef (modul selinux_policy dla chef)
+------------------------------------------------------------
+
+INFO ---> cookbooks/selinux_policy/README.md
+sprwadzic ---> chef/chef-repo/cookbooks/selinux_policy
+
+
+---- permissive/enforcing przelaczanie:
+cookbooks/gwp-selinux/recipes/enforcing.rb 
+cookbooks/gwp-selinux/recipes/permissive.rb
+czyli do roli dodac: gwp-selinux:enforcing/permissive
+
+----- ogolnie:
+wrzucic modul `depends 'selinux_policy'` do `metadata.rb`.
+
+---- context:
+selinux_policy_fcontext '/var/www/AdxImport/app/cache(/.*)?' do
+  secontext 'httpd_cache_t'
+end
+
+execute "selinux_restorecon" do
+  command "restorecon -r /var/www/AdxImport/app/cache"
+end
+// restorecon wywala chefa jak nie ma pliku w sciezce 
+
+----- boolean:
+selinux_policy_boolean 'haproxy_connect_any' do
+  value true
+end
+
+----- port: 
+
+selinux_policy_port '5678' do
+    protocol 'tcp'
+    secontext 'http_port_t'
+end
+
+
+======================RedHat tematy ze szkolenia selinux==========
+SELinux policy administration
+
+Candidates should be able to perform the tasks listed below:
+
+    SELinux policy writing
+    Specify an enforcement mode
+    Specify a particular policy
+    Update a system to use the latest SELinux packages
+    Create and implement a custom policy module to support a given service, including:
+        Port bindings
+        File and directory access
+        Type transitions
+        Default file types
+        Booleans
+        Type Aliases
+    Modify an existing policy including:
+        Port bindings
+        File and directory access
+        Type transitions
+        Default file types
+        Booleans
+        Type Aliases
+        Backup/Restore a file system preserving SELinux attributes.
+
+As with all Red Hat performance-based exams, configurations must persist after reboot without intervention.
+

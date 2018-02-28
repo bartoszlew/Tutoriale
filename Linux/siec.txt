@@ -1,0 +1,51 @@
+arp
+-------
+http://www.isep.pw.edu.pl/~slawekn/info1/lekcja9/index.htm
+https://pl.wikipedia.org/wiki/Address_Resolution_Protocol
+https://spece.it/sieci/arp-teoria-praktyka
+
+Address Resolution Protocol (ARP) - protokół sieciowy umożliwiający mapowanie logicznych adresów warstwy sieciowej (warstwa 3) na fizyczne adresy warstwy łącza danych (2)
+IP na MAC
+W celu wysłania pakietu z danymi musi być ustalony adres MAC odpowiadający adresowi IP. Protokół ARP po prostu odpytuje wszystkie komputery w sieci, czy maja potrzebny mu adres IP i prosi o przesłanie odpowiadającego mu adresu fizycznego. Aby ograniczyć ruch w sieci budowana jest dynamiczna tablica ARP, w której zapisywane są pary adres IP adres MAC komputerów z którymi został nawiązany kontakt. Tablica ta ma ograniczony rozmiar. Jeśli tablica ARP przepełni się, to jest z niej usuwany najstarszy wpis.
+Służy do uzyskiwania/poszukiwania informacji o adresie fizycznym MAC komputera znajdującego sie w tej samej podsieci, oraz w celu poszukiwania adresu MAC routera domyślnego (Default Gateway), jeśli komputer chce się skontaktować z komputerem znajdującym się poza naszą podsiecią. 
+
+
+
+NAT
+-----------------
+http://itfocus.pl/dzial-it/sieci/nat-i-prywatna-adresacja-ip/
+https://www.computerworld.pl/news/Wszystko-o-NAT-mechanizmy-translacji-adresow-sieciowych,391962.html
+rpc.one.pl/index.php/lista-artykulow/34-openwrt/89-snat-dnat-w-przykladach-openwrt
+
+Ponieważ adresy IP z zakresów sieci lokalnej nie pozwalają na komunikację z Internetem, muszą być tłumaczone na adresy publiczne. Translacją adresów IP zajmuje się NAT. Źródłowe dane adresowe wychodzących pakietów są przekładane przez NAT na adresy publiczne. Z kolei docelowe dane adresowe pakietów nadchodzących z Internetu – na adresy lokalne.
+SNAT (ang. Source NAT) - changes the source address of packets. 
+  Translacja adresów źródłowych umożliwia komputerom w sieci prywatnej dostęp do Internetu
+DNAT (ang. Destination NAT) - changes the destination address of packets.
+  Translacja dresów docelowych umożliwia komputerom z sieci publicznej dostęp do usług oferowanych przez serwery znajdujące się w sieci prywatnej. 
+
+Network Bridge (mostek sieciowy)
+-----------------------------------
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/s2-networkscripts-interfaces_network-bridge
+https://pl.wikipedia.org/wiki/Most_(sie%C4%87_komputerowa)
+
+Ogólnie łaczy dwa lub więcej segmentów sieci (w obrębie jednej klasy adresowej), uzywane np. hostach vm, na serwerze vm stworzony jest bridge, do ktorego podlaczone sa interfejsy maszyn wirtualnych. 
+Dzięki temu mw moze sie łaczyc z siecią do której podłaczony jest host vm. Pakiety sa rozdzielane na podstawie adresów MAC.
+Urządzenie łączące segmenty sieci dokonując filtrowania ruchu sieciowego,będących w jednej sieci logicznej czyli w obrębie jednej klasy adresowej.
+Użycie, np.  
+- A software bridge can be used within a Linux host in order to emulate a hardware bridge, for example in virtualization applications for sharing a NIC with one or more virtual NICs.
+- Musimy połączyć ze sobą kilka komputerów. Nie mamy pod ręką hub-a/switch-a, za to mamy więcej niż jedną kartę sieciowa.
+  KOMP1 ===== (eth0 SERWER eth1) ===== KOMP2 
+
+
+Tunelowanie
+----------------------
+
+
+TODO:
+nat
+bridge
+routing
+dns
+iptables
+proxy
+reverse proxy

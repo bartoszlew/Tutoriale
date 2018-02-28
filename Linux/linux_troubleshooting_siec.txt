@@ -1,0 +1,42 @@
+Siec:
+-------------------------
+http://unix.stackexchange.com/questions/50098/linux-network-troubleshooting-and-debugging
+http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch04_:_Simple_Network_Troubleshooting#.WgFvnhfdhhE
+
+hostname
+telnet
+netstat -> ss (nowa wersja netstata)
+tcpdump
+iftop - top for your network connections
+nslookup
+dig - is a tool for querying DNS nameservers for information about host addresses, mail exchanges, nameservers, and related information. 
+	  This tool can be used from any Linux (Unix) or Macintosh OS X operating system. The most typical use of dig is to simply query a single host.
+
+ping 
+traceroute 
+mtr - to co traceroute ale live
+route - command also shows and manipulate ip routing table. To see default routing table in Linux, type the following command.
+ss (netstat) - wiecej/dokladniejsze info niz w netstat
+arp (or the new (Linux) ip neigh) - show the ARP-table status.
+ifconfig
+ip (ifconfig) - command is used to display and manipulate routes and network interfaces. ip command is the newer version of 		ifconfig
+nc
+IPTraf 
+
+info o sprzecie:
+ethtool nazwa_interfejsu
+mii-tool -v nazwa_interfejsu
+
+
+monitoring obciazenia
+------------------------
+http://www.binarytides.com/linux-commands-monitor-network/
+https://www.tecmint.com/nload-monitor-linux-network-traffic-bandwidth-usage/
+
+iptraf
+nload
+vnstat - runs a background service/daemon and keeps recording the size of data transfer all the time. Next it can be used to generate a report of the history of network usage.
+
+ifop
+ifstat
+nethogs

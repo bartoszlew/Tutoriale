@@ -1,0 +1,626 @@
+BASH SHELL SCRIPTING
+#####################################################################################################
+
+http://wiki.bash-hackers.org/start
+http://bash.0x1fff.com/if-else - przejrzec srone
+
+=====================================================================================================
+BASICS,INPUT,OUTPUT (Podstawy, wejscie, wyjscie)
+=====================================================================================================
+echo 	- Prints arguments separated by a space and terminated by a newline
+			-n  bez znaku nowej lini !!!!!!!!!!
+printf	- Prints the arguments as specified by a format string
+read 	- czyta input, moze byc popiete pod zmienna, np. read var; read a b c d
+#dokładniejsze info nt. poleceń na końcu dokumentu
+
+
+=====================================================================================================
+Rozwiniecie argumentow w lini komend (Command-Line Parsing and Expansion) 
+Cytowanie, rozwiniecie argumentow i zmiennych
+=====================================================================================================
+Ogólnie chodzi o magię rozszerzenia atrybutów w lini komend. Czyli np. 
+	echo {a..r..2} - daje co druga litere od a do r -> wynik: a c e g i k m o q
+
+Skrypt 'sa' uzywany w przykladach: 
+pre=:
+post=:
+printf "$pre%s$post\n" "$@"
+
+Cytowanie (quoting):
+------------------------------
+'' apostrof (single quotes) - wyłącza znaczenie wszystkich znaków specjalnych (także spacji i nowej lini), 
+		   wszystko wewnątrz jest traktowane jako zwykły łańcuch tekstowy.
+"" cudzysłow (double quotes) - wyłącza znaczenie wszystkich znaków specjalnych (także spacji i nowej lini) poza `` $ \
+`` odwrotny apostrof (back quotes)   - method of command substitutions, jesli zamkniemy polecenie w `` to powloka zwraca jego wynik;
+		    sluzy glownie do przypisania wyniku jakiegos polecenia do zmiennej, np. zmienna=`ls -la | grep log`
+			to samo co $(polecenie)
+$'' - W bashu, apostrofy mogą być zawarte w słowach w formie $ 'string', jeśli są one wyeskejpowane przez \. 
+	echo $'\'line1\'\n\'line2\''
+	'line1'
+	'line2'
+
+//sa - skrypt pokazujacy jak sa rozwiazywane argumenty
+
+Cytaty można osadzić w słowie. Wewnątrz cudzysłowa "", apostrof '' nie jest traktowany jako znak specjalny, ale podwójny
+cudzysłów musi być wyescapowany. Wewnątrz apostrofów, podwójny cudzysłów nie jest traktowany jako znak specjalny.
+	$ sa "a double-quoted single quote, '" "a double-quoted double quote, \""
+	:a double-quoted single quote, ':
+	:a double-quoted double quote, ":
+	$ sa 'a single-quoted double quotation mark, "'
+	:a single-quoted double quotation mark, ":
+
+Wszystkie znaki wewnątrz pojedynczego słowa są cytowane dosłownie. Pojedyncza cytowane słowa nie mogą zawierać
+apostrofów nawet jeśli jest wyescapowany; apostrof zostanie uznany za zamknięcie poprzedniego, a
+kolejny apostrof otwiera nowy rozdział cytowany. Kolejne cytowane słowa bez jakiegokolwiek interweniujących
+spacji są traktowane jako pojedynczy argument:
+	$ sa "First argument "'still the first argument'
+	:First argument still the first argument:
+
+W bashu, apostrofy mogą być zawarte w słowach w formie $ 'string', jeśli są one wyeskejpowane. 
+	$ echo $'\'line1\'\n\'line2\''
+	'line1'
+	'line2'
+
+Cytowane argumenty moga zawierac doslowna nowa linie:
+	$ sa "Argument containing
+	> a newline"
+	:Argument containing
+	a newline:
+
+
+Rozwiniecie nawiasów klamrowych (Brace Expansion)
+---------------------------------------------------------------
+http://wiki.bash-hackers.org/syntax/expansion/brace
+http://mywiki.wooledge.org/BashGuide/Patterns
+
+Działania na niekomentowanych nawiasach klamrowych zawierających zarówno listę oddzielonah przecinkami lub sekwencję znaków.
+Każdy element staje się osobnym argumentem.
+Argumenty polecenia podane w nawiasach klamrowych rozwiazywane sa jako osobne ciagi znakow.
+
+Brace expansion nie nie jest wzorcem/patternem ale jest ona podobna. Globbing pattern rozwijają tylko do aktualnych nazw plików, ale nawiasy klamrowe do wszelkich możliwych permutacji ich zawartości.
+
+After the brace expansion, the globs are expanded, and we get the filenames as the final result.
+Brace expansions can only be used to generate lists of words. They cannot be used for pattern matching. 
+
+np.
+$ echo th{e,a}n
+then than
+$ echo {/home/*,/root}/.*profile
+/home/axxo/.bash_profile /home/lhunath/.profile /root/.bash_profile /root/.profile
+$ echo {1..9}
+1 2 3 4 5 6 7 8 9
+$ echo {0,1}{0..9}
+00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19
+
+
+Działa również generowanie wstecz, zarowno dla liczb i znakow, np.  {5..1} or even {b..Y}
+$ echo {5..1}
+5 4 3 2 1
+
+Ciag znakow przed i po nawiasie bedzie zawarty w kazdym rozwiazaniu argumentów:
+$ sa pre{d,l}ate
+:predate:
+:prelate:
+
+Nawaiasy moga byc zagniezdzone:
+$ sa {{1..3},{a..c}}
+:1:
+:2:
+:3:
+:a:
+:b:
+:c:
+
+
+W wersji 4 basha, dodano mozliwosc wypisania zera z przodu i incrementacje w sekwencji:
+$ sa {01..13..3} -> wypisuje co 3 liczby od 01 do 13 
+:01:
+:04:
+:07:
+:10:
+:13:
+
+$ sa {a..h..3} -> wypisuje co 3 znaki od a do h
+:a:
+:d:
+:g:
+
+przykłady:
+sa - (sa - skrypt z ksiazki) pokazyje jak sa przyjmowane argumenty poleceniea
+$ jakies {one,two,three}
+:one:
+:two:
+:three:
+$ sa {1..3} ## added in bash3.0
+:1:
+:2:
+:3:
+$ sa {a..c}
+:a:
+:b:
+:c:
+$ sa {{1..3},{a..c}}
+:1:
+:2:
+:3:
+:a:
+:b:
+:c:
+sa {1..3}{a..c}
+:1a:
+:1b:
+:1c:
+:2a:
+:2b:
+:2c:
+:3a:
+:3b:
+:3c:
+$ sa {01..13..3}
+:01:
+:04:
+:07:
+:10:
+:13:
+sa {a..h..3}
+:a:
+:d:
+:g:
+
+mozna uzyc np. do:
+touch plik{1..5} - stworzy pliki plik1  plik2  plik3  plik4  plik5
+rm plik{1..5} - usunie pliki plik1  plik2  plik3  plik4  plik5
+
+
+Rozwiniecie parametrow i zmiennych (Parameter and Variable Expansion)
+-----------------------------------------------------------------------------------
+Rozwiniecie parametru/argumentu zastepuje zmienna jej zawartoscia; wywołana jest przez nazwe zmiennej poprzedzoną
+znakiem dolara $,
+	np.
+	$ var=whatever
+	$ sa "$var"
+	:whatever:
+
+Parametr/argument moze byc zamkniety w nawiasy klamrowe. W wiekszosci przypadkow, klamry sa opcjonalne.
+	$ var=wartosc_zmiennej
+	$ sa "${var}"
+	:wartosc_zmiennej:
+
+Są wymagane jesli odwolujemy sie do "positional parameter" wiekszym od 9 albo kiedy po nazwie zmiennej
+wystepuje bezposrednio jakis ciag ktory nie nalezy do nazwy zmiennej:
+	$ imie=Jan
+	$ nazwisko=Kowalski
+	$ sa "$imie_$nazwisko" "${imie}_$nazwisko"
+	:Kowalski:
+	:Jan_Kowalski:
+W tym wypadku Bash odbiera nazwe zmiennej jako $imie_ , dlatego trzeba wpakować nazwe zmiennej w {}
+
+TIP:
+bardziej zaawansowane zastosowanie ${} w Parameter Expansion
+
+
+Rozwiniecie wyrazen arytmetycznych (Arithmetic Expansion)
+---------------------------------------------------------------------------
+Gdy powłoka napotyka $((wyrażenie arytmetyczne)) rozwija wyrażenie i wyrzuca wynik na
+wiersz poleceń. 
+	np. 
+	printf "%s\n" "$(( 1 + 12 ))" "$(( 12 * 13 ))" "$(( 16 / 4 ))" "$(( 6 - 9 ))"
+	13
+	156
+	4
+	-3
+
+Jeśli nie jest ujęty w cudzysłów, wyniki rozwiniecia wyrezen arytmetyczną podlegają podziałowi na słowa (word splitting).
+
+
+
+Command substitution. (Podstawienie pod zmienną wyniku jakiegoś polecenia)
+-------------------------------------------------------------------------
+Podstawianie komend zastępuje polecenie jego outputem.
+Wyjście polecenia może być przechowywany w zmiennej za pomocą podstawienia polecenia. 
+Istnieja dwie formy jak to mozna zrobić:
+Starsza (komenda pomiedzy dwoma odwroconymi apostrofami)
+`date`
+	np.
+	wc -l $( date +%Y-%m-%d ).log
+	
+Nowsza (i rekomendowana): 
+$(command)
+	np. ls -l | grep $(whoami) -> listuje pliki do ktorych aktualy uzytkownik ma uprawnienia
+	np. $(date "+%d-%M-%Y") - daje aktualna date
+
+
+Command substitution should generally be reserved for external commands. When used with a
+built-in command, it is very slow. That is why the -v option was added to printf.  ##doczytac printf -v
+
+
+Dzielenie słow (Word Splitting)
+-------------------------------
+//temat do doczytania
+http://mywiki.wooledge.org/WordSplitting
+
+Dzielenie słow bazuje na zmiennej "IFS", okresla ona separator argumentow. 
+Domyslenie ustawiona jest na IFS=$' \t\n' (spacja,tab,nowa linia - czyli kazdy z tych znakow jest separatorem)
+
+Jesli zmienna IFS jest ustawiona na spacje i jakis znak, np. IFS=' :' to spacje beda usunięte.
+S IFS=' :'
+$ var="qwerty : uiop : :: er " ## : :: delimits 2 empty fields
+$ sa $var
+:qwerty:
+:uiop:
+::
+::
+:er:
+
+Jesli zmienna IFS jest ustawiona bez spacji, np np. IFS=: to zmienne/argumenty beda ze spacjami, np.
+$ IFS=:
+$ var="qwerty  : uiop :  :: er "
+$ sa $var
+:qwerty  :
+: uiop :
+:  :
+::
+: er :
+
+Rozwinięcie ścieżki plikow (Pathname Expansion)
+--------------------------------------------------
+Niecytowane słowa w lini komend zawierające znaki *, ?, i [ są traktowane jako "file globbing patterns"
+i są zastepowane alfabetyczna lista plikow które pasują do wzoru. Jeśli żaden z plikow 
+* zastepuje kazdy ciag znakow
+? zastepuje jedenn znak
+[] zastepuje kazdy znak zamkniety w nawiasie
+	np.
+	[aceg] pasuje do a, c, e, g
+	[h-o] pasuje do wszystkich liter w tym zakresie
+	[[:lower:]] pasuje do wszystkich malych liter
+
+Rozwiniecie sciezki plikow mozna wylaczyc komenda "set -f"
+
+
+Process Substitution (Podstawienie zawartosci wyjscia komendy w mieje pliku)  
+------------------------------------------------------------------------------
+Podstawianie wyników procesów tworzy plik tymczasowy dla polecenia lub listy polecen, zawartosc tego pliku to wyjscie komendy
+zawartej w srodku <().
+Mozna tego urzyć wszędzie tam, gdzie oczekiwana jest nazwa pliku.
+<(komenda) - sprawia, ze wjscie jakiejs komendy jest traktowane jako zawartosc pliku.
+ 	     Chodzi o podstawianie do polecenia ktory czyta z pliku, wyjsciem jakiegos polecenia.
+	np. 
+	diff -u <(ps) <(ps -e)  ->  porownanie wyjscie polecenia ps 
+	diff -u .bashrc <(ssh remote_server cat .bashrc)  - porownuje plik lokalby .bashrc z plikiem na inny hoscie po ssh
+
+>(komenda) - W druga strone, chodzi o przekierowanie wyjscia ktore trafia do pliku na standardowy input komendy. 
+	   np.
+	   rsync -arv --log-file=>(grep -vF .tmp >log.txt) src/ host::dst/ 
+		- czyli to co idzie do logu filtrujemy jeszce przez grepa
+
+TIP:
+W połączeniu z poleceniem "tee" moze sluzyc do symulowania wielu roznych filtrow dla potoku, zmieniajac output jakiejs komendy na wiele sposobów:
+
+		np.
+		$ ps -ef | tee >(grep tom >toms-procs.txt) \
+               		>(grep root >roots-procs.txt) \
+               		>(grep -v httpd >not-apache-procs.txt) \
+               		>(sed 1d | awk '{print $1}' >pids-only.txt)
+In general, the idea is that wherever on the command line you could specify a file to be read from or written to, 
+you can instead use this syntax to make an implicit named pipe for the text stream.
+
+Ogólnie rzecz biorąc, chodzi o to, że tam, gdzie w linii poleceń można określić plik do odczytu lub zapisu danych,
+można zamiast tego użyć tej składni, aby niejawny nazwanego potoku dla strumienia tekstowego.
+
+ 
+Pobieranie opcji z linii poleceń (Command-line arguments)
+----------------------------------------------------------------------
+//DO DOKONCZENIA
+
+http://wiki.bash-hackers.org/howto/getopts_tutorial
+http://mywiki.wooledge.org/BashFAQ/035#getopts
+http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+http://wiki.bash-hackers.org/howto/getopts_tutorial
+
+Są dwie opcje:
+1) Z uzyciem standardowej pętli
+2) getopts
+
+=====================================================================================================
+
+
+////////////// wyrazenia arytmetyczne tu skonczylem 2017-03-01 str.54 Pro Bash Programing....
+////////////// w ksiazce nie ma, potem shell functions str.54
+
+
+Wyrazenia arytmetyczne / dzialania tylko na liczbach ??
+-------------------------------------------------------------------------------
+http://wiki.bash-hackers.org/syntax/arith_expr
+
+Bash operuje tylko na liczbach calkowitych, do obliczania liczb. Wynik nie zostaje zaokrąglony, a jedynie podawana jest jego cześć całkowita (cecha).
+Do działan na liczbach rzeczywistych uzywa sie zewnetrznych polecen, np. polecenia "bc"
+Przekazywanie formuł matematycznych wyglada tak:
+	echo $(echo "2+2" | bc -l) - czyli puszczamy przez | 
+
+Bardziej skomplikowane obliczenia mozna przepuscic przez prontf (zaokragla liczby)
+printf "%.3f\n" $(echo (jakies obliczenia) | bc -l)
+	%f - Interpretuje i wypisuje podany argument jako liczbę zmiennoprzecinkową
+	.3 - wypisuje 3 liczby po przecinku
+	\n - nowa linia
+bc -l 
+	-l Definiuje standardową bibliotekę matematyczną. Bez tego nie przejdzie wyniku po przepuszczeniu przez |
+
+i=`expr $i+` -> zwieksza wartosc zmiennej o 1 (stare i wolna sposob, uzywac let)
+let i=i+1  -> to samo co wyzej, nie trzeba uzywac znaku $
+let "i=i + 1" jak sa spacje to trzeba wrzucac w ""
+(( )) - alternatywa do let, zawartosc podwojnych nawiasow powloka interpretuje jako wyrazenie arytmetyczne 
+	np. echo $((i-i+1))
+	
+* mnozenie
+/ dzielenie
++
+-
+% reszta z dzielenia
+** podniesienie do potegi 
+
+Addition: answer=$(($c+$d))
+Subtraction: answer=$(($c-$d))
+Multiplication: answer=$(($c*$d))
+Division: answer=$(($c/$d))
+Remainder: answer=$(($c%$d))
+Exponentiation: The first argument raised to the power of the second; answer=$(($c**$d))
+
+Operacje logiczne i bitowe
+&& - AND
+|| - OR
+! - negacja
+
+& - bitowe AND - porownuje bit po bicie, jesli ktorys jest 0 to zwraca 0, jesli oba sa 1 to zwraca 1
+| - bitowe OR - porownuje bit po bicie, jesli ktorys jest 1 to zwraca 1, jesli oba sa 0 zwraca 0 
+^ - bitowe XOR - porownuje bit po bicie, jesli sa rozne to daje 1, jesli takie same daje 0, np. ((2#1101 ^ 2#1001)) da 2#0100
+~ - bitowa negacja - zamienia jedynki na zera i odwrotnie np. ((~2#1001)) da 2#0110
+
+operatory
+<
+>
+<=
+>=
+== equal to
+!= not equal to
+zmniejszanie/zwiekszanie
++= -> sets a variable to a new value that's equal to its value plus any number you specify after the operator, np. ((count+=1))
+	zwieksza zmienna count o 1
+-+ -> zmniejsza o podana wartosc
+
+Table 4-1: Arithmetic Operators	
+- +			Unary minus and plus
+! ~			Logical and bitwise negation
+* / %		Multiplication, division, remainder
++ -			Addition, subtraction
+<< >>		Left and right bitwise shifts
+<= >= < >	Comparison
+== !=		Equality and inequality
+&			Bitwise AND
+^			Bitwise exclusive OR
+|			Bitwise OR
+&&			Logical AND
+||			Logical OR
+= *= /= %= += -= <<= >>= &= ^= |=		Assignment
+
+Table 4-2: bash Extensions	
+**			Exponentiation
+id++ id--	Variable post-increment and post-decrement
+++id --id	Variable pre-increment and pre-decrement
+expr ? expr1 : expr2		Conditional operator
+expr1, expr2				Comma
+
+
+
+=====================================================================================================
+
+
+		
+========================================================================================================================================
+Funkcje - Shell Functions
+========================================================================================================================================
+Cos w rodzaju podprogramów. Stosuje sie je gdy w naszym skrypcie powtarza sie jakas grupa polecen, po co pisac je kilka razy, 
+skoro mozna to wszystko umiescic w funkcjach. Do danej funkcji odwolujemy sie podajac jej nazwe, a wykonane zostanie wszystko co 
+wpisalismy miedzy nawiasy { }, skraca to znacznie dlugosc skryptu.
+
+Skladnia:
+------------
+function nazwa_funkcji {polecenia funkcji}  <-  (stara wersja)
+nazwa_funkcji() {polecenia funkcji}
+nazwa_funkcji() (polecenia funkcji) - Jesli cialo funkcji jest owiniete w nawiasach, to wykonywana jest w podpowloce, a zmiany dokonane w trakcie jego realizacji 
+									  nie beda obowiazywac po wyjsciu z funkcji.
+
+
+Funkcje w osobnych plikach
+--------------------
+Funkcje moga sie znajdowac w innym pliku, co uczyni nasz skrypt bardziej przejrzystym i wygodnym. 
+Nie jest to trudne wystarczy utworzyc skrypt (dokladnie taki jak zawsze) i dolaczyc go do naszego glownego "programu".
+Przed wywolaniem funcji z osobnego pliku trzeba dodac:
+	. ~/naszplik_z_funkcjami
+lub
+	source ~/naszplik_z_funkcjami
+
+TIPS:
+local - Restricts a variable's scope to the current function and its children
+return - Exits a function (with an optional return code)
+
+
+========================================================================================================================================
+String Manipulation - manipulacja tekstem/ciagami znakow (Filtry) (rozdzial 5 i 7 do przerobienia)
+========================================================================================================================================
+http://tldp.org/LDP/abs/html/string-manipulation.html
+http://mediologia.pl/programowanie-w-linuksie/9-5-manipulacja-ciagami-znakow
+http://www.linuxexpert.pl/posts/531/bash-manipulanie-ciagami-znakow-cz-1-obcinanie/
+http://www.ummon.eu/Linux/API/Level3/intro/script.html
+
+Commands
+    tr: Translates characters
+
+Functions
+    repeat: Repeats a string until it has length N
+    alert: Prints a warning message with a border and a beep
+    revstr: Reverses the order of a string; stores result in _REVSTR
+    to_upper: Converts the first character of $1 to uppercase
+    upword: Converts a word to uppercase
+    validname: Checks $1 for a valid variable or function name
+    insert_string: Inserts one string into another at a specified location
+    overlay: Places one string over the top of another
+    trim: Trims unwanted characters
+    index: Returns the position of one string inside another
+    month2num: Converts a month name to its ordinal number
+
+Filtry
+-------------------
+http://wazniak.mimuw.edu.pl/images/e/ee/Sop_04_lab.pdf
+
+    cat – łączenie i wypisywanie plików
+    nl – numerowanie linii i wypisywanie plików
+    fold – zawijanie linii wejściowych do zadanej szerokości
+    head – wypisywanie początku plików
+    tail – wypisywanie początku plików
+    split – podział pliku na części stałej wielkości
+    wc – wypisywanie liczby bajtów, słów i linii
+    sort – sortowanie
+    uniq – filtrowanie unikalnych linii
+    cut – wypisywanie wybranych części linii
+    tr – zamiana, ściskanie, usuwanie znaków
+    grep – filtrowanie
+
+
+========================================================================================================================================
+File Operations and Commands
+========================================================================================================================================
+
+
+
+========================================================================================================================================
+
+
+
+##########################do przejrzenia ...
+
+
+----------
+\ & < > ;  && ||
+
+{} - shell treats any command block enclosed in braces as if it were a sigle command
+() - couses the shell to spawn a subshell and execute the command block in the subshell,
+     commands that execute in a subshell do not affect what's happening in the main shell, 
+     which allows you to define variables that exist only for the lifetime of the subshell, 
+     and to change the working directory within the subshell without affecting the parent shell.
+
+source shell_script (zamiast source mozna uzyc .) - preceding script with keyword "source" 
+	caouses script not to run in a subshell, Thos causes the current main shell 
+	to run each command in the script in sequence.
+batch shell_script - run script as soon as system load levels are low. The shell queues script as pending job
+	until the system load average falls below 1.5. Polecenie "batch" Uruchamia skrypt kiedy 
+	obciazenie systemu spadnie ponizej jakiegos poziomu - domyslnie 1.5 ?
+	################################
+
+ 
+##########################przydatne polecenia###############################
+finger - info o uzytkowniku
+echo
+printf
+last - ostatnio zalogowani userzy
+id 	- podaje info uzytkownika - uid=501(bartosz) gid=502(bartosz) groups=502(bartosz) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+type - Displays information about a command
+w - Show who is logged on and what they are doing.
+apropos jakies_polecenie - daje rozdzialy manuala ktore zawieraja to polecenie
+dmidecode - Dmidecode tool read DMI (some say SMBIOS) table to fetch data and displays useful system informations 
+			like hardware details, serial numbers and BIOS version, Processor etc. in human readable format.
+chsh -s /sciezka/do/shella - zmiana shella (dla sesji?)
+passwd -s /sciezka/do/shella - zmiana shella (dla sesji?)
+tee	- kopiuje standardowe wejscie na standarowe wyjscie i do jednego lub wiecej plikow,
+	  przydatne kiedy chcemy wiedziec jaki jest output miedzy potokami,
+	  np. $ ... uniq | tee /tmp/x.x | awk -f transform.awk ... (tee przekazuje wyjscie do pliku x.x i to samo na stnd wyjscie)
+tr
+
+
+zmienna home	
+~ -gives value of the current user's $HOME environment variable, np. /home/bartek
+~user_name -gives specific user's home director
+~- -path of the preivous directory you were working on
+~+ -path of the current directory
+
+echo
+	echo -e "An apple a day keeps away \a\t\tdoctor\n" away
+	echo $'\n' - pusta linia
+	-e powoduje ze interpretowane sa znaki:
+	\b - backspace
+	\n - nowa linia
+	\r - powrót karetki
+	\t - tabulator
+	\\ - backslash
+	
+read	- The read command is a built-in shell that reads from the standard input. By default, it reads until a
+		  newline is received. The input is stored in one or more variables given as arguments:
+
+			If more than one variable is given, the first word (the input up to the first space or tab) is assigned to
+			the first variable, the second word is assigned to the second variable, and so on, with any leftover words
+			assigned to the last one:
+				$ read a b c d
+				January February March April May June July August
+				$ echo $a
+				January
+				$ echo $b
+				February
+				$ echo $c
+				March
+				$ echo $d
+				April May June July August
+---------------------------------------------------------------------------------------------------------------------------
+printf (printf FORMAT ARG )
+http://wiki.bash-hackers.org/commands/builtin/printf
+	Format Specifiers:
+	The format specifiers are letters preceded by a percent sign. Optional modifiers may be placed between the two characters. 
+	The specifiers are replaced by the corresponding argument. When there are more arguments than specifiers, 
+	the format string is reused until all the arguments have been consumed. 
+	The most commonly used specifiers are %s, %d, %f, and %x.
+
+	The %s specifier prints the literal characters in the argument:
+
+	$ printf "%s\n" Print arguments on "separate lines"
+	Print
+	arguments
+	on
+	separate lines
+
+	$ printf "%f\n" 12.34 23 56.789 1.2345678
+
+	printf "%8s %-15s:\n" first second third fourth fifth sixth
+		first second         :
+		third fourth         :
+		fifth sixth          :
+
+	// %8s -> piersze argument na 8 pól, wyrownanie do prawej, s  - spacja?
+	// %-15:-> drugi argument na 15 pól, wyrównanie do lewej, \n - nowa linia
+------------------------------------------------------------------------------------------------------------------------------------------------------------	
+
+	
+##########################przydatne skrypty###############################
+for zmienna in $(cat lista.txt) ;  do  echo $zmienna; done - do zmiennej podstawione jest wiersz po wierszu z pliku lista.txt
+while read p; do echo $p done < peptides.txt
+
+==========================doczytac==============================
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\  TIPSY  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+1. najprostsze tworzenie pliku
+	> nazwa_pliku - przekierowanie "niczego" do pliku :)
+2. szybka kopia pliku
+	cp config.cfg{,.bak}
+3.
+	cat /proc/version 	- jakie distro i wersja + dodatkowe info
+	cat /etc/*-release 	- jakie distro i wersja
+5. usuwanie pasujacych lini z pliku1 w pliku2 
+	grep -v -x -f plik2 plik1
+
+PRZYDATNE LINKI:
+http://mywiki.wooledge.org/BashFAQ
+http://www.varlog.pl
+http://mediologia.pl/bash/5-9-cwiczenia-linux
+http://wiki.bash-hackers.org/
+
+Ćwiczenia:
+https://michalis.ii.uni.wroc.pl/~michalis/teaching/linux/
+https://www.hackerrank.com/

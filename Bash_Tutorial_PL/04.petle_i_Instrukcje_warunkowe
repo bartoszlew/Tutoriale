@@ -1,0 +1,437 @@
+=====================================================================================================
+Petle i Instrukcje warunkowe (Looping and Branching)
+=====================================================================================================
+Status wyjsca komendy/polecenia/skryptu
+---------------------------------------
+$?
+You can test the success of a command directly using the shell keywords while, until, and if or with the
+control operators && and ||. The exit code is stored in the special parameter $?.
+	If the command executed successfully (or true), the value of $? is zero. If the command failed for
+some reason, $? will contain a positive integer between 1 and 255 inclusive. A failed command usually
+returns 1. Zero and nonzero exit codes are also known as true and false, respectively.
+	A command may fail because of a syntax error:
+	
+$ printf "%v\n"
+bash: printf: `v': invalid format character
+$ echo $?
+1
+
+	Alternatively, failure may be the result of the command not being able to accomplish its task:
+
+$ mkdir /qwerty
+bash: mkdir: cannot create directory `/qwerty': Permission denied
+$ echo $?
+1
+
+Testing conditions (testy warunkowe) 
+---------------------------------------------------------------
+man test 
+
+Wyrażenie zbliżone jest do instrukcji warunkowej if jednak nie można go rozbudować. 
+Rozpatruje jedynie dwa warunki – wyrażenie jest prawdziwe lub fałszywe
+
+Polecnie test zwraca wartość 0 (true) jeśli warunek jest spełniony i wartość 1 (false) jeśli warunek nie jest spełniony. 
+Zwrócona wartość umieszczana jest w zmiennej specjalnej $?.
+
+!! Między nawiasami a treścią warunku muszą być spacje, inaczej skrypt nie wykona się poprawnie.
+
+Operatory wrzucamy w [[ ]], [] lub test jakies_wyrazenie. Uwaga!!! Między nawiasami a treścią warunku muszą być spacje!
+
+test "wyrażenie" - to samo co []
+	np. test $x le $y  // stringi najlepiej umieszczac w cudzyslowiach
+[ wyrażenie ] - to samo co komenda test
+	np. [[$x le $y]]  
+[[ expression ]] - to samo co [] ale z pewnymi ulepszeniami -> http://tldp.org/LDP/abs/html/testconstructs.html#DBLBRACKETS
+	[[...]] konstrukcja jest bardziej wszechstronna wersją []. Jest to rozszerzona polecenie test, przejęte z ksh88.
+	Korzystanie z konstrukcji [[...]] zamiast [...] można uniknąć wielu błędów logicznych w skryptach. 
+	Na przykład operatory &&, ||, <,> działają w [[]], a nie działają w konstrukcji [] (wyrzucają bledy).
+	[[]] jest jednak niestandarowe (tylko Bash?), wiec lepiej uzyc [] jesli mozna.
+	Jeśli argument na prawo od = albo != nie jest w cudzyslowiu, to jest traktowany jako pattern i duplikuje funkcjonalnosc
+	polecenia case.
+
+Operatory warunkowe AND && and OR ||
+-----------------------------------------
+Listy zawierające operatory warunkowe AND i OR są obliczane od lewej do prawej. Polecenie
+następujące po operatorze AND (&&) jest wykonywane, jeżeli poprzednie zakończyło się pomyślnie. Część następującego po
+operatorze OR (||) jest wykonywane, jeżeli poprzednie polecenie kończy się niepowodzeniem.
+
+warunek && co jeśli prawda || co jeśli fałsz
+&& - and
+|| - or
+
+Operatory warunkowe są czesto uzywane w instrukcji warunkowej if. W poniższym przykładzie oba warunki musza byc spelnione,
+zeby komenda echo sie wykonala: 
+	if [ -d "$dir" ] && cd "$dir"
+	then
+	echo "$PWD"
+	fi
+
+np. 
+	#sprawdzanie czy istnieje katalog i jesli tak to przejscie do niego: 
+	test -d "$directory" && cd "$directory"
+	#zmiana katalogu i zwrocenie bledu jesli komenda cd nie zadziala
+	cd "$HOME/bin" || exit 1
+	
+	
+Operatory porownania na wyrazeniach tekstowych (String Tests) - przydatne przy sprawdzaniu zmiennych
+-------------------------------------------------------------------
+http://tldp.org/LDP/abs/html/comparison-ops.html
+
+Testy moga być połączone w jednym wywołaniu używając logicznego AND (-a) i logicznego OR (-o) 
+-o - WYRAŻENIE1 lub WYRAŻENIE2 jest prawdziwe (parametr -o tworzy połączenie OR między dwoma testami)
+-a - WYRAŻENIE1 oraz WYRAŻENIE2 są prawdziwe (parametr -a połączenie AND między dwoma testami)
+
+Operatory:
+-n - prawda jesli dlugosc lancucha jest rozna od zera
+-z - prawda jesli dlugosc lancucha jest rowna zero
+	np.
+		set_var() {
+		echo "Enter a variable"
+		read VAR
+		}
+		while [[ -z $VAR ]]
+		do
+		set_var
+		done
+
+= jest równe (ŁAŃCUCH1 = ŁAŃCUCH2  - zwraca 0 jeśli łańcuchy są jednakowe)
+	np. [ "$a" = "$b" ]
+	np. [[ $(date+A%)=S* ]] && echo "Weekend!"   -  (date+A%) wyrzuca dni tygodnia, 
+		jesli pojawi sie dzien na S to wyswietla sie "Weekend!"
+	np. SMALLER=$(abc) [[$SMALLER < bcd]] && echo "Smaller"
+		skrypt sprawdza czy string1 jest wczesniej niz string2, (kolenjnosc alfabetyczna) abc 
+		
+!= jest rozne od (ŁAŃCUCH1 != ŁAŃCUCH2 - zwraca 0 jeśli łancuchy sa rozne)
+   (This operator uses pattern matching within a [[ ... ]] construct.)
+	np. [ "$a" != "$b" ]
+
+=~ (dziala tylko w [[]] !!!) - mozna porownac ciagn znakow z wyrazeniem regexp
+	np. $ string=whatever
+	    $ [[ $string =~ h[aeiou] ]]   
+	    $ echo $?
+	    0
+
+< is less than, in ASCII alphabetical order
+  (Note that the "<" needs to be escaped within a [ ] construct.)
+	np.[[ "$a" < "$b" ]]
+	   [ "$a" \< "$b" ]
+
+> is greater than, in ASCII alphabetical order
+  (Note that the ">" needs to be escaped within a [ ] construct.)
+	np.[[ "$a" > "$b" ]]
+	   [ "$a" \> "$b" ]
+
+Operatory "większy niż" i "mniejszy niż" są używane w bashu do porownywania leksykalnych pozycji ciągu znaków i muszą być "wyescapowane"
+w by zapobiec ich interpretowaniu jako operatorów przekierowania (nie dotyczy [[]]), np:
+	$ str1=abc
+	$ str2=def
+	$ test "$str1" \< "$str2"
+	$ echo $?
+	0
+	$ test "$str1" \> "$str2"
+	$ echo $?
+	1
+
+Operatory dla  plików:
+---------------------------------------
+Z wyjątkiem opcji -h i -L wszystkie testy związane z PLIKAMI rozwiązują dowiązania  symboliczne.
+
+-e - test czy plik istnieje (niestandardowo -a)
+-d - test czy plik istnieje i jest katalogiem
+-f - test czy plik istnieje i jest zwykłym plikiem
+-r - test czy plik istnieje i jest do odczytu
+-w - test czy plik istnieje i jest do zapisu
+-x - test czy plik istnieje i jest do wykonania
+-s - test czy plik posiada jakies dane/zawartosc (ma rozmiar większy od zera)
+-h, -L - test czy plik istnieje i jest dowiązaniem symbolicznym 
+-u - test czy plik istnieje i ma ustawiony user SUID
+-b  - PLIK istnieje i jest urządzeniem blokowym
+-c - test czy PLIK istnieje i jest urządzeniem znakowym
+-g - test czy PLIK istnieje i ma ustawiony SGID
+-G - test czy PLIK istnieje i należy do grupy o numerze równym efektywnemu GID
+-k - test czy PLIK istnieje i ma ustawiony tzw. lepki bit
+-O - test czy PLIK istnieje i należy do użytkownika o numerze równym efektywnemu UID
+-p - test czy PLIK istnieje i jest potokiem nazwanym
+-S - test czy PLIK istnieje i jest gniazdem
+-t DESKRYPTOR - DESKRYPTOR pliku jest otwarty na terminalu
+-ef - sprawdza c zy dwa pliki sa takie same
+-nt - sprawdza czy plik1 jest nowszy od pliku2 - [[plik1 -nt plik2]]
+-ot - sprawdza czy plik1 jest starszy od pliku2
+
+	np.
+		[[-s new]] && print "The file contains data" -  skrypt sprawcza czy plik "new" zawiera jakies dane
+		test -f /etc/fstab    ## true if a regular file
+		test -h /etc/rc.local ## true if a symbolic link
+		[ -x $HOME/bin/hw ]   ## true if you can execute the file
+
+
+Testy na liczbach całkowitych (Integer Tests)
+-----------------------------------------------------------------
+http://www.softpanorama.org/Scripting/Shellorama/arithmetic_expressions.shtml
+
+Używając polecenia test [] [[]] - starsza opcja.
+-eq - rowna, np. [ "$a" -eq "$b" ]
+-ne - nie jest rowna, [ "$a" -ne "$b" ]
+-gt - jest wieksza od, np. [ "$a" -gt "$b" ]
+-ge -jest wieksza lub rowna, np.  [ "$a" -ge "$b" ]
+-lt - jest mniejsza od, np. [ "$a" -lt "$b" ]
+-le - jest mniejsza lub rowna, np. if [ "$a" -le "$b" ]
+	np.
+		$ test 1 -eq 1
+		$ echo $?
+		0
+
+		$ [ 2 -eq 1 ]
+		$ echo $?
+		1
+		
+Używając ((...)) - nowsza opcja.	
+Warto wiedzieć, że instrukcja arytmetyczna (( ... )) też zwraca status. Zwraca 0, jeśli wartość wyrażenia jest niezerowa, 
+i zwraca 1, jeśli wartość wyrażenia wynosi 0. Pozwala to w Bashu stosować w bardzo wygodny sposób porównania, dokładnie tak samo jak w C.
+Przenosnym dpowiednikiem jest polecenie test i zgodnia z POSIX składnia dla obliczen arytmetycznych,np:
+	test $(( $a - 2 )) -ne 0
+	if (( 3 * 6 - 2 * 9 )); then echo prawda; else echo fałsz; fi fałsz
+== rowna
+	np. (( $a == 4 ))
+!= różne od
+< is less than 
+	np.(("$a" < "$b"))
+<= is less than or equal to (within double parentheses)
+	np.(("$a" <= "$b"))
+> is greater than (within double parentheses)
+	np.(("$a" > "$b"))
+>= is greater than or equal to (within double parentheses)
+	np. (("$a" >= "$b"))
+
+Instrukcje warunkowe (Conditional execution) IF, CASE
+-------------------------------------------------------
+1) Instrukcja warunkowa "if":
+
+http://bash.0x1fff.com/if-else
+http://4programmers.net/BASH/Instrukcja_warunkowa
+
+Sprawdza czy warunek jest prawdziwy, jeśli tak to wykonane zostaną polecenia znajdujące się po słowie kluczowym then – w przeciwnym wypadku
+polecenia znajdujące się po słowie kluczowym else. Instrukcja kończy się słowem fi.
+
+Składnia:
+	if <warunek> ; 
+	then
+    		polecenia
+	else
+    		polecania
+	fi
+
+Część else jest opcjonalna, jeśli warunek w instrukcji if przyjmuje wartość false instrukcje będące wewnątrz zostaną pominięte.
+
+	if warunek
+	then
+  	polecenia
+	fi
+
+Ważne jest aby then było w nowej linii a nie w jednej razem z if. Słowem kończącym blok wykonywany jest fi. Jeśli ktoś koniecznie chce
+używać if i then w jednej linii to można to zrobić tak:
+
+	if <warunek> ; then
+    		polecenia
+	else
+    		polecania
+	fi
+
+Można też testować dowolną ilość warunków, jeśli pierwszy warunek nie będzie prawdziwy, sprawdzony zostanie następny, kolejne testy
+warunków umieszczamy po słowie kluczowym elif.
+
+	if warunek ; then
+    		polecenie
+	elif warunek ; then
+    		polecenie_2
+	else
+    		polecenie_3
+	fi
+
+np. 
+   #sprawdza czy istnieje plik..
+	#!/bin/bash
+	if [ -e ~/.bashrc ]
+	then
+  		echo "Masz plik.bashrc"
+	else
+  		echo "Nie masz pliku .bashrc"
+	fi
+  #sprawdza czy user jest rootem	
+	#!/bin/bash
+	if [[ $(id -u) == „0” ]];
+	then
+     		echo „Jestem ROOT-em”
+	else
+     		echo „Ten skrypt powinien być uruchomiony jako ROOT!”
+	fi
+
+2) Instrukcja warunkowa "case":
+
+http://bash.0x1fff.com/case
+http://4programmers.net/BASH/Instrukcja_case
+
+Instrukcja warunkowa "case" porównuje wyrazenie (przewaznie jakas zmienna) do jednej lub wielu wzorców 
+i wykonuje komende przpisanado tego wzorca. Jesli dopasowanie zakończy się sukcesem wykonane zostanie polecenie lub polecenia przypisane do danego wzorca. W przeciwnym wypadku użyte zostanie polecenie domyślne oznaczone symbolem gwiazdki: *) polecenie_domyślne.
+Instrukcja case idealnie nadaje się do przetwarzania argumentów podanych w linii komend (oczywiście w połączeniu z jakąś pętla np wile).
+
+case "wyrazenie - przewaznie zmienna" in	
+	wzorzec1) polecenie;;
+	wzorzec2) polecenie;;
+	wzorzec3) polecenie;;
+	*) polecenie_domyślne //opcjonalnie
+esac
+
+np.
+ 	#Sprawdza czy podana liczba jest calkowita
+	case $1 in
+	*[!0-9]*) false;;
+	*) true ;;
+	esac
+	
+	#Wiele skryptow wymaga podania jednego lub wiecej argumentow w lini komend. Zeby sprawdzic czy jest podana wlasciwa
+	#liczba argumentow, mozna uzyc instrukcji case, jak w  przykladzie:
+
+	case $# in
+	3) ;; ## We need 3 args, so do nothing
+	*) printf "%s\n" "Please provide three names" >&2
+	exit 1
+	;;
+	esac
+	
+
+	
+
+Pętle (Loops) for, while, until
+--------------------------------
+1) pętla "for"
+http://kurslinux.ovh.org/12petla_for.php
+http://wazniak.mimuw.edu.pl/index.php?title=%C5%9Arodowisko_programisty/Bash_-_skrypty_z%C5%82o%C5%BCone#while
+
+W Bashu istnieją jej dwie odmiany:
+
+a) Standardowa:
+	for zmienna in lista ; do    #moze byc kilka nazw oddzielonych spacja
+  		instrukcje
+	done
+
+Gdzie lista jest listą wartości. Listę podajemy w analogiczny sposób, jak argumenty poleceniu, czyli na przykład możemy używać wzorców nazw plików do podania wielu nazw plików naraz. Instrukcje w bloku są wykonywane dla każdej wartości znajdującej się na liście. 
+// lista może być łańcuchem znakowym, tablicą lub po prostu listą słów:
+	
+	np.
+	for x in jeden dwa trzy ; do
+    		echo "To jest $x"
+	done
+	
+	#zmiana nazw plikow z malych liter na duze
+	for nazwa in * ; do
+   		 mv "$nazwa" `echo "$nazwa" | tr '[A-Z]' '[a-z]'`
+	done
+	
+	#Skrypt łączący w jedną całość pliki *.txt w bieżącym katalogu
+	for plik in `ls *.txt`	# lub $(ls *.txt) 
+	do 
+		cat $plik >> calosc.txt 
+	done
+	
+b) Niestandardowa (podobna do języka C, raczej nie używać):
+	
+	for ((<inicjacja_zmiennej>; <warunek zakonczenia>; <wyrazenie dodawane po kazdej iteracji>)) ; do
+       		instrukcje
+	done
+	
+Na początku i tylko raz, jest uruchamiana <inicjacja_zmiennej>. To wyrażenie zazwyczaj ma za zadanie zainicjowanie zmiennych używanych do iterowania pętli.
+Następnie przed każdą iteracją wyliczane jest wyrażenie <warunek zakonczenia>. Jeśli jest ono fałszywe, wykonywanie pętli kończy się. Jeśli jest ono prawdziwe, wykonywany jest blok instrukcje.
+Po każdej iteracji wykonywane jest wyrażenie <wyrazenie dodawane po kazdej iteracji>. To wyrażenie zazwyczaj ma za zadanie modyfikowanie zmiennych. 
+
+	np.
+	for (( n=1; n<=10; ++n ))
+	do
+		echo "$n"
+	done
+
+2) pętla "while"
+Petla "while" najpierw sprawdza warunek czy jest prawdziwy, jeśli tak to wykonana lista poleceń zawartych wewnątrz pętli, gdy warunek stanie się fałszywy pętla zostanie zakończona.
+
+	while warunek ; do
+		instrukcja
+	done
+
+	np.
+	n=1
+	while [ $n -le 10 ]; do
+		echo "$n"
+		n=$(( $n + 1 ))
+	done
+
+	zmienna=""
+	while [ "$zmienna" != koniec ]; do
+  		echo -n "Wpisz coś (słowo 'koniec' aby zakończyć): "
+  		read zmienna
+		echo "Wpisałeś '$zmienna'"
+	done
+
+Pętla while moze byc uzyta do czytania kolejnych lini tekstu z pliku:
+
+	while IFS= read -r linia
+	do
+		: do something with "$linia"
+	done < FILENAMEy?
+
+
+3) pętla "until"
+Rzadko urzywana. Jest bardzo podobna do petli "while".Różnica polega na tym, że pętla jest wykonywana tak długo, jak warunek jest nieprawdziwy (przeciwnie do tego jak ma się to w pętli while). Na przykład pętla z poprzedniego przykładu mogła by wyglądać tak: 
+
+until warunek; 
+do
+	instrukcje
+done
+
+	np.
+	n=1
+	until [ $n -gt 10 ] ; do
+		echo "$n"
+		n=$(( $n + 1 ))
+	done
+	
+
+4) Wewnątrz pętli dostępne są dwa dodatkowe polecenia: break i continue. 
+    
+break powoduje natychmiastowe przerwanie wykonywanej pętli. 
+while :
+do
+	read x
+	[ -z "$x" ] && break
+done
+
+Z argumentem liczbowym, break moze wyjsc z kilku zagniezdzonych pętli.
+
+
+np.
+for n in a b c d e
+do
+	while true
+	do
+		if [ $RANDOM -gt 20000 ]
+		then
+			printf .	
+			break 2 ## przerwanie obu petli while
+		elif [ $RANDOM -lt 10000 ]
+		then
+			printf '"'
+			break ## przerwanie petrli while
+		fi
+	done
+done
+echo
+
+continue powoduje zakończenie aktualnej iteracji pętli (pomijają instrukje) i przejście do następnej iteracji.
+np.
+	for n in {1..9} 
+	do
+		x=$RANDOM
+		[ $x -le 20000 ] && continue
+		echo "n=$n x=$x"
+	done
+	
+====================================================================================================================
