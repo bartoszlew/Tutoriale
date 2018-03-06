@@ -36,7 +36,7 @@ ip a
 zarzadzanie interfejsami ("z palca")
 ----------------------------------------
 ip link set dev eth0 up - podnoszenie interfejsu eth0 
-
+ifup bond0.1402 - podnoszenie interfejsu bond0.1402 (tylko redhat?)
 
 sprzet/infgo sieciowe
 ----------------------
