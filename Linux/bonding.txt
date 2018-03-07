@@ -114,3 +114,5 @@ przydatne polecenia
 ---------------------
 ethtool bond0 - info, m.in szybkość (powinna byc suma szybkosci wszystkich interfejsow w bondzie)
 cat /proc/net/bonding/bond0
+zmiana w locie opcji xmit_hash_policy 
+echo "layer3+4 1" > /sys/class/net/bond0/bonding/xmit_hash_policy
