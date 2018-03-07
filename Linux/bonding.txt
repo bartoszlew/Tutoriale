@@ -114,5 +114,9 @@ przydatne polecenia
 ---------------------
 ethtool bond0 - info, m.in szybkość (powinna byc suma szybkosci wszystkich interfejsow w bondzie)
 cat /proc/net/bonding/bond0
-zmiana w locie opcji xmit_hash_policy 
-echo "layer3+4 1" > /sys/class/net/bond0/bonding/xmit_hash_policy
+
+przydatne info
+---------------------
+jak ruch nie idzie rowno na interfejsach w bondzie to prawdopodobnie trzeba zmienic metode hashowania
+zmiana opcji w konfigu interfejsu bonda BONDING_OPTS="mode=4 miimon=100 lacp_rate=1 xmit_hash_policy=1"
+zmiana w locie opcji xmit_hash_policy  -> echo "layer3+4 1" > /sys/class/net/bond0/bonding/xmit_hash_policy
