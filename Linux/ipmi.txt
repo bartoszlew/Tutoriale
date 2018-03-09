@@ -41,3 +41,4 @@ The output will be one of the following:
 3. Change the mode back to shared on-board mode with the following command:
   	ipmitool raw 0xc 0x1 0x1 0xc0 0x0   //zmiana amoze potrwac kilkanascie sekund
 
+a) dla serwerów HP 
