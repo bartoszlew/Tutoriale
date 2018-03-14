@@ -6,3 +6,4 @@ Limit cpu na process:
 blog.scoutapp.com/articles/2014/11/04/restricting-process-cpu-usage-using-nice-cpulimit-and-cgroups
 https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html
 https://wiki.archlinux.org/index.php/Cgroups
+systemd-cgtop
