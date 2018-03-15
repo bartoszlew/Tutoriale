@@ -1,0 +1,4 @@
+cgroup - Control Group
+===========================
+https://www.kernel.org/doc/Documentation/cgroup-v2.txt
+https://docs-old.fedoraproject.org/en-US/Fedora/17/html-single/Resource_Management_Guide/index.html#sec-How_Control_Groups_Are_Organized

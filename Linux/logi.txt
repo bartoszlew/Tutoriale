@@ -1,0 +1,1 @@
+https://unix.stackexchange.com/questions/205883/understand-logging-in-linux

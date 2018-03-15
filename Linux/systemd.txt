@@ -11,6 +11,8 @@ systemctl daemon-reload - jeśli zmienimy konfiguracja unitów (zawartość plik
 						na podstawie których systemd generuje unity), to należy poinformować o tym systemd:
 systemd-delta - pokazuje wszystkie różnice/powiązania między unitami z /usr a /etc
 
+systemctl status jakis_proces - podstawowe info o procesie
+systemctl show jakis_proces	- wszystkie ustawienia systemd dla procesu
 
 	
 
