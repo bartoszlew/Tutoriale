@@ -44,7 +44,8 @@ lspci | grep -i network
 lshw -class network - sprzet sieciowy (doklanidej) 
 ethtool - query or control network driver and hardware settings
 /proc/net/
-/sys/class/net/ - interfejsy sieciowe
+/sys/class/net/ - interfejsy sieciowe i info
+	np. szybkosc interfejsu /sys/class/net/eth0/speed 
 
 
 do sprawdzania co wylazi na porcie sieciowym
