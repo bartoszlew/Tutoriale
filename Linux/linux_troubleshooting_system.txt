@@ -155,6 +155,7 @@ smartctl
 iostat
 iotop (jak top tylko ze dla dysku)
 smartctl -a /dev/DEVICE
+cat /proc/scsi/scsi 
 testdisk - odzyskiwanie danych z dysku
 fsck - sprawdzanie bledow na dysku (musi byc odmontowany)
 badblocks
