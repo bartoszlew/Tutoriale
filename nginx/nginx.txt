@@ -1,12 +1,15 @@
 Nginx
 ============
-
+Info:
+-------------
 nginx -V wywala wersje  nginxa i info z z jakimi argumentami byl kompilowany
 
-Uruchamianie:
--------------------
-proces glowny - powinien dzialac na rootcie, inaczej nie beda dostepne porty ponizej 1024 itp.
+Uruchamianie/User/grupy:
+-------------------------
+Nginx ma dwa rodzaje procesów:
+proces glowny - powinien dzialac na rootcie, inaczej np. nie beda dostepne porty ponizej 1024 itp.
 procesy nginx worker - dzialaja wg. ustawien w konfiguracji nginx "user", "group". domyslnie: nobody:nogroup
+!! dyrektywa "user" w pliku konfiguracyjnym działa tylko dla procesu workerow
 
 nginx -s <signal>
 
@@ -20,9 +23,117 @@ nginx -t -> test konfiguracji nginx
 nginx -c -> wczytuje konfig z podanej sciezki
 
 
-Podstawowa konfiguracja:
-----------------------------
-dyrektywy zawsze konca sie srednikiem ;
+
+Plik koniguracyjny:
+------------------------
+/etc/nginx/nginx.conf (domyslna sciezka)
+
+Składnia:
+\ - escape
+$ - zmienna
+'' = ""
+
+Postawowe Moduły:
+Core
+Events - konfiguracja mechanizmu sieciowego
+Configuration
+
+Dyrektywy modułu głównego:
+http://nginx.org/en/docs/ngx_core_module.html
+
+najczesciej uzywane core:
+user <nazwa_uzytkownika> <nazwa_grupy>; - user i grupa z ktorym bedzie odpalany worker
+error_log <sciezka do logu> level;
+pid <sciezka do pliku pid>;
+ssl_engine <nazwa silnika ssl>; openssl engine -t listuje dostepne silniki ssl w systemie
+worker_processes x;
+worker_priority <-20 do 19>; najwyzszy priorytet -20, najnizszy 19 // nie powinno sie dawac wyzszy niz -5 (taki ma ustawiony kernel)
+worker_connections <liczba>; - licczba polaczen per worker, w polaczeniu z worker_priority daje sume polaczen na serwer
+include <nazwa_pliku>; - includuje plik z konfiguracja
+#reszta w linku
+
+dyrektywy events:
+worker_connections <liczba>; - licczba polaczen per worker, w polaczeniu z worker_priority daje sume polaczen na serwer
 
 
-//skonczone na stronie: 34
+Testowanie serwera
+---------------------
+narzedzia do testow:
+httperf - open sourcowe, tylko dla linuxa
+Autobench - wraper dla httperf
+
+Aktualizowanie Nginx
+--------------------
+1.podmianka binarki
+2.znalezienie pid nginx master process ps x | greo nginx | grep master
+3.wyslanie sygnalu USR2 do tego procesu: kill -USR2 <numer pid procesu> - to zainicjuje upgrade przez zniame nazwy sterego .pid-u i odpalnie nowej binarki
+4.wyslanie sygnalu WINCH do procesu mastera nginx: kill -WINCH <process pid numer> - to zainicjuje gladkie ubijanie procesow workera
+5.upewnic sie ze wszystkie stare workery zdechly. i wyslac sygnal QUIT do starego procesu mastera nginx: kill -QUIT <numer pid procesu>
+  
+  
+Konfiguracja HTTP
+-----------------------
+http://nginx.org/en/docs/http/configuring_https_servers.html#single_http_https_server
+Dyrektywy:
+http - blok z konfiguracją serwera http
+server - declaruje strone www 
+location - definiuje grupe ustawien dla konkretnej lokalizacji strony www
+
+Sockety i konfiguracja hosta:
+listen - ip adres/i lub port (domyslnie 80)
+server_name - przypisuje jedna lub wiecej hostnamow do bloku 'server' (mozna uzywac wildcardow i regexpow - wtedy hostname musi sie zaczynac od ~)
+			np. server_name *.website.com
+			    server_name ~^(www)\.example\.com$;
+sendfile
+itd.
+
+Sciezki i dokumenty:
+root - sciezka do katalogu glownego zawierajacego pliki serwowane przez serwer
+alias - moze by cuzyty tylko w 'location' mozna wrzucic sciezke do plikow znajdujaca sie poza zdefiniowana w 'root'
+	server {
+		server_name localhost;
+		root /var/www/website.com/html;
+		location /admin/ {
+			alias /var/www/dupa/;
+		}
+	}
+error_page - pozwala przypisac strony do konkretnych bledow i opcjonalnie zastapienie jednego bledu innym
+index - definiuje domyslna strone jesli nie jest podana konkretna sciezka
+try_files - 		    
+			    
+Obsługa rządań klientów:
+keepalive_requests
+keepalive_timeout
+keepalive_disable
+send_timeout
+itd.
+
+MIME Types
+types {
+	typ	rozszerzenie;
+	}
+- przypisanie typu pliku do rozszerzenia, pomaga np. przegladarce jak ma wyswietlic plik
+default_type
+
+
+Wbudowane zmienne modulu HTTP Core:
+Zmienne nie działaja we wszystkich dyrektywach! Jesli umiescimy zmienna w dyrektywie ktora jej nie obsluguje to nie wywali bledu,
+zmienna bedzie odczytana jako zwykly tekst.
+lista -> http://nginx.org/en/docs/varindex.html
+
+
+Blok 'location':
+tu mozna sie bawic z regexpami...
+składnia [=|~\~*|^~|@]
+= wzor musi byc dokladnie dopasowany, np. location = /abcd
+brak - nazwa musi sie zaczynac od wzoru, np. location /abcd
+~  wzor pasujacy do regexpa, rozroznia wielkosc liter
+~* wzor pasujacy do regexpa, nie rozroznia wielkosci liter
+^~ podobnie jak 'brak', nazwa musi zaczynac sie od wzoru, ale po znalezieniu pierwszego pasujacego nie szuka dalej
+@ client nie moze sie dostac do tej lokalizacji, tylko wewnetrze requesty generowane przez inne dyrektywy, np try_files albo error_page
+
+ 
+
+
+
+//skonczone na stronie: 97

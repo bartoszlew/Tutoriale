@@ -1,4 +1,13 @@
-cgroup - Control Group
+cgroups-v2 - Control Group
 ===========================
 https://www.kernel.org/doc/Documentation/cgroup-v2.txt
 https://docs-old.fedoraproject.org/en-US/Fedora/17/html-single/Resource_Management_Guide/index.html#sec-How_Control_Groups_Are_Organized
+
+Są dwie wersje cgroup, pierwsza napisana w 2007r - cgroups version 1, i druga dostepna od jadra 4.5 (marzec 2016r) cgroups-v2.
+
+Funkcje:
+------------
+Ograniczanie zasobów - (Resource limiting) - grupy można ustawić tak, aby nie przekraczały skonfigurowanego limitu pamięci, który obejmuje także pamięć podręczną systemu plików
+Priorytetyzacja 	- (Prioritization) - niektóre grupy mogą uzyskać większy udział wykorzystania procesora [10] lub przepustowości we / wy dysku
+Rachunkowość 		- (Accounting) - mierzy wykorzystanie zasobów grupy, które może być wykorzystywane na przykład do celów rozliczeniowych
+Kontrola 			- (Control) - zamrażanie grup procesów, ich "punktowanie?" (checkpointing) i ponowne uruchamianie

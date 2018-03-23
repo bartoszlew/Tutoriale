@@ -1,1 +1,7 @@
 https://unix.stackexchange.com/questions/205883/understand-logging-in-linux
+https://syslog-ng.com/documents/html/syslog-ng-ose-latest-guides/en/syslog-ng-ose-guide-admin/html/filters-boolean.html
+
+syslog-ng
+--------------
+exclude string
+filter f_nh_trace1 { message("@trace:") and not message("suppressed"); };
