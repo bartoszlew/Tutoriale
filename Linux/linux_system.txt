@@ -7,3 +7,13 @@ blog.scoutapp.com/articles/2014/11/04/restricting-process-cpu-usage-using-nice-c
 https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html
 https://wiki.archlinux.org/index.php/Cgroups
 systemd-cgtop
+--> cgroup
+
+wywalenie urzadzenia blokowego 
+-------------------------------
+umount /dev/sdX
+blockdev –flushbufs /dev/sdX
+rm /dev/sdX
+rm /dev/disk/by-path/..
+echo "offline" > /sys/block/sdX/device/state
+echo 1 > /sys/block/sdX/device/delete
