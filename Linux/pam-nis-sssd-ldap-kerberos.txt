@@ -1,0 +1,16 @@
+-------------------------------------------------------------------
+PAM, NIS, SSSD, LDAP, KERBEROS - logowanie i autoryzacja
+-------------------------------------------------------------------
+https://unix.stackexchange.com/questions/334287/pam-vs-ldap-vs-sssd-vs-kerberos/334345   !!!!!
+https://dug.net.pl/tekst/42/pam___limitowanie_uprawnien_uzytkownikow/
+obcnie systemd ignoruje  /etc/security/limits*, trzeba ustawiac w  plikach systemd services 
+https://fredrikaverpil.github.io/2016/04/27/systemd-and-resource-limits/
+
+The sssd daemon acts as the spider in the web, controlling the login process and more. The login program communicates with the 
+configured pam and nss modules, which in this case are provided by the SSSD package. These modules communicate with the corresponding SSSD responders, 
+which in turn talk to the SSSD Monitor. SSSD looks up the user in the LDAP directory, then contacts the Kerberos KDC for authentication and to aquire tickets.
+
+NIS:
+The Name Service Switch (NSS) is a facility in Unix-like operating systems that provides a variety of sources for common configuration databases
+and name resolution mechanisms. These sources include local operating system files (such as /etc/passwd, /etc/group, and /etc/hosts), the Domain Name System (DNS), 
+the Network Information Service (NIS), and LDAP.

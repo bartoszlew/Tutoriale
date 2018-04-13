@@ -1,0 +1,19 @@
+raid sprzetowy i softwarowy
+----------------------------
+dmidecode
+dmesg
+lspci
+
+raid sprzetowy
+-----------------
+https://wiki.debian.org/LinuxRaidForAdmins
+
+huawei serwery sprawdzanie stanu raidu (kontroler SAS2308_2) :
+lspci| grep -i lsi
+sas2ircu LIST	
+sas2ircu 0 DISPLAY	
+
+
+raid softwerowy
+-------------------
+http://slow7.pl/linux/item/143-macierze-raid-w-systemie-linux

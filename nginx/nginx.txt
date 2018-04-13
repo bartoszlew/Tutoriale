@@ -1,7 +1,6 @@
-Nginx
-============
-Info:
--------------
+========================
+Podstawowe info
+========================
 nginx -V wywala wersje  nginxa i info z z jakimi argumentami byl kompilowany
 
 Uruchamianie/User/grupy:
@@ -70,9 +69,12 @@ Aktualizowanie Nginx
 4.wyslanie sygnalu WINCH do procesu mastera nginx: kill -WINCH <process pid numer> - to zainicjuje gladkie ubijanie procesow workera
 5.upewnic sie ze wszystkie stare workery zdechly. i wyslac sygnal QUIT do starego procesu mastera nginx: kill -QUIT <numer pid procesu>
   
-  
+ 
+ 
+ 
+========================
 Konfiguracja HTTP
------------------------
+========================
 http://nginx.org/en/docs/http/configuring_https_servers.html#single_http_https_server
 Dyrektywy:
 http - blok z konfiguracją serwera http
@@ -133,7 +135,16 @@ brak - nazwa musi sie zaczynac od wzoru, np. location /abcd
 @ client nie moze sie dostac do tej lokalizacji, tylko wewnetrze requesty generowane przez inne dyrektywy, np try_files albo error_page
 
  
+Kolejnosc przeszukiwania i priorytet w bloku 'location', od nazjważniejszego:
+= 		- jesli dokladnie pasuje do podanego URL
+brak 	- jesli ciag znakow dokladnie pasuje do podanego URL
+^~ 		- jesli ciag znakow pasuje do poczatku podanego URL
+~ albo ~* - - jesli regexp pasuje do podanego URL
+brak 	- jesli ciag znakow pasuje do poczatku podanego URL
+
+Nginx uzywa Perlowych regexpó-w (PCRE)
 
 
-
-//skonczone na stronie: 97
+Rewrite Module
+SSI Module
+//skonczone na stronie: 105

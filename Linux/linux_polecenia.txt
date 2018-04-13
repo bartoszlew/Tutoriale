@@ -1,6 +1,6 @@
-----------------------------------------------------------------
+----------------------------------------------------------------------------
 zalogowani uzytkownicy, ostatnie logowania, zarządzanie uzytkownikami itp.
---------------------------------------------------------------
+----------------------------------------------------------------------------
 https://dug.net.pl/tekst/82/uzytkownicy_w_systemie_linux/ - bdb opis zarzadzania kontami
 
 man /var/log/wtmp utmp btmp - logi logowan/wylogowan, plik binarny, mozna odczytac przez utmpdump
@@ -81,6 +81,8 @@ wyszukiwanie
 ----------------------------------------------------------------
 find -> https://www.digitalocean.com/community/tutorials/how-to-use-find-and-locate-to-search-for-files-on-a-linux-vps
 
+
+
 ----------------------------------------------------------------
 zarzadzanie procesami
 ----------------------------------------------------------------
@@ -113,6 +115,8 @@ https://blog.kowalsio.com/2018/01/29/dmidecode-wyswietlanie-informacji-dotyczacy
 lshw -class memory - info o wolnych slotach oamieci ram
 dmidecode -t memory | grep -i size  -  info o wolnych slotach oamieci ram
 
+
+
 ----------------------------------------------------------------
 info, atrybuty, zarzadzanie plikami
 ----------------------------------------------------------------
@@ -128,13 +132,8 @@ zmiana atrybutów:
  chmod
  chown
  
-----------------------------------------------------------------
-PAM - limitowanie uprawnień użytkowników
-----------------------------------------------------------------
-https://dug.net.pl/tekst/42/pam___limitowanie_uprawnien_uzytkownikow/
-obcnie systemd ignoruje  /etc/security/limits*, trzeba ustawiac w  plikach systemd services 
-https://fredrikaverpil.github.io/2016/04/27/systemd-and-resource-limits/
-
+ 
+ 
 ----------------------------------------------------------------
 Zarządzanie ramem i swap
 ----------------------------------------------------------------

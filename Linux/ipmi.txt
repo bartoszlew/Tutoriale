@@ -35,7 +35,7 @@ The output will be one of the following:
 	11 00 00 - indicates shared on-board (expected here)
 	11 01 00 - indicates dedicated on-board
 	11 02 00 - indicates shared add-in (via ML2 adapter)
-2. Assuming the output above indicates that the system is set to shared on-board mode, change the mode to dedicated on-board:
+2. Cange the mode to dedicated on-board:
   	ipmitool raw 0xc 0x1 0x1 0xc0 0x1   //zmiana amoze potrwac kilkanascie sekund
 
 3. Change the mode back to shared on-board mode with the following command:
