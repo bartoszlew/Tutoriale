@@ -14,7 +14,7 @@ Volumes - A special Docker container layer that allows data to persist and be sh
 
 skróty klawiszowe
 ---------------------
-ctrl + q + q - wylazi z dockera nie wylaczajac go ??
+Ctrl+P i Ctrl+Q - wylazi z kontenera nie wylaczajac go ??
 
 
 
@@ -44,10 +44,19 @@ docker container unpouse <nazwa/id-kontenera> - //doczytac
 docker container exec <nazwa/id-kontenera> - we can send a command in to the container to run by using the exec command
 docker exec -it <id_kontenera> <jakas-komenda> - podlacza sie do uruchomionego kontenera i odpala basha
 docker container top - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
-docker container status - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
+docker container stats - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
 docker container diff <id kontenera> Pokazuje różnice w plikach lub folderach między kontenerem a obrazem.
 docker container commit - zostanie utworzony nowy obraz zawierający wszystkie dokonane zmiany i gotowy do późniejszego uruchomienia
-docker container create Tworzy nowy kontener na podstawie obrazu.
+docker container create - Tworzy nowy kontener na podstawie obrazu.
+
+interakcja z kontenerami
+--------------------------
+kopiowanie jednego pliku na kontener:
+docker cp mycontainer:/foo.txt foo.txt
+
+kopiowanie wielu plikow na kontener:
+docker cp src/. mycontainer:/target
+docker cp mycontainer:/src/. target
 
 
 działanie na obrazach 
@@ -91,6 +100,18 @@ Budowanie obrazu uzywajac pliku Dockerfile
 	docker build -t jakas_nazwa:versja . 
 			np. docker image build -t hello:v0.1 .
 
+Instrukcje pliku Dockerfile:
+FROM <obraz> albo <obraz>:<znacznik> albo <obraz>@<skrócony_opis>
+MAINTAINER nazwa_twórcy
+ADD <ścieżka lub adres URL miejsca źródłowego> <ścieżka miejsca docelowego> - kopiuje pliki z miejsca źródłowego na hoście do własnego systemu plików obrazu Dockera
+	<katalog docelowy> identyfikuje ścieżkę bezwzględną lub ścieżkę względną w odniesieniu do katalogu określonego przez instrukcję WORKDIR
+	- jesli kopiujemy archiwum, to ADD automatem je rozpakuje
+	- mozna pobrac pliki z sieci
+COPY <ścieżka miejsca źródłowego> <ścieżka miejsca docelowego> - skopiuje nowe pliki lub katalogi ze ścieżki i doda je do systemu plików kontenera reprezentowanego przez ścieżkę
+	- preferowana nad ADD (jeśli nie trzeba korzystać z dodatkowych funkcji ktore posiada ADD)
+CMD 
+
+
 
 
 konfigurowanie sieci w dockerze
@@ -103,12 +124,38 @@ docker info | grep Network - list network driver plugins
 
 Bridge Networking:
 Every clean installation of Docker comes with a pre-built network called bridge.
-docker run -p 8080:80 nginx - odpala kontener i mapuje port 8080 na 80
+docker run -p 8080:80 nginx - odpala kontener i mapuje port 80(docker) na 8080(serwer)
 		-p 8080:80  i natuje port 8080 serwera dockera na 80 kontenera (The port mapping is actually port address translation (PAT)).
 Po odpaleniu kontenera domyslnie podlacza sie on do interfejsu bridge, brctl show - pojawi sie w kolumnie interfaces pod docker0
 
 
+Udostępnianie i mapowanie portów
+---------------------------------
+EXPOSE - Sygnalizuje, że na określonym porcie dostępna jest usługa. Instrukcja używana jest w pliku Dockerfile,
+		 który zapewnia, że udostępnione porty są otwarte dla innych kontenerów.
+--expose - Są to równorzędne polecenia, choć opcja --expose pozwala również podać zakres portów jakoargument (na przykład --expose=1000-2000 )
+-p - Opcja określa regułę mapowania portów, mapując port kontenera na port komputera hosta. W ten sposób port jest dostępny poza obrębem Dockera. 
+	 Jeśli nie określono żadnego portu hosta, Docker automatycznie go przydzieli.
+		np. docker run -p<port_hosta>:<port_kontenera> <identyfikator lub nazwa obrazu>
+-P - Opcja mapuje dynamicznie (losowo	) przydzielony port komputera hosta na wszystkie porty udostępnione za pomocą instrukcji EXPOSE lub opcji -expose.
+--expose roznica -p - W przprzypadku udostępniania portu za pomocą instrukcji EXPOSE usługa w kontenerze jest niedostęp-
+	na poza obrębem Dockera, lecz jest dostępna z poziomu innych kontenerów Dockera. Opcja -p zawiera w sobie --expose.
 
+
+Wolumeny dockera
+-----------------
+docker run -it -v /Users/jarek/testDir/:/data ubuntu
+docker run -it -v /data2 ubuntu
+docker run --name docker-nginx -p 80:80 -d --volumes-from myWebsiteData nginx
+docker volume create
+VOLUME w Dockerfile
+info o volumenie:
+	docker run -it -v /data2 ubuntu
+docker run -it -v /data2 ubuntuw - podłaczenie volumenu o nazwie data do katalogu w kontenerze /data
+docker rm -v <nazwa_kontenera> - usuwa wolumen bez pytania, nawet jesli jakies kontenery uzywaja tego wolumenu
+docker volume rm - usuwa wolumen ale tylko wtedy kiedy żaden kontener go nie uzuwa
+docker volume rm $(docker volume ls -qf dangling=true) - usuwa wszystkie wolumeny, do których nie odwołuje się żaden kontener
+--driver; -d - sterownik wolumenu,  (domyslnie "local")
 
 Docker security
 ------------------------
@@ -121,6 +168,7 @@ bindujemy / hosta na /host i chrootujemy z poziomu dockera na /host z uprawnieni
 
 Docker logowanie
 ------------------------
+docker login --username <dockerId> --password <hasło>
 
 
 
@@ -166,5 +214,6 @@ docker service scale <jakis_serwis_ze_stosu> =5 - dorzucenie taskow do serwisu (
 
 Kubernetes // wydzielic do osobnego pliku
 ---------------------
+https://kubernetes.io/docs/tutorials/kubernetes-basics/
 http://cockpit-project.org/
 cockpit-kubernetes.x86_64 : Cockpit user interface for Kubernetes cluster

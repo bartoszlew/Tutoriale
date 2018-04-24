@@ -14,3 +14,5 @@ NIS:
 The Name Service Switch (NSS) is a facility in Unix-like operating systems that provides a variety of sources for common configuration databases
 and name resolution mechanisms. These sources include local operating system files (such as /etc/passwd, /etc/group, and /etc/hosts), the Domain Name System (DNS), 
 the Network Information Service (NIS), and LDAP.
+
+# sssd automatically modifies the PAM files with pam-auth-update and /etc/nsswitch.conf, so all that's left is to configure /etc/sssd/sssd.conf
