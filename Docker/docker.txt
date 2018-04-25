@@ -109,7 +109,7 @@ ADD <ścieżka lub adres URL miejsca źródłowego> <ścieżka miejsca doceloweg
 	- mozna pobrac pliki z sieci
 COPY <ścieżka miejsca źródłowego> <ścieżka miejsca docelowego> - skopiuje nowe pliki lub katalogi ze ścieżki i doda je do systemu plików kontenera reprezentowanego przez ścieżkę
 	- preferowana nad ADD (jeśli nie trzeba korzystać z dodatkowych funkcji ktore posiada ADD)
-CMD 
+CMD - moze byc tylko jedna uinstrukcja w Dockerfile, jesli jest wiecej, uruchamia sie tylko ostatnia.
 
 
 
