@@ -70,6 +70,12 @@ ltrace – jest to analogicznie działające narzędzie do strace, z tym, że za
 lsof - lista otwartych plikow. mozna wyszukac jaki proces,uzytkownik  ma jakie pliki otwarte 
 	lsof is a command meaning "list open files", which is used in many Unix-like systems to report a list of all open 	  files and the processes that opened them. 
 	http://www.thegeekstuff.com/2012/08/lsof-command-examples/
+	-u [user-name] - wg. usera
+	-i 4 - listuje po  adresie internetowym
+	-p [PID] - wg.pidu procesu
+	-t [file-name] - listuje procesy ktore otworzyły konkretny plik
+	+D [directory-path] - ogranicza wyszukiwanie plikow do podanego katalogu
+	-i :1-1024 - listuje otwarte pliki korzystajaćę z portu lub zakresu portow
 sar
 watch <komenda> - powtarza komende co kilka sek. (domyslnie 2), np. watch ls
 
