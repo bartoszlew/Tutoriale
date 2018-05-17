@@ -358,10 +358,19 @@ ausearch -m avc -ts 08/28/2017  -te 08/28/2017 - zakres dat
 aureport -a
 
 
+10. dontaudits //doczytac
+------------------------------------------------------------------------------------
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/security-enhanced_linux/sect-security-enhanced_linux-fixing_problems-possible_causes_of_silent_denials
+https://selinuxproject.org/page/AVCRules
+https://access.redhat.com/solutions/1523643
+https://wiki.gentoo.org/wiki/SELinux/Policy#Disabling_dontaudit_rules	
+
+dontaudit ustawiony w polityce powoduje, ze 'denied' dla tej polityki nie pojawiaja sie w logach
+
+semodule -DB -wyłacza tymczasowo dontaudit dla wszystkich polityk i je przebudowuje
+semodule -B - przebudowuje politje przywraca ustawienia rule dontaudit 
 			
-			
-			
-10.Troubleshooting
+11.Troubleshooting
 -------------------------------------------------------------------------------------
 https://wiki.centos.org/HowTos/SELinux
 https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/sect-Security-Enhanced_Linux-Troubleshooting-Fixing_Problems.html#sect-Security-Enhanced_Linux-Fixing_Problems-Searching_For_and_Viewing_Denials
@@ -424,7 +433,7 @@ jesli wywala bledy z lokalnymi politykami to przeniesc je z
 semodule -B -R
 			
 
-11. Selinux chef (modul selinux_policy dla chef)
+12. Selinux chef (modul selinux_policy dla chef)
 ------------------------------------------------------------
 
 INFO ---> cookbooks/selinux_policy/README.md

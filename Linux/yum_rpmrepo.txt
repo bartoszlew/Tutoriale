@@ -1,0 +1,15 @@
+repomanage - zarzadza plikami rpm w repo
+mozna np wywalic wszystkie paczki starsze niz N ostatnich wersji
+rm $(repomanage --keep=2 --old /sciezka/do/repo)
+
+
+createrepo /path/to/repo
+"przyspieszacze" tworzenia repo:
+--update 
+--cachedir jakis_katalog
+--checkts 
+
+
+debagowanie:
+create repo --> -v !!!
+np. /usr/bin/createrepo -v --workers 2 --cachedir /home/nginx/cachedir --update /home/nginx/repo/7
