@@ -1,69 +1,51 @@
-chef
-----------------
-https://docs.chef.io/
+tworzenie cookbookow od podstaw
+---------------------------------
+chef cookbook generate jakas_nazwa - tworzynowy drzewo folderów cookbooka z podstawowa zawartoscia
+chef generate template [sciezka do cookbooka] nazwa.pliku
+  np. chef generate cookbooks cookbooks/learn_chef_httpd index.html
 
+sciagniecie gotowego przepisu ze chef.supermarket:
+knife cookbook site download [nazwa-cookbooka]
 
-chef generate cookbook nazwa_cookbooka -> tworzynowy folder cookbooka z podstawowa zawartoscia
-najprosciej jest kopiowac cookbooki 
-
-
-##########################################################
-
-attributes (atrybuty) - wartosci atrybutow. czyli ustawienie zmiennych = klucz-wartosc
-	default['sms']['port'] = 8456 
-		default - moze byc: default, normal, override -> priorytety atrybutu: https://docs.chef.io/roles.html
-		['sms'] - jakas grupa, nazwa moze byc jakakolwiek, najczesciej ustawiaomy nazwe cookbooka zeby bylo wiadomo o co chodzi, to jest tylko "grupa" zmiennych
-		['port'] - nazwa zmiennej
-	
-recipe (przepisy)- w recipe jest glowna konfiguracja, odwolujemy sie tam do plikow, atrybutow, templatow
-	odwolanie: 
-	:config_var => node['configs']['config_var']
-		- config nazwa atrybutu 
-		node[] wartosc atrybutu
-		
-template - uzycie atrybutu. tak jak pliki ale nie sa statyczne. mozemy odwolac sie/wstawic zmienne ktore sa zdefiniowane w attributes
-	@nazwa_zmiennej
-	atrybut mozemy bezposrednio  wstawic do recipe bez odwolywania sie do zmiennej:
-	zamiast :config_var => node['configs']['config_var'] , wstawiamy default['sms']['port']
-
-files - statyczne pliki które beda wrzucane na endpointa
+najprosciej jest kopiowac gotowe cookbooki i je modyfikowac
 
 
 
-
-=====================CHEF VAULT i DATA BAG=====================
-
-https://blog.chef.io/2016/01/21/chef-vault-what-is-it-and-what-can-it-do-for-you/
-
-
-Cookbook:
+dodanie noda do chefa
 ------------------------
-metadata.rb:
-	depends ‘chef-vault’
-recipe.rb:
-	require 'chef-vault'
-	jakas_zmienna = ChefVault::Item.load("nazwa_vaulta", "nazwa_klucza")
-	variables :jakas_nazwa_zmiennej=> jakas_zmienna["nazwa_klucza"]  // przypisujemy jakas_nazwa_zmiennej wartosc klucza
-zmienna mozemy wywolac gdzies cookbooku przez: <%= "#{@nazwa_klucza}" %>
 
-np.
-	secret = ChefVault::Item.load("costa", "costam")
-	HMAC_SIGN_KEY=<%= "#{@HMAC_SIGN_KEY}" %>
 
-template '/etc/sssd/sssd.conf' do
-  source 'sssd.conf.erb'
-  owner 'root'
-  group 'root'
-  mode '0600'
-  variables :authtoken => item["sssd_authtoken"]
-  sensitive true  //dodawac do recipe, wtedy chef-clien nie bedzie wyswietlal hasla w logach!
+wrapper cookbooks
+-----------------------
+https://blog.chef.io/2017/02/14/writing-wrapper-cookbooks/
+
+
+=====================Chef Vault i Data bag=====================
+
+
+Data bag
+------------------------
+plain text:
+knife data bag -z create [nazwa_cookbooka] [nazwa_data-buga] - tworzenie data baga
+  -z -> plik tworzony lokalnie (nie na serwerze)
+
+encrypted:
+//potrzebny jest odpowiedni wpis (sciezka do klucza wspoldzielonego) w .chef/knife.rb
+//klucz jest kopiowany z serwera chefa do lokalnego katalogu .chef ?
+knife[:secret] = #{current_dir}/plik_klucza
+knife data bag -z create --encrypt [nazwa_cookbooka] [nazwa_data-baga] - tworzenie zaszyfrowanego data baga
+knife data bag -z show [nazwa_cookbooka] [nazwa_data-buga]  - podglad zaszyfrowanego data baga
+knife data bag -z edit - edycja data baga
+
 
 
 Tworzenie nowegp vaulta w chefie i wrzucanie do gita
-------------------------------------------------
+------------------------------------------------------
+https://blog.chef.io/2016/01/21/chef-vault-what-is-it-and-what-can-it-do-for-you/
+
 1.tworzymy nowy item w vaulcie w chefie
 knife vault list - listuje pudelka z kluczami
-knife vault create nazwa-vaulta nazwa_itemu {"klucz":"wartosc"}  // przewaznie hasla dla nh robimy w "nh-vault" 
+knife vault create nazwa-vaulta nazwa_itemu {"klucz":"wartosc"}
 	np. knife vault create nh-vault rsoperations {"dbpass":"haslo_plain_tekstem"} // chef zaszyfruje haslo
 knife vault show nazwa_vaulta nazwa_itemu - wyswietla co jest w vaulcie // (rozszyfrowane dlatego haslo jest w plain tekscie)
 
@@ -71,7 +53,7 @@ knife vault show nazwa_vaulta nazwa_itemu - wyswietla co jest w vaulcie // (rozs
 skryptem chef/chef-repo/scripts/vault-dump.sh albo recznie:
 - stworzyc katalog w chef/chef-repo/vaults/waw/nazwa_vaulta/
 - cd chef/chef-repo/vaults/waw/nazwa_vaulta/
-- zaimportowac itema/vaulta z chefa 
+- zaimportowac itema/vaulta z chefa
 	knife data bag show nazwa_vaulta nazwa_itemy -Fj  > nazwa_itemu.json --> importuje vaulta z chefa do jsona i zrzuca do pliku
 		np. knife data bag show nh-vault rsoperations -Fj > vaults/waw/nh-vault/rsoperations.json
 - zaimportowac klucze userów?? dla vaulta
@@ -89,30 +71,74 @@ skryptem chef/chef-repo/scripts/vault-dump.sh albo recznie:
 - to samo, tylko ze do kilku roli:
 	knife vault update ssl_certs costam -S "role:jakas_rola or role:jakas_rola"
 
-https://docs.chef.io/knife_search.html
+
+Cookbook (data bag + vault)
+----------------------------
+	metadata.rb:
+		depends ‘chef-vault’
+	recipe.rb:
+		require 'chef-vault'
+		jakas_zmienna = ChefVault::Item.load("nazwa_vaulta", "nazwa_klucza")
+		variables :jakas_nazwa_zmiennej=> jakas_zmienna["nazwa_klucza"]  // przypisujemy jakas_nazwa_zmiennej wartosc klucza
+	zmienna mozemy wywolac gdzies cookbooku przez: <%= "#{@nazwa_klucza}" %>
+
+	np.
+		secret = ChefVault::Item.load("costa", "costam")
+		HMAC_SIGN_KEY=<%= "#{@HMAC_SIGN_KEY}" %>
+
+	template '/etc/sssd/sssd.conf' do
+	  source 'sssd.conf.erb'
+	  owner 'root'
+	  group 'root'
+	  mode '0600'
+	  variables :authtoken => item["sssd_authtoken"]
+	  sensitive true  //dodawac do recipe, wtedy chef-client nie bedzie wyswietlal hasla w logach!
+
+
 
 
 =====================ustawnie atrybutow=====================
 zmiana atrybutow w:
 
 -cookbookach - dla cookbooka
-	-attributes 
+	-attributes
 	-recipes
 	.. ?
 -rolach - dla grupy ktora ma przypiata role
 -nodach - dla pojedynczego noda
 
-osobno dla jednego noda - wrzucamy w bezposrednio w node w sekcji atrybutow 
+osobno dla jednego noda - wrzucamy w bezposrednio w node w sekcji atrybutow
 "zasobyp: {
 	"action": "upgrade"
 	}
 
+##########################################################
+
+attributes (atrybuty) - wartosci atrybutow. czyli ustawienie zmiennych = klucz-wartosc
+	default['sms']['port'] = 8456
+		default - moze byc: default, normal, override -> priorytety atrybutu: https://docs.chef.io/roles.html
+		['sms'] - jakas grupa, nazwa moze byc jakakolwiek, najczesciej ustawiaomy nazwe cookbooka zeby bylo wiadomo o co chodzi, to jest tylko "grupa" zmiennych
+		['port'] - nazwa zmiennej
+
+recipe (przepisy)- w recipe jest glowna konfiguracja, odwolujemy sie tam do plikow, atrybutow, templatow
+	odwolanie:
+	:config_var => node['configs']['config_var']
+		- config nazwa atrybutu
+		node[] wartosc atrybutu
+
+template - uzycie atrybutu. tak jak pliki ale nie sa statyczne. mozemy odwolac sie/wstawic zmienne ktore sa zdefiniowane w attributes
+	@nazwa_zmiennej
+	atrybut mozemy bezposrednio  wstawic do recipe bez odwolywania sie do zmiennej:
+	zamiast :config_var => node['configs']['config_var'] , wstawiamy default['sms']['port']
+
+files - statyczne pliki które beda wrzucane na endpointa
 
 -----------------
 rpm -qa --queryformat  "%{VERSION}" storage-agent' -> wyciagnieczie zmiennej paczki
 chef-client -z -r "cookbook::test1" -l info testowanie cookbooka lokalnie  (test1 - nazwa przepisu z /recipe)
 	do przepisu trzeba wpakowac Chef::Log::info("#{jakas zmienna}") zeby wywalilo wartosc zmiennej
-	
+
+
 
 -------------------iteracja----------------------------
 node['nginx_selinux_nh']['ports'].each do |seport|
@@ -121,6 +147,7 @@ node['nginx_selinux_nh']['ports'].each do |seport|
         not_if "/usr/sbin/semanage port -l | grep -E '^http_port_t.*tcp.*[^0-9]#{seport}($|[^0-9].*$)'>/dev/null"
     end
 end
+
 
 -------------------if--else----------------------------
 
@@ -136,7 +163,7 @@ end
 	local_ver = Mixlib::ShellOut.new('rpm -qa --queryformat  "%{VERSION}" storage-agent')
 	local_ver.run_command
 	Chef::Log.info(" #{local_ver.stdout} ")
-	
+
 service "storage-agent" do
 	action [:stop]
 	only_if { node['storage-agent']['version'] != "#{local_ver.stdout}"}
@@ -151,7 +178,8 @@ end
 =================
 
 
-================KNIFE=====================		
+================KNIFE=====================
+https://docs.chef.io/knife_search.html
 
 knife status - sprawdza kiedy ostatnio odpalil sie chef-client na nodach
 knife node show [node] - SPRAWDZENIE co ma przypisany host
@@ -163,7 +191,7 @@ knife search node "chef_environment:nazwa_env" -i - listuje wszystkie nody ktore
 knife cookbook upload [jakis_cookbook] - upload cookbooka do servera chefa (jesli nie jest automatycznie wysylany)
 knife upload environments/jakies_srodowisko.json - ulpad srodowiska
 
-Sprawdzenie czy node i client jest w cefie 
+Sprawdzenie czy node i client jest w cefie
 	knife node status <nazwa hosta>
 	knife client show <nazwa hosta>
 Wywalenie noda z chefa:
@@ -172,7 +200,7 @@ Wywalenie noda z chefa:
 
 sprawdzanie atrybutow na serverze chefa (czy aktualne)
 -------------------------------------------
-knife environment show [nazwa_env] 
+knife environment show [nazwa_env]
 
 update atrybutow( env/recipe/itp. ) w chefie
 no. env jesli na serewrze jest inna wersja niz w gicie
