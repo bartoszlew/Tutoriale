@@ -11,14 +11,85 @@ najprosciej jest kopiowac gotowe cookbooki i je modyfikowac
 
 
 
-dodanie noda do chefa
+dodanie noda do chefa (bootstrap)
+-------------------------------------
+
+
+
+podstawy - attributes, recipe, template, files
+-------------------------------------------------
+
+attributes (atrybuty) - wartosci atrybutow. czyli ustawienie zmiennych = klucz-wartosc
+	default['sms']['port'] = 8456
+		default - moze byc: default, normal, override -> priorytety atrybutu: https://docs.chef.io/roles.html
+		['sms'] - jakas grupa, nazwa moze byc jakakolwiek, najczesciej ustawiaomy nazwe cookbooka zeby bylo wiadomo o co chodzi, to jest tylko "grupa" zmiennych
+		['port'] - nazwa zmiennej
+
+recipe (przepisy)- w recipe jest glowna konfiguracja, odwolujemy sie tam do plikow, atrybutow, templatow
+	odwolanie:
+	:config_var => node['configs']['config_var']
+		- config nazwa atrybutu
+		node[] wartosc atrybutu
+
+template - uzycie atrybutu. tak jak pliki ale nie sa statyczne. mozemy odwolac sie/wstawic zmienne ktore sa zdefiniowane w attributes
+	@nazwa_zmiennej
+	atrybut mozemy bezposrednio  wstawic do recipe bez odwolywania sie do zmiennej:
+	zamiast :config_var => node['configs']['config_var'] , wstawiamy default['sms']['port']
+
+files - statyczne pliki które beda wrzucane na endpointa
+
+
+
+attributes
 ------------------------
+zmiana atrybutow w:
+
+-cookbookach - dla cookbooka
+	-attributes
+	-recipes
+	.. ?
+-rolach - dla grupy ktora ma przypiata role
+-nodach - dla pojedynczego noda
+
+osobno dla jednego noda - wrzucamy w bezposrednio w node w sekcji atrybutow
+"zasobyp: {
+	"action": "upgrade"
+	}
+
+
+cookbooks
+-------------------------
+iteracja:
+--
+node['nginx_selinux']['ports'].each do |seport|
+    execute 'selinux add port' do
+        command "/sbin/semanage port -a -t http_port_t -p tcp #{seport}"
+        not_if "/usr/sbin/semanage port -l | grep -E '^http_port_t.*tcp.*[^0-9]#{seport}($|[^0-9].*$)'>/dev/null"
+    end
+end
+
+
+if--else:
+--
+if node[:fqdn] != 'host.domena.pl'
+        selinux_policy_boolean 'nis_enabled' do
+                value false
+        end
+end
+
 
 
 wrapper cookbooks
 -----------------------
 https://blog.chef.io/2017/02/14/writing-wrapper-cookbooks/
 
+
+
+testowanie cookbookow
+------------------------
+rpm -qa --queryformat  "%{VERSION}" jakas_paczka' -> wyciagnieczie zmiennej paczki
+chef-client -z -r "cookbook::test1" -l info testowanie cookbooka lokalnie  (test1 - nazwa przepisu z /recipe)
+	do przepisu trzeba wpakowac Chef::Log::info("#{jakas zmienna}") zeby wywalilo wartosc zmiennej
 
 
 ============================ Knife ==============================
@@ -126,67 +197,12 @@ Cookbook (data bag + vault)
 	  sensitive true  //dodawac do recipe, wtedy chef-client nie bedzie wyswietlal hasla w logach!
 
 
-
-
-=====================ustawnie atrybutow=====================
-zmiana atrybutow w:
-
--cookbookach - dla cookbooka
-	-attributes
-	-recipes
-	.. ?
--rolach - dla grupy ktora ma przypiata role
--nodach - dla pojedynczego noda
-
-osobno dla jednego noda - wrzucamy w bezposrednio w node w sekcji atrybutow
-"zasobyp: {
-	"action": "upgrade"
-	}
-
-##########################################################
-
-attributes (atrybuty) - wartosci atrybutow. czyli ustawienie zmiennych = klucz-wartosc
-	default['sms']['port'] = 8456
-		default - moze byc: default, normal, override -> priorytety atrybutu: https://docs.chef.io/roles.html
-		['sms'] - jakas grupa, nazwa moze byc jakakolwiek, najczesciej ustawiaomy nazwe cookbooka zeby bylo wiadomo o co chodzi, to jest tylko "grupa" zmiennych
-		['port'] - nazwa zmiennej
-
-recipe (przepisy)- w recipe jest glowna konfiguracja, odwolujemy sie tam do plikow, atrybutow, templatow
-	odwolanie:
-	:config_var => node['configs']['config_var']
-		- config nazwa atrybutu
-		node[] wartosc atrybutu
-
-template - uzycie atrybutu. tak jak pliki ale nie sa statyczne. mozemy odwolac sie/wstawic zmienne ktore sa zdefiniowane w attributes
-	@nazwa_zmiennej
-	atrybut mozemy bezposrednio  wstawic do recipe bez odwolywania sie do zmiennej:
-	zamiast :config_var => node['configs']['config_var'] , wstawiamy default['sms']['port']
-
-files - statyczne pliki które beda wrzucane na endpointa
-
------------------
-rpm -qa --queryformat  "%{VERSION}" jakas_paczka' -> wyciagnieczie zmiennej paczki
-chef-client -z -r "cookbook::test1" -l info testowanie cookbooka lokalnie  (test1 - nazwa przepisu z /recipe)
-	do przepisu trzeba wpakowac Chef::Log::info("#{jakas zmienna}") zeby wywalilo wartosc zmiennej
+===============================================================
 
 
 
--------------------iteracja----------------------------
-node['nginx_selinux_nh']['ports'].each do |seport|
-    execute 'selinux add port' do
-        command "/sbin/semanage port -a -t http_port_t -p tcp #{seport}"
-        not_if "/usr/sbin/semanage port -l | grep -E '^http_port_t.*tcp.*[^0-9]#{seport}($|[^0-9].*$)'>/dev/null"
-    end
-end
 
 
--------------------if--else----------------------------
-
-if node[:fqdn] != 'front1.domena.pl'
-        selinux_policy_boolean 'nis_enabled' do
-                value false
-        end
-end
 
 
 ===============
