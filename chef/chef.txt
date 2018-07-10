@@ -20,6 +20,37 @@ wrapper cookbooks
 https://blog.chef.io/2017/02/14/writing-wrapper-cookbooks/
 
 
+
+============================ Knife ==============================
+https://docs.chef.io/knife_search.html
+
+knife status - sprawdza kiedy ostatnio odpalil sie chef-client na nodach
+knife node show [node] - SPRAWDZENIE co ma przypisany host
+knife node show [node] -Fj -  SPRAWDZENIE co ma przypisany host
+knife cookbook list - listuje aktualne cookbooki na serverze chefa z numerem wersji
+knife search node "roles:$ROLE_NAME" -i - listuje wszystkie nody ktore maja przypisana konkretna role
+knife search node "chef_environment:nazwa_env" -i - listuje wszystkie nody ktore maja przypisany nazwa_env
+
+knife cookbook upload [jakis_cookbook] - upload cookbooka do servera chefa (jesli nie jest automatycznie wysylany)
+knife upload environments/jakies_srodowisko.json - ulpad srodowiska
+
+Sprawdzenie czy node i client jest w cefie
+	knife node status <nazwa hosta>
+	knife client show <nazwa hosta>
+Wywalenie noda z chefa:
+	knife node delete <nazwa hosta>
+	knife client delete <nazwa hosta>
+
+sprawdzanie atrybutow na serverze chefa (czy aktualne)
+-------------------------------------------
+knife environment show [nazwa_env]
+
+update atrybutow( env/recipe/itp. ) w chefie
+no. env jesli na serewrze jest inna wersja niz w gicie
+	knife environment from file environments/jakies_srodowisko.json
+
+
+
 =====================Chef Vault i Data bag=====================
 
 
@@ -134,7 +165,7 @@ template - uzycie atrybutu. tak jak pliki ale nie sa statyczne. mozemy odwolac s
 files - statyczne pliki które beda wrzucane na endpointa
 
 -----------------
-rpm -qa --queryformat  "%{VERSION}" storage-agent' -> wyciagnieczie zmiennej paczki
+rpm -qa --queryformat  "%{VERSION}" jakas_paczka' -> wyciagnieczie zmiennej paczki
 chef-client -z -r "cookbook::test1" -l info testowanie cookbooka lokalnie  (test1 - nazwa przepisu z /recipe)
 	do przepisu trzeba wpakowac Chef::Log::info("#{jakas zmienna}") zeby wywalilo wartosc zmiennej
 
@@ -164,47 +195,19 @@ end
 	local_ver.run_command
 	Chef::Log.info(" #{local_ver.stdout} ")
 
-service "storage-agent" do
+service "jakis_cookbook" do
 	action [:stop]
-	only_if { node['storage-agent']['version'] != "#{local_ver.stdout}"}
+	only_if { node['jakis_cookbook']['version'] != "#{local_ver.stdout}"}
 	only_if { node.environment() == 'nh-messor-staging' }
 end
 
-yum_package 'storage-agent' do
+yum_package 'jakis_cookbook' do
 	action [:remove]
-	only_if { node['storage-agent']['version'] != "#{local_ver.stdout}"}
+	only_if { node['jakis_cookbook']['version'] != "#{local_ver.stdout}"}
 	only_if { node.environment() == 'nazwa_env' }11
 end
 =================
 
-
-================KNIFE=====================
-https://docs.chef.io/knife_search.html
-
-knife status - sprawdza kiedy ostatnio odpalil sie chef-client na nodach
-knife node show [node] - SPRAWDZENIE co ma przypisany host
-knife node show [node] -Fj -  SPRAWDZENIE co ma przypisany host
-knife cookbook list - listuje aktualne cookbooki na serverze chefa z numerem wersji
-knife search node "roles:$ROLE_NAME" -i - listuje wszystkie nody ktore maja przypisana konkretna role
-knife search node "chef_environment:nazwa_env" -i - listuje wszystkie nody ktore maja przypisany nazwa_env
-
-knife cookbook upload [jakis_cookbook] - upload cookbooka do servera chefa (jesli nie jest automatycznie wysylany)
-knife upload environments/jakies_srodowisko.json - ulpad srodowiska
-
-Sprawdzenie czy node i client jest w cefie
-	knife node status <nazwa hosta>
-	knife client show <nazwa hosta>
-Wywalenie noda z chefa:
-	knife node delete <nazwa hosta>
-	knife client delete <nazwa hosta>
-
-sprawdzanie atrybutow na serverze chefa (czy aktualne)
--------------------------------------------
-knife environment show [nazwa_env]
-
-update atrybutow( env/recipe/itp. ) w chefie
-no. env jesli na serewrze jest inna wersja niz w gicie
-	knife environment from file environments/jakies_srodowisko.json
 
 
 ================chef-client=====================
