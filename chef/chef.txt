@@ -1,18 +1,21 @@
+przygotowanie srodowiska
+---------------------------
+ChefDK - narzedzia i soft chefa (knife, chef-client, Berkshelf, itp.)
+
 tworzenie cookbookow od podstaw
 ---------------------------------
 chef cookbook generate jakas_nazwa - tworzynowy drzewo folderów cookbooka z podstawowa zawartoscia
-chef generate template [sciezka do cookbooka] nazwa.pliku
-  np. chef generate cookbooks cookbooks/learn_chef_httpd index.html
+tworzenie plikow:
+	chef generate -h
+	np.
+	chef generate template [sciezka do cookbooka] nazwa.pliku
+  	np. chef generate cookbooks cookbooks/learn_chef_httpd index.html
+	chef generate attribute ./ default
 
 sciagniecie gotowego przepisu ze chef.supermarket:
 knife cookbook site download [nazwa-cookbooka]
 
 najprosciej jest kopiowac gotowe cookbooki i je modyfikowac
-
-
-
-dodanie noda do chefa (bootstrap)
--------------------------------------
 
 
 
@@ -82,14 +85,83 @@ end
 wrapper cookbooks
 -----------------------
 https://blog.chef.io/2017/02/14/writing-wrapper-cookbooks/
+https://realityforge.org/code/2012/11/19/role-cookbooks-and-wrapper-cookbooks.html
+
+For every cookbook and/or recipe we wanted to customize we created a separate 'wrapper' recipe
+that set the required attributes and then included the recipe from the original cookbook.
+This resulted in a layout that looked like the following;
+
+
+dodanie noda do chefa (bootstrap)
+-------------------------------------
+https://learn.chef.io/modules/manage-a-node-chef-server/rhel/bring-your-own-system/bootstrap-your-node#/
+
+- sprawdzic polaczenie ssh do noda (najlepiej ustawic logowanie po kluczu)
+
+knife bootstrap ADDRESS --ssh-user USER --sudo --ssh-identity-file IDENTITY_FILE --node-name node1-centos --run-list 'recipe[learn_chef_httpd]'
+	--node-name - ustawia nazwe noda w  Chef serwerze, nie musi to byc nazwa hostnama
+	np. knife bootstrap 34.238.115.178 --ssh-user centos --sudo --identity-file ~/.ssh/private_key --node-name node1-centos --run-list 'recipe[learn_chef_httpd]'
+
+
+sprawdzenie:
+	knife node list
+	knife node show node1-centos
+
+update cookbooka:
+	np. knife ssh 'name:node1-centos' 'sudo chef-client' --ssh-user USER --identity-file IDENTITY_FILE --attribute ipaddress
 
 
 
-testowanie cookbookow
-------------------------
+pobieranie cookbookow z chef supermarket
+-------------------------------------------
+knife supermarket - pobiera ale bez zaleznosci
+Berkshelf - tool that helps you resolve cookbook dependencies. Can retrieve the cookbooks that
+		your cookbook depends on and can upload your cookbooks to your Chef server.
+
+Berksfile
+berks install - sciaga z supermarketu zaleznosci cookbokow zdefiniowanych w Berksfile
+berks show [cookbook] pokazuje sciezke na dysku do sciagnietego przez berks cookbooka
+berks upload - wrzuca cookbooka i zaleznosci do chef servera
+
+
+
+
+Chef-client
+-----------------
+chef-client -o "recipe[jakis_cookbook@0.1.2]"  - odpalanie innej wersji cookbooka na nodzie
+knife ssh 'name:node1-centos' 'sudo chef-client' --ssh-user centos --ssh-identity-file ~/.ssh/private_key
+
+
+
+============================ Test Kitchen i testowanie cookbookow ============================
+https://learn.chef.io/modules/local-development/windows/virtualbox/apply-a-cookbook#/
+https://docs.chef.io/config_yml_kitchen.html
+
+Test Kitchen
+---------------
+Test Kitchen - w skrocie tworzy chwilowe srodowisko testowe towrzac wirtualke za pomoca vagranta i hyperwizora, np. virtualboxa
+	i na niej odpala testy cookbooka. dodatkowo przeprowadza testy kodu.... //do uzupenienia
+	Test Kitchen umożliwia określenie szczegółów dotyczących maszyny wirtualnej, w tym jej systemu operacyjnego, dostępnej pamięci, nazwy hosta,
+	i ustawień sieciowych, oraz jak uruchomić Chefa - w tym, które przepisy i które testy należy uruchomić.
+  Test Kitchen builds the Vagrantfile for you and is the interface you use to create, destroy, and run Chef on your instances.
+
+Bento - repo z gotowymi do uzycia boxami Vagranta (predefiniowane dla chefa?)
+.kitchen.yml - definiuje, co jest potrzebne do uruchomienia Test Kitchen, w tym, z którego dostawcy wirtualizacji korzystać,
+		jak uruchomić Chef i na jakich platformach uruchomić swój kod.
+
+kitchen list - pokazuje co jest w "kuchni"
+
+
+
+
+https://docs.chef.io/chef_solo.html
+
+
 rpm -qa --queryformat  "%{VERSION}" jakas_paczka' -> wyciagnieczie zmiennej paczki
 chef-client -z -r "cookbook::test1" -l info testowanie cookbooka lokalnie  (test1 - nazwa przepisu z /recipe)
 	do przepisu trzeba wpakowac Chef::Log::info("#{jakas zmienna}") zeby wywalilo wartosc zmiennej
+
+
 
 
 ============================ Knife ==============================
@@ -201,10 +273,6 @@ Cookbook (data bag + vault)
 
 
 
-
-
-
-
 ===============
 	require 'mixlib/shellout'
 	local_ver = Mixlib::ShellOut.new('rpm -qa --queryformat  "%{VERSION}" storage-agent')
@@ -223,8 +291,3 @@ yum_package 'jakis_cookbook' do
 	only_if { node.environment() == 'nazwa_env' }11
 end
 =================
-
-
-
-================chef-client=====================
-chef-client -o "recipe[jakis_cookbook@0.1.2]"  - odpalanie innej wersji cookbooka na nodzie
