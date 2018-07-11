@@ -13,7 +13,17 @@ utmpdump /var/log/wutmp - wyswietla zawartosc logu wtmp/utmp/btmp
 command -v jakies_polecenie - sprawdza czy jest polecenie w systemie i wyswietla gdzie, zwraca 0 lub 1
 which - jak wyzej ale slabo kompatybilne z innymi shellami
 
+----------------------------------------------------------------
+ustawienie hostnama:
+----------------------------------------------------------------
+hostnamectl set-hostname nazwa hostnama
+/etc/hostname
 
+sprawdzenie:
+	hostnamectl
+	hostname -s 
+	hostname -f
+	
 ----------------------------------------------------------------
 Kompresja i archiwizacja danych:
 ----------------------------------------------------------------
