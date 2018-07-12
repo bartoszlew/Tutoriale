@@ -173,13 +173,13 @@ Bento - repo z gotowymi do uzycia boxami Vagranta (predefiniowane dla chefa?)
 
 Automated testing
 -----------------
-"Integration" test weryfikuje czy system jest skonfigurowany poprawnie (Inspec).
-"Linting" - analiza kodu, wyszukuje błędy programowania, błędy stylistyczne i składnie (CookStyle, FoodCritic).
-"Unit" test weryfikuje czy kod jest napisany poprawnie, czy kod robi to co ma robic (ChefSpec).
-TDD - test driven development
+"Integration" test - weryfikuje czy system jest skonfigurowany poprawnie (np.Inspec).
+"Linting" - analiza kodu, wyszukuje błędy programowania, błędy stylistyczne i składnie (np.CookStyle, FoodCritic).
+"Unit" test - weryfikuje czy kod jest napisany poprawnie, czy kod robi to co ma robic. Skupia się na pojedynczych komponentach kodu (np.ChefSpec).
 
-1.Integration test - InSpec
-./test/integration/default
+
+1) Integration test - InSpec (test/integration/default)
+https://www.inspec.io/docs/reference/resources/
 
 InSpec test has two main components: the subject to examine and the subject's expected state.
 
@@ -196,11 +196,13 @@ Przykładowy test InSpec:
         it { should be_listening }
 			end
 
-2.Unit test - ChefSpec
-spec/unit
+
+2) Unit test - ChefSpec (spec/unit/../*_spec.rb)
+https://docs.chef.io/chefspec.html
+https://github.com/chefspec/chefspec
 
 
-3.Cookstyle and Foodcritic
+3) Cookstyle and Foodcritic
 
 ------------------
 https://docs.chef.io/chef_solo.html
