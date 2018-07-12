@@ -181,25 +181,26 @@ Automated testing
 1) Integration test - InSpec (test/integration/default)
 https://www.inspec.io/docs/reference/resources/
 
+Zasadadniczo piszemy jeden test per przepis.
 InSpec test has two main components: the subject to examine and the subject's expected state.
 
-Przykładowy test InSpec:
-			describe package('httpd') do
-        it { should be_installed }
-			end
+InSpec sprawdza czy chef zbudowal i skonfigurował system tak jak chcielismy, np. czy serwis jest zainstalowany i uruchomionm
+czy dziala na odpowiednim porcie. Do sprawdzenia potrzebne jest całe środowisko testowe (wirtualka).
 
-			describe command('curl localhost') do
-        its('stdout') { should match /hello/ }
-			end
-
-			describe port(80) do
-        it { should be_listening }
-			end
-
-
-2) Unit test - ChefSpec (spec/unit/../*_spec.rb)
+2) Unit test - ChefSpec (spec/unit/[recipe/resources?/..?]/*_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
+https://learn.chef.io/modules/unit-test-with-chefspec/linux/create-a-multiplatform-cookbook#/
 https://docs.chef.io/chefspec.html
 https://github.com/chefspec/chefspec
+
+ChefSpec sprawdza kod, wiec nie potrzebuje uruchomionego srodowiska testowego.
+
+Z założemnioa piszemy jeden test per przepis.
+default_spec.rb mapuje się do domyślnego recipe -> default.rb
+czyli: spec/unit/recipes/default_spec.rb
+
+chef exec rspec --color spec/unit/recipes/default_spec.rb - uruchamia testy zdefiniowane w pliku default_spec.rb
+chef exec rspec --color spec/unit/recipes/*.rb - mozna odpalac testy na kilku plikach
+
 
 
 3) Cookstyle and Foodcritic
