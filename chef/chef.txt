@@ -139,30 +139,73 @@ knife ssh 'name:node1-centos' 'sudo chef-client' --ssh-user centos --ssh-identit
 ============================ Test Kitchen i testowanie cookbookow ============================
 https://learn.chef.io/modules/local-development/windows/virtualbox/apply-a-cookbook#/
 https://docs.chef.io/config_yml_kitchen.html
+https://www.tutorialspoint.com/chef/chef_test_kitchen_setup.htm
 
 Test Kitchen
 ---------------
-Test Kitchen - w skrocie tworzy chwilowe srodowisko testowe towrzac wirtualke za pomoca vagranta (albo aws ec2,) i hyperwizora, np. virtualboxa
-	i na niej odpala testy cookbooka. dodatkowo przeprowadza testy kodu.... //do uzupenienia
-	Test Kitchen umożliwia określenie szczegółów dotyczących maszyny wirtualnej, w tym jej systemu operacyjnego, dostępnej pamięci, nazwy hosta,
-	i ustawień sieciowych, oraz jak uruchomić Chefa - w tym, które przepisy i które testy należy uruchomić.
-  Test Kitchen builds the Vagrantfile for you and is the interface you use to create, destroy, and run Chef on your instances.
+Test Kitchen - w skrocie:
+ 	1. Buduje chwilowe srodowisko testowe tworzac wirtualke (za pomoca 'drivera' np. vagranta + hyperwizora, np. virtualboxa
+	   lub chmury (np. aws ec2,azure) albo kontenerów,
+	2. Kopiuje na wirtualkę testowane cookbooki (za pomocą 'provisionera', np. ChefZero, Ansible )
+	3. Uruchamia i przeprowadza automatyczne testy  (za pomocą np. Inspec, ChefSpec).
+//domyślnie: Vagrant + Virtualbox + ChefZero + InSpec
+Test Kitchen umożliwia określenie szczegółów dotyczących maszyny wirtualnej, w tym jej systemu operacyjnego, dostępnej pamięci, nazwy hosta,
+i ustawień sieciowych, oraz jak uruchomić Chefa - w tym, które przepisy i które testy należy uruchomić.
+Np. dla Vagranta: Test Kitchen builds the Vagrantfile for you and is the interface you use to create, destroy, and run Chef on your instances.
 
-Bento - repo z gotowymi do uzycia boxami Vagranta (predefiniowane dla chefa?)
 .kitchen.yml - definiuje, co jest potrzebne do uruchomienia Test Kitchen, w tym, z którego dostawcy wirtualizacji korzystać,
 		jak uruchomić Chef i na jakich platformach uruchomić swój kod.
 
 kitchen - polecenie korzysta z konfiguracji w  ".kitchen.yml" (odpalamy w katalogu glownym konkretnego cookbooka)
 kitchen list - pokazuje co jest w "kuchni"
 kitchen create - tworzy testowa instancje
-kitchen converge - wrzuca zdefiniowane w .kitchen.yml cookbooki do virtualnej maszyny
+kitchen converge - instaluje chefa, wrzuca/aktualizuje i odpala testowane cookbooki do virtualnej maszyny
+kitcheb verify - odpala testy
 kitchen login - loguje sie po ssh do testowej instancji
 kitchen exec - odpala polecenie na maszynie testowej, np.
 	kitchen exec -c 'curl localhost'
 kitchen destroy - usuwa testowe wirtualki
+kitchen test - equvalent to destroy, create, converge, verify, and destroy your instance all in one step.
+	uzywane gdy chcemy przeprowadzic test na "czystej" instancji
+
+info:
+Bento - repo z gotowymi do uzycia boxami Vagranta (predefiniowane dla chefa?)
+
+Automated testing
+-----------------
+"Integration" test weryfikuje czy system jest skonfigurowany poprawnie (Inspec).
+"Linting" - analiza kodu, wyszukuje błędy programowania, błędy stylistyczne i składnie (CookStyle, FoodCritic).
+"Unit" test weryfikuje czy kod jest napisany poprawnie, czy kod robi to co ma robic (ChefSpec).
+TDD - test driven development
+
+1.Integration test - InSpec
+./test/integration/default
+
+InSpec test has two main components: the subject to examine and the subject's expected state.
+
+Przykładowy test InSpec:
+			describe package('httpd') do
+        it { should be_installed }
+			end
+
+			describe command('curl localhost') do
+        its('stdout') { should match /hello/ }
+			end
+
+			describe port(80) do
+        it { should be_listening }
+			end
+
+2.Unit test - ChefSpec
+spec/unit
 
 
+3.Cookstyle and Foodcritic
+
+------------------
 https://docs.chef.io/chef_solo.html
+
+chef solo???
 
 
 rpm -qa --queryformat  "%{VERSION}" jakas_paczka' -> wyciagnieczie zmiennej paczki
@@ -299,3 +342,11 @@ yum_package 'jakis_cookbook' do
 	only_if { node.environment() == 'nazwa_env' }11
 end
 =================
+
+
+TODO:
+przykładowe pliki:
+recipe/default.rb
+.kitchen.yml
+test/integration/default/default_test.rb
+spec/unit/recipes/default_spec.rb

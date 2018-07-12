@@ -1,0 +1,25 @@
+# The Inspec reference, with examples and extensive documentation, can be
+# found at http://inspec.io/docs/reference/resources/
+
+# This is an example test.
+
+# sprawdza czy paczka 'httpd' jest zainstalowana
+describe package('httpd') do
+	it { should be_installed }
+end
+
+# sprawdza czy aplikacka 'httpd' jest uruchomiona
+describe service('httpd') do 
+	it { should be_running }
+end
+
+# sprawdza czy strona www zawiera string 'hello'
+describe command('curl localhost') do
+	its('stdout') { should match /hello/ }
+end
+
+# sprawdza czy cos nasluchuje na portcie 80
+describe port(80) do
+	it { should be_listening }
+end
+
