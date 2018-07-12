@@ -39,7 +39,7 @@ template - uzycie atrybutu. tak jak pliki ale nie sa statyczne. mozemy odwolac s
 	atrybut mozemy bezposrednio  wstawic do recipe bez odwolywania sie do zmiennej:
 	zamiast :config_var => node['configs']['config_var'] , wstawiamy default['sms']['port']
 
-files - statyczne pliki które beda wrzucane na endpointa
+files - statyczne pliki które beda wrzucane na noda
 
 
 
@@ -129,6 +129,9 @@ berks upload - wrzuca cookbooka i zaleznosci do chef servera
 Chef-client
 -----------------
 chef-client -o "recipe[jakis_cookbook@0.1.2]"  - odpalanie innej wersji cookbooka na nodzie
+chef-client -z -c /tmp/kitchen/client.rb
+	-z - odpalanie lokalnie
+	-c - sciezka do konfigu
 knife ssh 'name:node1-centos' 'sudo chef-client' --ssh-user centos --ssh-identity-file ~/.ssh/private_key
 
 
@@ -139,7 +142,7 @@ https://docs.chef.io/config_yml_kitchen.html
 
 Test Kitchen
 ---------------
-Test Kitchen - w skrocie tworzy chwilowe srodowisko testowe towrzac wirtualke za pomoca vagranta i hyperwizora, np. virtualboxa
+Test Kitchen - w skrocie tworzy chwilowe srodowisko testowe towrzac wirtualke za pomoca vagranta (albo aws ec2,) i hyperwizora, np. virtualboxa
 	i na niej odpala testy cookbooka. dodatkowo przeprowadza testy kodu.... //do uzupenienia
 	Test Kitchen umożliwia określenie szczegółów dotyczących maszyny wirtualnej, w tym jej systemu operacyjnego, dostępnej pamięci, nazwy hosta,
 	i ustawień sieciowych, oraz jak uruchomić Chefa - w tym, które przepisy i które testy należy uruchomić.
@@ -149,9 +152,14 @@ Bento - repo z gotowymi do uzycia boxami Vagranta (predefiniowane dla chefa?)
 .kitchen.yml - definiuje, co jest potrzebne do uruchomienia Test Kitchen, w tym, z którego dostawcy wirtualizacji korzystać,
 		jak uruchomić Chef i na jakich platformach uruchomić swój kod.
 
+kitchen - polecenie korzysta z konfiguracji w  ".kitchen.yml" (odpalamy w katalogu glownym konkretnego cookbooka)
 kitchen list - pokazuje co jest w "kuchni"
-
-
+kitchen create - tworzy testowa instancje
+kitchen converge - wrzuca zdefiniowane w .kitchen.yml cookbooki do virtualnej maszyny
+kitchen login - loguje sie po ssh do testowej instancji
+kitchen exec - odpala polecenie na maszynie testowej, np.
+	kitchen exec -c 'curl localhost'
+kitchen destroy - usuwa testowe wirtualki
 
 
 https://docs.chef.io/chef_solo.html
