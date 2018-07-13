@@ -191,8 +191,10 @@ czy dziala na odpowiednim porcie. Do sprawdzenia potrzebne jest całe środowisk
 https://learn.chef.io/modules/unit-test-with-chefspec/linux/create-a-multiplatform-cookbook#/
 https://docs.chef.io/chefspec.html
 https://github.com/chefspec/chefspec
+https://learn.chef.io/modules/best-practices-for-testing/writing-great-unit-tests-with-chefspec#/
 
 ChefSpec sprawdza kod, wiec nie potrzebuje uruchomionego srodowiska testowego.
+Dobrze jest zaczynac od tego testu.
 
 Z założemnioa piszemy jeden test per przepis.
 default_spec.rb mapuje się do domyślnego recipe -> default.rb
