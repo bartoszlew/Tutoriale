@@ -1,13 +1,8 @@
-#
-# Cookbook:: webserver_test
-# Spec:: default
-#
-# Copyright:: 2018, The Authors, All Rights Reserved.
-
 require 'spec_helper'
 
 shared_examples 'webserver_test' do |platform, version, package, service|
  context "when run on #{platform} #{version}" do
+#blok "let" odpala w 
     let(:chef_run) do
       runner = ChefSpec::ServerRunner.new(platform: platform, version: version)
       runner.converge(described_recipe)

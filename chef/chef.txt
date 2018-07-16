@@ -141,6 +141,12 @@ https://learn.chef.io/modules/local-development/windows/virtualbox/apply-a-cookb
 https://docs.chef.io/config_yml_kitchen.html
 https://www.tutorialspoint.com/chef/chef_test_kitchen_setup.htm
 
+lokalne odpalanie przepisow
+---------------
+chef-client --local-mode jakis_przepis.rb
+chef-client --local-mode --runlist 'recipe[jakis_przepis]' 
+
+
 Test Kitchen
 ---------------
 Test Kitchen - w skrocie:
@@ -178,8 +184,11 @@ Automated testing
 "Unit" test - weryfikuje czy kod jest napisany poprawnie, czy kod robi to co ma robic. Skupia się na pojedynczych komponentach kodu (np.ChefSpec).
 
 
+
 1) Integration test - InSpec (test/integration/default)
+---
 https://www.inspec.io/docs/reference/resources/
+https://learn.chef.io/modules/tdd-with-inspec#/
 
 Zasadadniczo piszemy jeden test per przepis.
 InSpec test has two main components: the subject to examine and the subject's expected state.
@@ -187,14 +196,17 @@ InSpec test has two main components: the subject to examine and the subject's ex
 InSpec sprawdza czy chef zbudowal i skonfigurował system tak jak chcielismy, np. czy serwis jest zainstalowany i uruchomionm
 czy dziala na odpowiednim porcie. Do sprawdzenia potrzebne jest całe środowisko testowe (wirtualka).
 
-2) Unit test - ChefSpec (spec/unit/[recipe/resources?/..?]/*_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
+InSpec wymaga srodowiska testowego wiec najlepiej wykonywac test na koncu, po ChefSpec, CookStyle i FoodCritic.
+
+2) ChefSpec (spec/unit/[recipe/resources?/..?]/nazwa-przepisu_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
+---
 https://learn.chef.io/modules/unit-test-with-chefspec/linux/create-a-multiplatform-cookbook#/
 https://docs.chef.io/chefspec.html
 https://github.com/chefspec/chefspec
-https://learn.chef.io/modules/best-practices-for-testing/writing-great-unit-tests-with-chefspec#/
+https://learn.chef.io/modules/best-practices-for-testing/test-driven-cookbook-development#/ --> wszystkie filmy w module
 
-ChefSpec sprawdza kod, wiec nie potrzebuje uruchomionego srodowiska testowego.
-Dobrze jest zaczynac od tego testu.
+ChefSpec jest rodzajem unit testu, sprawdza kod, wiec nie potrzebuje uruchomionego srodowiska testowego.
+Wykonuje testy weryfikujące poprawność działania pojedynczych elementów (jednostek) programu.
 
 Z założemnioa piszemy jeden test per przepis.
 default_spec.rb mapuje się do domyślnego recipe -> default.rb
@@ -207,11 +219,23 @@ chef exec rspec --color spec/unit/recipes/*.rb - mozna odpalac testy na kilku pl
 
 3) Cookstyle and Foodcritic
 
-------------------
+---
+a) CookStyle (działa na podstawie RuboCop)
+https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
+
+cookstyle - polecenie prawdza składnie kodu ruby, odpalany bez argumentow leci po wszystkich plikach z katalogu bieżącego i podkatalogów
+styl składni można dostoswac w pliku .rubocop.yml (dziala w katalogu bioeżącym i podkatalogach)
+
+b) FoodCritic - poprawia styl i logikę cookbookow. Poprawia jakość kodu. Upraszcza kod jak narobiłeś baboli.
+https://learn.chef.io/modules/verify-code-style/linux/identify-better-usage-patterns#/
+https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
+
+foodcritic - polecenie poprawia styl i logikę cookbookow. Poprawia jakość kodu. Upraszcza kod jak narobiłeś baboli.
+
+----
 https://docs.chef.io/chef_solo.html
 
 chef solo???
-
 
 rpm -qa --queryformat  "%{VERSION}" jakas_paczka' -> wyciagnieczie zmiennej paczki
 chef-client -z -r "cookbook::test1" -l info testowanie cookbooka lokalnie  (test1 - nazwa przepisu z /recipe)

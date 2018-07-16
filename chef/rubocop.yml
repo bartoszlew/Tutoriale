@@ -1,0 +1,4 @@
+#przykladowy plik rubocop
+Layout/IndentationWidth:
+  # Number of spaces for each indentation level.
+  Width: 4
