@@ -112,8 +112,8 @@ update cookbooka:
 
 
 
-pobieranie cookbookow z chef supermarket
--------------------------------------------
+pobieranie cookbookow z chef supermarket + Berkshelf
+------------------------------------------------------
 knife supermarket - pobiera ale bez zaleznosci
 Berkshelf - tool that helps you resolve cookbook dependencies. Can retrieve the cookbooks that
 		your cookbook depends on and can upload your cookbooks to your Chef server.
@@ -144,7 +144,7 @@ https://www.tutorialspoint.com/chef/chef_test_kitchen_setup.htm
 lokalne odpalanie przepisow
 ---------------
 chef-client --local-mode jakis_przepis.rb
-chef-client --local-mode --runlist 'recipe[jakis_przepis]' 
+chef-client --local-mode --runlist 'recipe[jakis_przepis]'
 
 
 Test Kitchen
@@ -177,6 +177,7 @@ kitchen test - equvalent to destroy, create, converge, verify, and destroy your 
 info:
 Bento - repo z gotowymi do uzycia boxami Vagranta (predefiniowane dla chefa?)
 
+
 Automated testing
 -----------------
 "Integration" test - weryfikuje czy system jest skonfigurowany poprawnie (np.Inspec).
@@ -185,16 +186,16 @@ Automated testing
 
 
 
-1) Integration test - InSpec (test/integration/default)
+1) InSpec (Integration test) (test/integration/default)
 ---
 https://www.inspec.io/docs/reference/resources/
 https://learn.chef.io/modules/tdd-with-inspec#/
 
-Zasadadniczo piszemy jeden test per przepis.
-InSpec test has two main components: the subject to examine and the subject's expected state.
-
 InSpec sprawdza czy chef zbudowal i skonfigurował system tak jak chcielismy, np. czy serwis jest zainstalowany i uruchomionm
 czy dziala na odpowiednim porcie. Do sprawdzenia potrzebne jest całe środowisko testowe (wirtualka).
+
+Zasadadniczo piszemy jeden test per przepis.
+InSpec test has two main components: the subject to examine and the subject's expected state.
 
 InSpec wymaga srodowiska testowego wiec najlepiej wykonywac test na koncu, po ChefSpec, CookStyle i FoodCritic.
 
@@ -224,13 +225,30 @@ a) CookStyle (działa na podstawie RuboCop)
 https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
 
 cookstyle - polecenie prawdza składnie kodu ruby, odpalany bez argumentow leci po wszystkich plikach z katalogu bieżącego i podkatalogów
+cookstyle -a -> automatycznie poprawia znalezione błędy
+
 styl składni można dostoswac w pliku .rubocop.yml (dziala w katalogu bioeżącym i podkatalogach)
 
 b) FoodCritic - poprawia styl i logikę cookbookow. Poprawia jakość kodu. Upraszcza kod jak narobiłeś baboli.
 https://learn.chef.io/modules/verify-code-style/linux/identify-better-usage-patterns#/
 https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
 
-foodcritic - polecenie poprawia styl i logikę cookbookow. Poprawia jakość kodu. Upraszcza kod jak narobiłeś baboli.
+foodcritic [katalog/plik]- polecenie poprawia styl i logikę cookbookow. Poprawia jakość kodu. Upraszcza kod jak narobiłeś baboli.
+
+
+
+Przygotowanie cookbookow do działania z nowszą wersją Chefa.
+--------------------------------------------------------------
+Trzeba zaktualozowac cookbooki aby były zgodne z nowszą wersją serwera:
+
+Here are some things you can do to keep your cookbooks up to date.
+	      Remove files you no longer need.
+	      Ensure Foodcritic and Cookstyle tests pass.
+	      Use Test Kitchen to verify your cookbook succeeds locally.
+	      Create passing unit and integration tests.
+	      Add appropriate metadata and documentation.
+				Repeat all test at the end.
+
 
 ----
 https://docs.chef.io/chef_solo.html
@@ -240,7 +258,6 @@ chef solo???
 rpm -qa --queryformat  "%{VERSION}" jakas_paczka' -> wyciagnieczie zmiennej paczki
 chef-client -z -r "cookbook::test1" -l info testowanie cookbooka lokalnie  (test1 - nazwa przepisu z /recipe)
 	do przepisu trzeba wpakowac Chef::Log::info("#{jakas zmienna}") zeby wywalilo wartosc zmiennej
-
 
 
 
