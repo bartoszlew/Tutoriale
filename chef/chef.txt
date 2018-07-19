@@ -89,10 +89,25 @@ https://realityforge.org/code/2012/11/19/role-cookbooks-and-wrapper-cookbooks.ht
 
 For every cookbook and/or recipe we wanted to customize we created a separate 'wrapper' recipe
 that set the required attributes and then included the recipe from the original cookbook.
-This resulted in a layout that looked like the following;
+
+1. dodanie zaleznosci do 'metadata.rb'
+	np.	depends 'public_cookbook'
+			depends 'public_cookbook', '= 1.4.5' //opcjonalnie przypiecie wersji
+2. include_recipe w recipe/default.rb
+	np. include_recipe	'public_cookbook::default.rb'
+3. modyfikowanie/ustawienie oryginalnego cookbooka ustawiamy w attributes/default.rb wrapera albo w recipe/default.rb przed 'include_recipe'
+	np. default['iis']['pubroot']    = '/mnt/publocal'
+4. role cookbook
+5. edit_resource - pozwala namodyfikowanie zasobow includowanego cookbooka we wraperze
+	np.
+	include_recipe 'bad_cookbook::default'
+		edit_resource(:template, 'C:\\important\\template\\path.ini') do
+  		source 'my_beautiful_template.erb'
+  		cookbook 'my_awesome_wrapper'
+		end
 
 
-dodanie noda do chefa (bootstrap)
+boostrap noda (dodanie noda do chefa)
 -------------------------------------
 https://learn.chef.io/modules/manage-a-node-chef-server/rhel/bring-your-own-system/bootstrap-your-node#/
 
@@ -118,11 +133,11 @@ knife supermarket - pobiera ale bez zaleznosci
 Berkshelf - tool that helps you resolve cookbook dependencies. Can retrieve the cookbooks that
 		your cookbook depends on and can upload your cookbooks to your Chef server.
 
-Berksfile
-berks install - sciaga z supermarketu zaleznosci cookbokow zdefiniowanych w Berksfile
-berks show [cookbook] pokazuje sciezke na dysku do sciagnietego przez berks cookbooka
-berks upload - wrzuca cookbooka i zaleznosci do chef servera
-
+Berksfile  //uzywac z chef exec - uzywa wtedy chefowych libow ruby
+chef exec berks install - sciaga z supermarketu zaleznosci cookbokow zdefiniowanych w Berksfile
+chef exec berks show [cookbook] pokazuje sciezke na dysku do sciagnietego przez berks cookbooka
+chef exec berks upload - wrzuca cookbooka i zaleznosci do chef servera
+$HOME/.berkshelf/cookbooks/
 
 
 
@@ -137,6 +152,7 @@ knife ssh 'name:node1-centos' 'sudo chef-client' --ssh-user centos --ssh-identit
 
 
 ============================ Test Kitchen i testowanie cookbookow ============================
+
 https://learn.chef.io/modules/local-development/windows/virtualbox/apply-a-cookbook#/
 https://docs.chef.io/config_yml_kitchen.html
 https://www.tutorialspoint.com/chef/chef_test_kitchen_setup.htm
@@ -161,6 +177,8 @@ Np. dla Vagranta: Test Kitchen builds the Vagrantfile for you and is the interfa
 
 .kitchen.yml - definiuje, co jest potrzebne do uruchomienia Test Kitchen, w tym, z którego dostawcy wirtualizacji korzystać,
 		jak uruchomić Chef i na jakich platformach uruchomić swój kod.
+		provisioner:
+  		cookbook_path: whatever/path/to/cookbooks - sciezka do lokalnych cookbookow
 
 kitchen - polecenie korzysta z konfiguracji w  ".kitchen.yml" (odpalamy w katalogu glownym konkretnego cookbooka)
 kitchen list - pokazuje co jest w "kuchni"
@@ -186,7 +204,7 @@ Automated testing
 
 
 
-1) InSpec (Integration test) (test/integration/default)
+1) InSpec (integration test) (test/integration/default)
 ---
 https://www.inspec.io/docs/reference/resources/
 https://learn.chef.io/modules/tdd-with-inspec#/
@@ -199,7 +217,7 @@ InSpec test has two main components: the subject to examine and the subject's ex
 
 InSpec wymaga srodowiska testowego wiec najlepiej wykonywac test na koncu, po ChefSpec, CookStyle i FoodCritic.
 
-2) ChefSpec (spec/unit/[recipe/resources?/..?]/nazwa-przepisu_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
+2) ChefSpec (unit test) (spec/unit/[recipe/resources?/..?]/nazwa-przepisu_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
 ---
 https://learn.chef.io/modules/unit-test-with-chefspec/linux/create-a-multiplatform-cookbook#/
 https://docs.chef.io/chefspec.html
@@ -218,7 +236,7 @@ chef exec rspec --color spec/unit/recipes/*.rb - mozna odpalac testy na kilku pl
 
 
 
-3) Cookstyle and Foodcritic
+3) Cookstyle and Foodcritic (linting)
 
 ---
 a) CookStyle (działa na podstawie RuboCop)
