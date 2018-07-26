@@ -4,7 +4,7 @@ ChefDK - narzedzia i soft chefa (knife, chef-client, Berkshelf, itp.)
 
 tworzenie cookbookow od podstaw
 ---------------------------------
-chef generate cookbook jakas_nazwa - tworzynowy drzewo folderów cookbooka z podstawowa zawartoscia
+e cookbook jakas_nazwa - tworzynowy drzewo folderów cookbooka z podstawowa zawartoscia
 tworzenie plikow:
 	chef generate -h
 	np.
@@ -84,6 +84,7 @@ end
 
 wrapper cookbooks
 -----------------------
+https://devops.stackexchange.com/questions/195/what-are-the-steps-to-inherit-and-override-some-parts-of-a-chef-cookbook  !!!
 https://blog.chef.io/2017/02/14/writing-wrapper-cookbooks/
 https://realityforge.org/code/2012/11/19/role-cookbooks-and-wrapper-cookbooks.html
 
@@ -106,6 +107,24 @@ that set the required attributes and then included the recipe from the original 
   		cookbook 'my_awesome_wrapper'
 		end
 
+Nadpisywanie:
+"For the specific case of "I need to tweak a template in a community recipe" it would look like this:""
+
+include_recipe 'original::whatever'
+
+edit_resource!(:template, '/path/to/something') do
+  source 'mytemplate.erb'
+  cookbook 'mycompany_original'
+end
+
+Nadpisywanie atrybutow:
+??????
+override['vmn-wildfly']['wildfly']['user'] = 'vmn-wildfly'
+node.default['vmn-wildfly']['wildfly']['user'] = 'vmn-wildfly'
+node.override['vmn-wildfly']['wildfly']['user'] = 'vmn-wildfly'
+node.override['wildfly']['user'] = 'vmn-wildfly'
+node.override['wildfly']['user']=node.default['vmn-wildfly']['wildfly']['user']
+??? nic z powyzszego nie dziala ???
 
 boostrap noda (dodanie noda do chefa)
 -------------------------------------
@@ -186,8 +205,8 @@ kitchen create - tworzy testowa instancje
 kitchen converge - instaluje chefa, wrzuca/aktualizuje i odpala testowane cookbooki do virtualnej maszyny
 kitcheb verify - odpala testy
 kitchen login - loguje sie po ssh do testowej instancji
-kitchen exec - odpala polecenie na maszynie testowej, np.
-	kitchen exec -c 'curl localhost'
+kitchen exec - odpala polecenie na maszynie testowej,
+		np. kitchen exec -c 'curl localhost'
 kitchen destroy - usuwa testowe wirtualki
 kitchen test - equvalent to destroy, create, converge, verify, and destroy your instance all in one step.
 	uzywane gdy chcemy przeprowadzic test na "czystej" instancji
@@ -204,20 +223,7 @@ Automated testing
 
 
 
-1) InSpec (integration test) (test/integration/default)
----
-https://www.inspec.io/docs/reference/resources/
-https://learn.chef.io/modules/tdd-with-inspec#/
-
-InSpec sprawdza czy chef zbudowal i skonfigurował system tak jak chcielismy, np. czy serwis jest zainstalowany i uruchomionm
-czy dziala na odpowiednim porcie. Do sprawdzenia potrzebne jest całe środowisko testowe (wirtualka).
-
-Zasadadniczo piszemy jeden test per przepis.
-InSpec test has two main components: the subject to examine and the subject's expected state.
-
-InSpec wymaga srodowiska testowego wiec najlepiej wykonywac test na koncu, po ChefSpec, CookStyle i FoodCritic.
-
-2) ChefSpec (unit test) (spec/unit/[recipe/resources?/..?]/nazwa-przepisu_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
+1) ChefSpec (unit test) (spec/unit/[recipe/resources?/..?]/nazwa-przepisu_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
 ---
 https://learn.chef.io/modules/unit-test-with-chefspec/linux/create-a-multiplatform-cookbook#/
 https://docs.chef.io/chefspec.html
@@ -236,7 +242,7 @@ chef exec rspec --color spec/unit/recipes/*.rb - mozna odpalac testy na kilku pl
 
 
 
-3) Cookstyle and Foodcritic (linting)
+2) Cookstyle and Foodcritic (linting)
 
 ---
 a) CookStyle (działa na podstawie RuboCop)
@@ -252,6 +258,19 @@ https://learn.chef.io/modules/verify-code-style/linux/identify-better-usage-patt
 https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
 
 foodcritic [katalog/plik]- polecenie poprawia styl i logikę cookbookow. Poprawia jakość kodu. Upraszcza kod jak narobiłeś baboli.
+
+3) InSpec (integration test) (test/integration/default)
+---
+https://www.inspec.io/docs/reference/resources/
+https://learn.chef.io/modules/tdd-with-inspec#/
+
+InSpec sprawdza czy chef zbudowal i skonfigurował system tak jak chcielismy, np. czy serwis jest zainstalowany i uruchomionm
+czy dziala na odpowiednim porcie. Do sprawdzenia potrzebne jest całe środowisko testowe (wirtualka).
+
+Zasadadniczo piszemy jeden test per przepis.
+InSpec test has two main components: the subject to examine and the subject's expected state.
+
+InSpec wymaga srodowiska testowego wiec najlepiej wykonywac test na koncu, po ChefSpec, CookStyle i FoodCritic.
 
 
 
