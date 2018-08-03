@@ -4,7 +4,7 @@ ChefDK - narzedzia i soft chefa (knife, chef-client, Berkshelf, itp.)
 
 tworzenie cookbookow od podstaw
 ---------------------------------
-e cookbook jakas_nazwa - tworzynowy drzewo folderów cookbooka z podstawowa zawartoscia
+chef generate cookbook jakas_nazwa - tworzynowy drzewo folderów cookbooka z podstawowa zawartoscia
 tworzenie plikow:
 	chef generate -h
 	np.
