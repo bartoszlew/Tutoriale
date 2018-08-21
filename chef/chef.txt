@@ -181,6 +181,9 @@ lokalne odpalanie przepisow
 chef-client --local-mode jakis_przepis.rb
 chef-client --local-mode --runlist 'recipe[jakis_przepis]'
 
+.kitchen.yaml
+---------------
+
 
 Test Kitchen
 ---------------
@@ -229,6 +232,7 @@ https://learn.chef.io/modules/unit-test-with-chefspec/linux/create-a-multiplatfo
 https://docs.chef.io/chefspec.html
 https://github.com/chefspec/chefspec
 https://learn.chef.io/modules/best-practices-for-testing/test-driven-cookbook-development#/ --> wszystkie filmy w module
+przykłady: https://github.com/chefspec/chefspec/tree/master/examples
 
 ChefSpec jest rodzajem unit testu, sprawdza kod, wiec nie potrzebuje uruchomionego srodowiska testowego.
 Wykonuje testy weryfikujące poprawność działania pojedynczych elementów (jednostek) programu.
@@ -240,6 +244,12 @@ czyli: spec/unit/recipes/default_spec.rb
 chef exec rspec --color spec/unit/recipes/default_spec.rb - uruchamia testy zdefiniowane w pliku default_spec.rb
 chef exec rspec --color spec/unit/recipes/*.rb - mozna odpalac testy na kilku plikach
 
+Stub - https://code.tutsplus.com/tutorials/testing-your-ruby-code-with-guard-rspec-pry-part-2--cms-20290
+
+!! aby moc testowac resource, trzeba dodac "step_into: 'nazwa_resourca'" w "runner = ChefSpec::SoloRunner.new"
+   np. runner = ChefSpec::SoloRunner.new(step_into: 'vmn_wildfly')
+!! jesli jest if w resourcie/przepisie to trzeba kombinowac
+	 http://jtimberman.housepub.org/blog/2015/01/12/quick-tip-testing-conditionals-in-chefspec/
 
 
 2) Cookstyle and Foodcritic (linting)
@@ -248,7 +258,7 @@ chef exec rspec --color spec/unit/recipes/*.rb - mozna odpalac testy na kilku pl
 a) CookStyle (działa na podstawie RuboCop)
 https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
 
-cookstyle - polecenie prawdza składnie kodu ruby, odpalany bez argumentow leci po wszystkich plikach z katalogu bieżącego i podkatalogów
+cookstyle [katalog/plik] - polecenie prawdza składnie kodu ruby, odpalany bez argumentow leci po wszystkich plikach z katalogu bieżącego i podkatalogów
 cookstyle -a -> automatycznie poprawia znalezione błędy
 
 styl składni można dostoswac w pliku .rubocop.yml (dziala w katalogu bioeżącym i podkatalogach)
@@ -258,6 +268,7 @@ https://learn.chef.io/modules/verify-code-style/linux/identify-better-usage-patt
 https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
 
 foodcritic [katalog/plik]- polecenie poprawia styl i logikę cookbookow. Poprawia jakość kodu. Upraszcza kod jak narobiłeś baboli.
+	- domyslnie nie sprawdza katalogow test i spec
 
 3) InSpec (integration test) (test/integration/default)
 ---
@@ -268,10 +279,16 @@ InSpec sprawdza czy chef zbudowal i skonfigurował system tak jak chcielismy, np
 czy dziala na odpowiednim porcie. Do sprawdzenia potrzebne jest całe środowisko testowe (wirtualka).
 
 Zasadadniczo piszemy jeden test per przepis.
+Pliki z testami tworzymy w: "test/integration/default/[nazwa_przepisu]_test.rb
+
 InSpec test has two main components: the subject to examine and the subject's expected state.
 
 InSpec wymaga srodowiska testowego wiec najlepiej wykonywac test na koncu, po ChefSpec, CookStyle i FoodCritic.
 
+Uruchamianie:
+kitchen converge && kitchen veryfi - uzywajac chef kitchen
+inspec exec test.rb -i ~/.aws/nathen.pem -t ssh://ec2-user@54.152.7.203 - zdalnie po ssh
+inspec exec test.rb -t docker://3dda08e75838 - w dockerze
 
 
 Przygotowanie cookbookow do działania z nowszą wersją Chefa.
