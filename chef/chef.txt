@@ -2,6 +2,11 @@ przygotowanie srodowiska
 ---------------------------
 ChefDK - narzedzia i soft chefa (knife, chef-client, Berkshelf, itp.)
 
+ruby syntax
+--------------
+#{jakas_zmienna} - wywolanie zmiennej wewnatrz jakiegos ciagu znwkow, np. "/var/www/#{jakas_zmienna }"
+
+
 tworzenie cookbookow od podstaw
 ---------------------------------
 chef generate cookbook jakas_nazwa - tworzynowy drzewo folderów cookbooka z podstawowa zawartoscia
@@ -79,6 +84,22 @@ if node[:fqdn] != 'host.domena.pl'
                 value false
         end
 end
+
+
+resources
+------------------------
+Cos w rodzaju podprogramów, jak funkcje w bashu. definiuje sie akcje potrzebne do stworzenia np. strony www
+czyli np. stworzenie katalogu, instalacja apacha, restart serwisu.
+nie trzeva wtedy za kazdym razem pisac tego osobno dla innej sotrny/konfiguracji w przepisie, wystarxzy odwolac sie do resourca.
+
+pierwsza definicja "action" jest domyslna definicja i odpala sie gdy nie wywolamy resource ale nie zdefiniujemy "action".
+Zeby wywalic blad kiedy action nie jest podany, mozna uzyc na poczatku resourca, np.
+	action: nie_ustawiles_zadneego_dzialania do
+		raise "You must specify action:"
+	end
+
+Jesli nie jest podana nazwa resourca (parametr "resource_name") to brana jest nazwa cookbooka+nazwa pliku resourca.
+
 
 
 
@@ -224,7 +245,11 @@ Automated testing
 "Linting" - analiza kodu, wyszukuje błędy programowania, błędy stylistyczne i składnie (np.CookStyle, FoodCritic).
 "Unit" test - weryfikuje czy kod jest napisany poprawnie, czy kod robi to co ma robic. Skupia się na pojedynczych komponentach kodu (np.ChefSpec).
 
-
+0) delivery local all
+---
+Automatyzuje testowanie cehfa - ustawiamy w pliku jakie rodzaje testow maja sie wykonac i po odpaleniu "delivery local all" leca zdefiniowane testy po kolei.
+.delivery/project.toml - konfiguracja
+	remote_file = "https://url/project.toml" - mozemy podac plik zewnetrzny ktory zawiera konfiguracje, przydatne jak chcemy miec te same ustawienia dla wielu cookbookow
 
 1) ChefSpec (unit test) (spec/unit/[recipe/resources?/..?]/nazwa-przepisu_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
 ---
@@ -246,14 +271,17 @@ chef exec rspec --color spec/unit/recipes/*.rb - mozna odpalac testy na kilku pl
 
 Stub - https://code.tutsplus.com/tutorials/testing-your-ruby-code-with-guard-rspec-pry-part-2--cms-20290
 
+Testowanie custom resources
 !! aby moc testowac resource, trzeba dodac "step_into: 'nazwa_resourca'" w "runner = ChefSpec::SoloRunner.new"
    np. runner = ChefSpec::SoloRunner.new(step_into: 'vmn_wildfly')
 !! jesli jest if w resourcie/przepisie to trzeba kombinowac
 	 http://jtimberman.housepub.org/blog/2015/01/12/quick-tip-testing-conditionals-in-chefspec/
+Jest tez opcja z napisaniem bibioteki testowej pod resourca, trzeba stworzyc osobne "matchery", np. libraries/matchers.rb, ktore opisuja
+jaki powinien byc stan po wykonaniu resourca.
+	 https://learn.chef.io/modules/build-a-custom-resource/linux/virtualbox#/
 
 
 2) Cookstyle and Foodcritic (linting)
-
 ---
 a) CookStyle (działa na podstawie RuboCop)
 https://learn.chef.io/modules/verify-code-style/linux/make-your-code-easier-to-read-and-maintain#/
@@ -289,6 +317,12 @@ Uruchamianie:
 kitchen converge && kitchen veryfi - uzywajac chef kitchen
 inspec exec test.rb -i ~/.aws/nathen.pem -t ssh://ec2-user@54.152.7.203 - zdalnie po ssh
 inspec exec test.rb -t docker://3dda08e75838 - w dockerze
+
+
+Chef dokken
+---
+przerobione obrazy dockera pod testy chefa
+//doczytac
 
 
 Przygotowanie cookbookow do działania z nowszą wersją Chefa.
