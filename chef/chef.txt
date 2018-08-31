@@ -4,7 +4,7 @@ ChefDK - narzedzia i soft chefa (knife, chef-client, Berkshelf, itp.)
 
 ruby syntax
 --------------
-#{jakas_zmienna} - wywolanie zmiennej wewnatrz jakiegos ciagu znwkow, np. "/var/www/#{jakas_zmienna }"
+#{jakas_zmienna} - sposob w jaki Ruby umieszcza cos w stringu,np. zmienna, np. "/var/www/#{jakas_zmienna}"
 
 
 tworzenie cookbookow od podstaw
@@ -88,6 +88,8 @@ end
 
 resources
 ------------------------
+https://docs.chef.io/custom_resources.html#custom-resource-dsl
+
 Cos w rodzaju podprogramów, jak funkcje w bashu. definiuje sie akcje potrzebne do stworzenia np. strony www
 czyli np. stworzenie katalogu, instalacja apacha, restart serwisu.
 nie trzeva wtedy za kazdym razem pisac tego osobno dla innej sotrny/konfiguracji w przepisie, wystarxzy odwolac sie do resourca.
@@ -101,6 +103,16 @@ Zeby wywalic blad kiedy action nie jest podany, mozna uzyc na poczatku resourca,
 Jesli nie jest podana nazwa resourca (parametr "resource_name") to brana jest nazwa cookbooka+nazwa pliku resourca.
 
 
+load_current_value i converge_if_changed
+---
+https://docs.chef.io/dsl_custom_resource.html
+https://docs.chef.io/custom_resources.html#custom-resource-dsl
+http://devopslog.com/tag/load_current_value/
+
+The load_current_value method is used to load the current value of a specified attribute from the node which can then be used at
+the converge stage of the chef client run.
+The converge_if_changed method is used inside of the action block of the custom resource. It is used to do a comparison of the value
+of an attribute supplied by the recipe/resource during a chef client run to the value of the attribute  loaded by the load_current_value method.
 
 
 wrapper cookbooks
@@ -245,11 +257,6 @@ Automated testing
 "Linting" - analiza kodu, wyszukuje błędy programowania, błędy stylistyczne i składnie (np.CookStyle, FoodCritic).
 "Unit" test - weryfikuje czy kod jest napisany poprawnie, czy kod robi to co ma robic. Skupia się na pojedynczych komponentach kodu (np.ChefSpec).
 
-0) delivery local all
----
-Automatyzuje testowanie cehfa - ustawiamy w pliku jakie rodzaje testow maja sie wykonac i po odpaleniu "delivery local all" leca zdefiniowane testy po kolei.
-.delivery/project.toml - konfiguracja
-	remote_file = "https://url/project.toml" - mozemy podac plik zewnetrzny ktory zawiera konfiguracje, przydatne jak chcemy miec te same ustawienia dla wielu cookbookow
 
 1) ChefSpec (unit test) (spec/unit/[recipe/resources?/..?]/nazwa-przepisu_spec.rb) - plik musi zawierać w nazwie "_spec.rb"
 ---
@@ -279,6 +286,8 @@ Testowanie custom resources
 Jest tez opcja z napisaniem bibioteki testowej pod resourca, trzeba stworzyc osobne "matchery", np. libraries/matchers.rb, ktore opisuja
 jaki powinien byc stan po wykonaniu resourca.
 	 https://learn.chef.io/modules/build-a-custom-resource/linux/virtualbox#/
+A matcher helps you build expectations around how a resource behaves.
+ChefSpec provides matchers for the built-in Chef resource types; you need to provide your own matchers for custom types you define.
 
 
 2) Cookstyle and Foodcritic (linting)
@@ -317,6 +326,12 @@ Uruchamianie:
 kitchen converge && kitchen veryfi - uzywajac chef kitchen
 inspec exec test.rb -i ~/.aws/nathen.pem -t ssh://ec2-user@54.152.7.203 - zdalnie po ssh
 inspec exec test.rb -t docker://3dda08e75838 - w dockerze
+
+0) delivery local all
+---
+Automatyzuje testowanie chefa - ustawiamy w pliku jakie rodzaje testow maja sie wykonac i po odpaleniu "delivery local all" leca zdefiniowane testy po kolei.
+.delivery/project.toml - konfiguracja
+	remote_file = "https://url/project.toml" - mozemy podac plik zewnetrzny ktory zawiera konfiguracje, przydatne jak chcemy miec te same ustawienia dla wielu cookbookow
 
 
 Chef dokken
