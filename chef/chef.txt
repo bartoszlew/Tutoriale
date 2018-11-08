@@ -289,6 +289,16 @@ jaki powinien byc stan po wykonaniu resourca.
 A matcher helps you build expectations around how a resource behaves.
 ChefSpec provides matchers for the built-in Chef resource types; you need to provide your own matchers for custom types you define.
 
+---
+rozbicie pliku testowego chefspec:
+---
+it 'should download artifact' do
+	expect(chef_run).to download_vmn_java_maven_artifact('vmn-wildfly-canary')
+end
+- download_ - action: z resourca ktory jest wykorzystywany
+- vmn_java_maven_artifact - nazwa wykorzystanego resourca
+- ('vmn-wildfly-canary') - nazwa definicji? resourca w przepisie
+---
 
 2) Cookstyle and Foodcritic (linting)
 ---
@@ -323,7 +333,7 @@ InSpec test has two main components: the subject to examine and the subject's ex
 InSpec wymaga srodowiska testowego wiec najlepiej wykonywac test na koncu, po ChefSpec, CookStyle i FoodCritic.
 
 Uruchamianie:
-kitchen converge && kitchen veryfi - uzywajac chef kitchen
+kitchen converge && kitchen verify - uzywajac chef kitchen
 inspec exec test.rb -i ~/.aws/nathen.pem -t ssh://ec2-user@54.152.7.203 - zdalnie po ssh
 inspec exec test.rb -t docker://3dda08e75838 - w dockerze
 

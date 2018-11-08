@@ -14,6 +14,8 @@ Variables
   @@zmienna
   $zmienna - globalna
 
+  #{} - zmienna wpakowana w ciag znakow
+
 Integers
   Fixnum 1
   Bignum 312313131832719387198371
@@ -251,3 +253,36 @@ h1.merge(h2) { |k,o,n| puts k ; puts o; puts n } - zmienne k,o,n biora wartosc k
 
 collect/map
 -------------
+(najlepiej dziala z hashami, tablicami, zakresami)
+collect - iteruje kazda wartosc, cos z nia robi i zwraca tabele z nowymi wartosciami
+          collect zawsze zwraca taka sama ilosc zmiennych jaka dostal na wejsciu i zawsze zwraca tablice.
+          collect! - z wykrzyknikiem nadpisuje tabele nowymi wartosciami
+  np. ["jablko", "grudzka", "banan"].collect { |i| i.capitalize }
+        daje => ["Jablko", "Grudzka", "Banan"]
+      (1..20).collect { |num| num * 20 }
+        daje => [20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400]
+
+sort
+-----
+https://stackoverflow.com/questions/827649/what-is-the-ruby-spaceship-operator
+<=> porownanie - porownujemy 2 wartosci w1 <=> w2; zwraca -1 kiedy jesli jedna wartosc jest mniejsza od drugiej, 0 jesli sa równe,
+    1 jesli wartosc1 jest wieksza od drugiej. Przydatne do sortoania tablicy.
+    Z wykrzyknikiem ! nadpisuje tablice nowymi wartosciami.
+
+inject
+---------
+Przekazuje do bloku każdy element kolekcji. Posiada dodatkowo pamięć, która początkowo jest równa pierwszemu elementowi (lub wartości podanej jako parametr).
+Po zakończeniu każdej iteracji pamięć jest aktualizowana do wartości zwracanej przez blok.
+
+
+
+========================= Methods, Funkcje  =========================
+Metody to po prostu funkcje.
+
+def nazwa_metody(zmienna1="domyslny_argument_zmiennej1", zmienna2="domyslny_argument_zmiennej2")
+  puts "hello #{zmienna1} #{zmienna2}"
+end
+
+
+return value - zwracana wartoscia metody jest ostatnia wartosc z metody
+  return - podaje co ma zwracac metoda i jednoczesnie konczy funkcje
