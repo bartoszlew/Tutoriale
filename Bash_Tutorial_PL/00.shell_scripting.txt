@@ -1,8 +1,17 @@
 BASH SHELL SCRIPTING
 #####################################################################################################
 
-http://wiki.bash-hackers.org/start
-http://bash.0x1fff.com/if-else - przejrzec srone
+Documentation:
+- man bash
+- info bash
+- https://www.gnu.org/software/bash/manual/
+
+- http://wiki.bash-hackers.org/start
+- http://bash.0x1fff.com/if-else - przejrzec srone
+
+Konfiguracja Basha:
+.bash_profile - jest czytany, gdy Bash jest uruchamiany po zalogowaniu
+.bashrc - jest wykonywany zawsze kiedy nowa powłoka jest odpalana
 
 =====================================================================================================
 BASICS,INPUT,OUTPUT (Podstawy, wejscie, wyjscie)
@@ -442,7 +451,7 @@ lub
 TIPS:
 local - Restricts a variable's scope to the current function and its children
 return - Exits a function (with an optional return code)
-
+export -f nazwa_funkcji - eksportowanie funkcji
 
 ========================================================================================================================================
 String Manipulation - manipulacja tekstem/ciagami znakow (Filtry) (rozdzial 5 i 7 do przerobienia)
@@ -524,17 +533,22 @@ printf
 last - ostatnio zalogowani userzy
 id 	- podaje info uzytkownika - uid=501(bartosz) gid=502(bartosz) groups=502(bartosz) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 type - Displays information about a command
+time <polecenie> - pokazuje ile czasu trwało działanie polecenia
 w - Show who is logged on and what they are doing.
 apropos jakies_polecenie - daje rozdzialy manuala ktore zawieraja to polecenie
 dmidecode - Dmidecode tool read DMI (some say SMBIOS) table to fetch data and displays useful system informations 
 			like hardware details, serial numbers and BIOS version, Processor etc. in human readable format.
 chsh -s /sciezka/do/shella - zmiana shella (dla sesji?)
 passwd -s /sciezka/do/shella - zmiana shella (dla sesji?)
-tee	- kopiuje standardowe wejscie na standarowe wyjscie i do jednego lub wiecej plikow,
+tee	- kopiuje standardowe wyjscie na standarowe wyjscie i do jednego lub wiecej plikow,
 	  przydatne kiedy chcemy wiedziec jaki jest output miedzy potokami,
 	  np. $ ... uniq | tee /tmp/x.x | awk -f transform.awk ... (tee przekazuje wyjscie do pliku x.x i to samo na stnd wyjscie)
 tr
 
+info o shelu:
+enable - wyswietla wbudowane polecenia Basha
+compgen -k - wyswietla słowa kluczowe w Bashu
+shopt - wyswietla/ustawia opcje shella
 
 zmienna home	
 ~ -gives value of the current user's $HOME environment variable, np. /home/bartek

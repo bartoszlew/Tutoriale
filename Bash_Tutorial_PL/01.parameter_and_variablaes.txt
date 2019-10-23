@@ -48,7 +48,7 @@ export -p - wyświetli liste aktualnie eksportowanych zmiennych (globalnych)
 jesli mają być na stałe to należy wpisać je do pliku ~/.bash_profile
 
 Once a variable is exported, it remains in the environment until it is unset.
-unset - usuwa zmienna z ??? //doczytac
+unset - usuwa zmienną
 
 Variables set in a subshell are not visible to the script that called it. Subshells include command
 substitution, as in $(command); all elements of a pipeline; and code enclosed in parentheses, as in ( command ).

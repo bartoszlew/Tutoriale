@@ -154,7 +154,7 @@ Z wyjątkiem opcji -h i -L wszystkie testy związane z PLIKAMI rozwiązują dowi
 -p - test czy PLIK istnieje i jest potokiem nazwanym
 -S - test czy PLIK istnieje i jest gniazdem
 -t DESKRYPTOR - DESKRYPTOR pliku jest otwarty na terminalu
--ef - sprawdza c zy dwa pliki sa takie same
+-ef - sprawdza czy oba twarde dowiązania wskazują na ten sam plik
 -nt - sprawdza czy plik1 jest nowszy od pliku2 - [[plik1 -nt plik2]]
 -ot - sprawdza czy plik1 jest starszy od pliku2
 
