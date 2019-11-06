@@ -2,20 +2,20 @@
 Parameter and Variables (Parametry i zmienne)
 =====================================================================================================
 Positional parameters are arguments present on the command line, and they are referenced by
-number. 
+number.
 Special parameters are set by the shell to store information about aspects of its current state,
 such as the number of arguments and the exit code of the last command. Their names are
-nonalphanumeric characters (for example, *, #, and _). 
+nonalphanumeric characters (for example, *, #, and _).
 Variables are identified by a name.
 
 Variables (zmienne)
 ---------------------------
 Nazwy zmiennych mogą zawierać tylko litery, cyfry i znaki podkreślenia i muszą zaczynać się od litery lub podkreślenia.
-Zmienne to elementy, które moga przechowywac wartosci. W powloce istnieja zmienne mogace przechowywac wartosci logiczne, 
-tekst i liczby. 
-Nie trzeba deklarowac typu zmiennej na samym poczatku skryptu  wystarczy podac dla niej wartosc podczas wpisywania skryptu. 
+Zmienne to elementy, które moga przechowywac wartosci. W powloce istnieja zmienne mogace przechowywac wartosci logiczne,
+tekst i liczby.
+Nie trzeba deklarowac typu zmiennej na samym poczatku skryptu  wystarczy podac dla niej wartosc podczas wpisywania skryptu.
 Należy pamiętać, że pomiędzy nazwą zmiennej znakiem równa się i wartością zmiennej nie było spacji lub innych białych znaków.
-	
+
 Pzypisanie zmiennej:
 name=VALUE
 
@@ -25,17 +25,17 @@ echo 	"$cyfry"  - białe znaki są drukowane tak jak zostaly napisane
 echo 	'$cyfry"  - nie podstawia wartosci zmiennych, cytuje dokladna tresc.
 
 Polecenie echo  użyte wraz  z  apostrofami  cytuje  dokładną treść, nie podstawia wartości zmiennych, należy o tym pamiętać.
-Zmienne to elementy, które moga przechowywac wartosci. W powloce istnieja zmienne mogace przechowywac wartosci logiczne, tekst i liczby. 
-Nie trzeba deklarowac typu zmiennej na samym poczatku skryptu — wystarczy podac dla niej wartosc podczas wpisywania skryptu. 
-Jeżeli zmienna zawiera napis z białymi znakami (spacje, tabulacje, znaki nowej linii) to w przypadku użycia polecenia echo bez cudzysłowu każda nadmiarowa ilość białych znaków zostanie zredukowana do pojedynczej spacji. 
+Zmienne to elementy, które moga przechowywac wartosci. W powloce istnieja zmienne mogace przechowywac wartosci logiczne, tekst i liczby.
+Nie trzeba deklarowac typu zmiennej na samym poczatku skryptu — wystarczy podac dla niej wartosc podczas wpisywania skryptu.
+Jeżeli zmienna zawiera napis z białymi znakami (spacje, tabulacje, znaki nowej linii) to w przypadku użycia polecenia echo bez cudzysłowu każda nadmiarowa ilość białych znaków zostanie zredukowana do pojedynczej spacji.
 Jeśli użyjemy cudzysłowu to białe znaki są drukowane tak jak zostały wpisane.
 
-Zasięg zmiennych 
+Zasięg zmiennych
 --------------------------------------------------------------------------------------------------------
-//doczytc 
+//doczytc
 
-Zmienne ustawione w subshellu nie są widoczne w skrypcie który go wywołał. 
-Do subshella zaliczają się podmiana komendy $(command); wszystkie elementy pajpa |, i kod zamkniety w nawias tj.( komenda )
+Zmienne ustawione w subshellu nie są widoczne w skrypcie który go wywołał.
+Do subshella zaliczają się podmiana komendy $(command); wszystkie elementy pajpa | i kod zamkniety w nawias tj.( komenda )
 //powinny byc wyeksprotwane? jak?
 
 globalne - widoczne w każdym podshellu (nazywane również zmiennymi środowiskowymi)
@@ -43,7 +43,7 @@ lokalne - widoczne tylko dla tego shella w którym został ustawione (nie są wi
 
 Inicjacja zmiennych globalnych (ważne tylko do zamknięcia powłoki)
 export nazwa_zmiennej  - nadaje ono wskazanym zmiennym atrybut zmiennych globalnych  (zmienna będzie widoczna w podshellach)
-export -n nazwa_zmiennej  - spowoduje usunięcie atrybutu eksportu dla danej zmiennej  
+export -n nazwa_zmiennej  - spowoduje usunięcie atrybutu eksportu dla danej zmiennej
 export -p - wyświetli liste aktualnie eksportowanych zmiennych (globalnych)
 jesli mają być na stałe to należy wpisać je do pliku ~/.bash_profile
 
@@ -60,23 +60,40 @@ Zmienne ustawiona w subshellu nie jest widoczna dla shella. D subshelli zaliczam
 command substitution, as in $(command); all elements of a pipeline; and code enclosed in parentheses, as in ( command ).
 
 
-Deklarowanie zmiennych //doczytac
+Deklarowanie zmiennych
 ----------------------------------------------------
 http://www.tldp.org/LDP/abs/html/declareref.html
-delcare
-typeset
+
+declare/typeset - pozwalą deklarować imodyfikować właściwości zmiennych.
+		Zasadniczo jest to samo polecenie, różnicą jest, że declare jest nowsza i preferowana, a typeset będzie działać w ksh.
+		Użyte w funkcji ustawiają zmienną jako lokalną, czyli poza funkcją nie będzie dostępna.
+		Dobrą praktyką jest ustawianie zmiennej lokalnej w funkcji, zeby przypadkiem nie nadpisać zmiennej o takiej samej nazwie w skrypcie.
+
+		Ustawienie zmiennej na integer -i , znacznie przyspieszy obliczenia i doda kilka dodatkowych operacji arytmetycznych,
+		takich jak:	let x**; let y=x**2; let x*=5, etc..
+
+		-l zmienia wszystkie duze litery na małe w wartosci zmiennej
+		-u zmienia wszystkie małe litery na duże w wartosci zmiennej
+		-r ustawia wartosc zmiennej jako read only, czli nie bedzie mozna przypisac do niej nowej wartosci,
+			 jeśli będzoemy chcieli przypisac jakąs wartość to wywali błąd.
+	  -a deklaruje zmienną tablicową indeksowaną numerem
+		-A deklaruje zmienną tablicową indeksowaną stringiem
+		-f A declare -f line with no arguments in a script causes a listing of all the functions previously defined in that script.
+			 A declare -f function_name in a script lists just the function named.
+		-x This declares a variable as available for exporting outside the environment of the script itself.
+
 
 Parametry wywolania/skryptu (Posisional parametres)
 -----------------------------------------------------
 http://wiki.bash-hackers.org/scripting/posparams
 
 Positional parameters are arguments present on the command line, and they are referenced by
-number. 
+number.
 
 Posisional parametres - argumenty wywolania programu:
 $1..$9 - nastepne ewentualnie w klamry np. ${10}
 
-Przydatne w funkcjach  1 - pierwszy argument, 2 -drugiargument itd. 
+Przydatne w funkcjach  1 - pierwszy argument, 2 -drugiargument itd.
 wywolanie:  skrypt argument1 argument2 argument3 , np. jakis_skrypt plik1.txt
 
 np.
@@ -94,7 +111,7 @@ Sprawdzenie ile jest podanych argumentow
 		echo "Your command line contains no arguments"
 	fi
 
-Aby uzyc parametrow po kolei, sa dwie metody: 
+Aby uzyc parametrow po kolei, sa dwie metody:
 		1)
 			for param in "$@" ## or just: for param
 			do
@@ -108,7 +125,7 @@ Aby uzyc parametrow po kolei, sa dwie metody:
 		shift
 		done
 
-	
+
 shift -	usuwa bierzący parametr i przesuwa kolejne o jeden, czyli $2 staje sie $1, $3 staje sie $2 itd.
 	np.
 	shift 3 	- przesuwa $4 na $1 ()usuwa 3 pierwsze parametry)
@@ -122,8 +139,8 @@ Zmienne specjalne (Special parameters)
 
 $0 - nazwa biezacego skryptu lub powloki jesli zaden skrypt go nie wykonuje
 $@ - zwraca wszystkie wartosci aktualnych parametrów (expanded as "$1" "$2" "$3" ... "$n")
-$*   - zwraca wszystkie wartosci aktualnych parametrów 
-	    (expanded as "$1y$2y$3y...$n", where y is the value of $IFS variable i.e. "$*" is one long string and $IFS act 
+$*   - zwraca wszystkie wartosci aktualnych parametrów
+	    (expanded as "$1y$2y$3y...$n", where y is the value of $IFS variable i.e. "$*" is one long string and $IFS act
 	    as an separator or token delimiters.
 	    W $* sepratarem jest ten ustawiony przez zmienna IFS=)
 $# - liczba parametrów
@@ -170,8 +187,8 @@ https://www.cyberciti.biz/tips/bash-shell-parameter-substitution-2.html
 -------
 
 Podstawowe uzycie:
-$zmienna - wartosc zmiennej 
-${zmienna}teskt - umieszczenie zmiennej w {} umozliwia wstawianie za nia ciagu znakow bez koniecznosci 
+$zmienna - wartosc zmiennej
+${zmienna}teskt - umieszczenie zmiennej w {} umozliwia wstawianie za nia ciagu znakow bez koniecznosci
 		  uzycia spacji/separatora
 ${#zmienna} - zwraca ilosc znakow wartosci zmiennej
 
@@ -181,18 +198,18 @@ Odwołanie pośrednie (Indirection):
 ${!zemienna} - jesli zmienna odwoluje sie do drugiej zmiennej to ${!zmienna} zwraca wartosc drugiej zmienej
 		(to samo mozna osiagnac przez wbudowana komende "eval" -> eval "sa \$$a")
 	 	np.
-		jakas_zmienna="barabuch" ; 
-		zmienna="jakas_zmienna" ; 
+		jakas_zmienna="barabuch" ;
+		zmienna="jakas_zmienna" ;
 		echo $zmienna ${!zmienna}
 		-> jakas_zmienna barabuch
-		
+
 		${!var}: Indirect Reference
 		$ x=yes
 		$ a=x
 		$ sa "${!a}"
 		:yes:
-	
--------		
+
+-------
 
 Modyfikacja wielkosci liter:
 ${zmienna^WZÓR}  - ^ (caret) zmienia na duza litere pierwszy znak wartosci zmienej pasujuący do wzoru.
@@ -203,7 +220,7 @@ ${zmienna^WZÓR}  - ^ (caret) zmienia na duza litere pierwszy znak wartosci zmie
 	:Toronto:
 	$ echo "${var^[n-z]}"
 	:Toronto:
-	
+
 ${zmienna^^WZÓR} - ^^ (double caret) zmienia na duza litere wszystkie znaki zmiennej pasujace do wzoru, jesli nie ma podanego 					wzoru to zmienia wszystkie litery wartosci zmiennej (jesli wzor jest pusty to zmienia wszystkie)
 	np.
 	$ var=toronto
@@ -213,7 +230,7 @@ ${zmienna^^WZÓR} - ^^ (double caret) zmienia na duza litere wszystkie znaki zmi
 	:tOrONtO:
 	$ echo "${var^^}"
 	:TORONTO:
-	
+
 ${zmienna,WZÓR}  - , zmienia na małą litere pierwszy znak wartosci zmienej, jeśli pasuje do wzoru.
 ${zmienna,,WZÓR} - ,, (double caret) zmienia na małą litere wszystkie znaki zmiennej pasujace do wzoru, jesli nie ma podanego 					wzoru to zmienia wszystkie litery wartosci zmiennej (jesli wzor jest pusty to zmienia wszystkie)
 	np.
@@ -222,7 +239,7 @@ ${zmienna,,WZÓR} - ,, (double caret) zmienia na małą litere wszystkie znaki z
 	:toronto:
 	$ sa "${var,,[N-Q]}"
 	:ToRonTo:
-	
+
 ${zmienna~WZÓR}  - odwraca wielkosc pierwszego znaku wartosci zmiennej
 ${zmienna~~WZÓR} - odwraca wielkosc wszystkich znaku wartosci zmiennej (jesli wzor jest pusty to odwraca wszystkie)
 
@@ -239,28 +256,28 @@ ${zmienna#wzorzec} - usuwa tekst wartości zmiennej pasujący do wzoru od lewej 
 	$ var=Toronto
 	$ sa "${var#*o}"
 	:ronto:
-	
+
 	zmienna="Be liberal in what you accept, and conservative in what you send"
 	${zmienna#* }	daje => liberal in what you accept, and conservative in what you send
-	
+
 ${zmienna##wzorzec} Tak jak #wzorzec, ale usuwa najdłuższy pasujący tekst.
 	np.
 	$ var=toronto
 	$ sa "${var#*o}"
 	:o:
-	
+
 	//przydatne w usuwaniu pelnej sciezki do pliku
 	$var=/var/log/messages
-	sa "${var##*/}" 
+	sa "${var##*/}"
 	:messages:
-	
+
 ${zmienna%wzorzec} - usuwa tekst wartości zmiennej pasujący do wzoru od prawej strony. Usuwa najkrótszy pasujący tekst.
 	np.
 	$ var=Toronto
 	$ var=${var%o*}
 	$ printf "%s\n" "$var"
 	Toront
-	
+
 ${zmienna%%wzorzec} - Tak jak %wzorzec, ale usuwa najdłuższy pasujący tekst
 	np.
 	$ var=Toronto
@@ -275,13 +292,13 @@ ${zmienna//WZOR/ZAST} - zastepuje pierwszą pasującą wartosc zmiennej pasujace
 ${zmienna//WZOR/ZAST} - zastepuje wszystkie wartosci zmiennej pasujace do WZORu na ZAST
 	np.
 	$ passwd=zxQ1.=+-a
-	$ printf "%s\n" "${passwd//?/*}" 
+	$ printf "%s\n" "${passwd//?/*}"
 ${zmienna/WZOR}	- usuwa pierwszą pasującą wartosc zmiennej pasujace do WZORU
 ${zmienna//WZOR} - usuwa wszystkie wartosci zmiennej pasujace do WZORU
 
 TIP:
 zamiana dla wszystkich wartosci zmiennej tablicowej
-	np. 
+	np.
 	#zamiana malej litery t na d
 	tablica=(This is a text)
 	echo "${tablica[@]/t/d}"
@@ -291,7 +308,7 @@ zamiana dla wszystkich wartosci zmiennej tablicowej
 --------
 
 Zwróć zakres znaków z wartości zmiennej (Substring expansion)
-${zmienna:POZYCJA} - zwraca część wartosc zmiennej zaczynajac od POZYCJI (wartosc arytmetyczna) do konca ciagu znaków. 
+${zmienna:POZYCJA} - zwraca część wartosc zmiennej zaczynajac od POZYCJI (wartosc arytmetyczna) do konca ciagu znaków.
 	np.
 	$ zmienna="cos tam sros tam"
 	$ echo ${zmienna:9}
@@ -305,47 +322,47 @@ ${zmienna:POZYCJA:DŁUGOSC} - zwraca część wartosc zmiennej zaczynajac od POZ
 
 	$ sa "${var: -3}"
 	:nto:
-	
+
 Jeśli podana jest negatywna POZYCJA to początek zwracanej zmiennej liczymy od końca (jesli podajemy negatywna wartosc, musi byc ona oddzielona od ":" spacja lub nawiasem).
 	np.
 	$ zmienna="cos tam sros tam"
 	$ echo ${zmienna:(-2)}
 	-> am
-	
-Jeśli wartość DŁUGOŚĆ jest ujemna, jest używana jako przesunięcie od końca łańcucha. 
+
+Jeśli wartość DŁUGOŚĆ jest ujemna, jest używana jako przesunięcie od końca łańcucha.
 
 --------
 
-Użyj wartości domyslnej 
+Użyj wartości domyslnej
 ${zmienna:-wartość_domyslna} - jesli zmienna nie jest ustawiona lub jest pusta to wyrazenie zwraca "wartość_domyslną",
 			       jeśli jest ustawiona, to zwraca wartość tej zmiennej
 			       np.
 			       $ zmienna=
 			       $ echo "${zmienna:-jakis_ciag_znakow}"
 			       jakis_ciag_znakow
-${zmienna-wartość_domyslna} - sprawdza czy zmienna jest ustawiona, jesli nie to zwarca "wartosc", 
+${zmienna-wartość_domyslna} - sprawdza czy zmienna jest ustawiona, jesli nie to zwarca "wartosc",
 			       jeśli jest to nic nie zwraca
 			       $ var=
 			       $ sa "${var-default}" ## zmienna var jest ustawona, wiec polecenie nic nie zwraca
 			       ::
 			       $ unset var
 			       $ sa "${var-default}" ## zmienna var nie jest ustawiona, wiec zwraca wartosc domyslna
-		               :default:	
---------			       
+		               :default:
+--------
 
 Przypisz domyślną wartość
 To samo co ${zmienna:-wartość_domyslna} i ${zmienna-wartość_domyslna} z tą różnica, że przypisuje wartość do zmiennej.
 ${zmienna:=nowa_wartosc} - jesli zmienna nie jest ustawiona lub jest pusta to zmienna jest ustawiona na ciagn znakow "nowa_wartosc",
-		      jesli jest ustawiona to zwraca wartosc zmiennej;   
+		      jesli jest ustawiona to zwraca wartosc zmiennej;
 ${zmienna=nowa_wartosc} - jesli zmienna nie jest ustawiona to jest ustawiona na ciagn znakow "nowa_wartosc",
-		     jesli jest ustawiona to zwraca wartosc zmiennej;  
+		     jesli jest ustawiona to zwraca wartosc zmiennej;
 
 --------
 
 Przypisz wartość alternatywną
-${zmienna:+wartosc_aternatywna} - jesli zmienna nie jest ustawiona lub jest 0 to wyrazenie nic nie zwraca. 
-				  Jesli jest ustawiona to wyrazenie zwraca ciagn znakow "wartosc_alternatywna"; 
-				  	np. 
+${zmienna:+wartosc_aternatywna} - jesli zmienna nie jest ustawiona lub jest 0 to wyrazenie nic nie zwraca.
+				  Jesli jest ustawiona to wyrazenie zwraca ciagn znakow "wartosc_alternatywna";
+				  	np.
 				  	${name:+Name already exists}
 ${zmienna+wartosc_aternatywna} - jeśli zmienna jest ustawiona lub jest pusta to zmienna zwróci "wartość_alternatywna".
 				 Jeśli nie jest ustawiona wyrażenie nic nie zwróci.
@@ -356,12 +373,12 @@ ${zmienna+wartosc_aternatywna} - jeśli zmienna jest ustawiona lub jest pusta to
 					else
   						echo "foo is not set..."
 				 	fi
-					
---------	
 
-Wyświetl błąd jeśli zmienna nie jest ustawiona lub jest pusta 
-${zmienna:?tekst} - jesli zmienna nie jest ustawiona lub jest 0 to wyrazenie zwraca ciagn znakow "tekst",jesli jest ustawiona to 
-	  	    zwraca zmienna i zamyka sesje shella; 
+--------
+
+Wyświetl błąd jeśli zmienna nie jest ustawiona lub jest pusta
+${zmienna:?tekst} - jesli zmienna nie jest ustawiona lub jest 0 to wyrazenie zwraca ciagn znakow "tekst",jesli jest ustawiona to
+	  	    zwraca zmienna i zamyka sesje shella;
 ${zmienna:?} - jesli jest ustawiona to zwraca zmienna, jesli nie jest to zwraca standardowy komunikat bledu (null or not set)
 
 --------
