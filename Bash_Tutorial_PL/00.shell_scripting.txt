@@ -9,18 +9,49 @@ Documentation:
 - http://wiki.bash-hackers.org/start
 - http://bash.0x1fff.com/if-else - przejrzec srone
 
-Konfiguracja Basha:
-.bash_profile - jest czytany, gdy Bash jest uruchamiany po zalogowaniu
-.bashrc - jest wykonywany zawsze kiedy nowa powłoka jest odpalana
+=====================================================================================================
+Podstawy basha
+=====================================================================================================
 
-=====================================================================================================
-BASICS,INPUT,OUTPUT (Podstawy, wejscie, wyjscie)
-=====================================================================================================
-echo 	- Prints arguments separated by a space and terminated by a newline
-			-n  bez znaku nowej lini !!!!!!!!!!
+Start/Konfiguracja Basha:
+.bash_profile - jest czytany, gdy Bash jest uruchamiany po zalogowaniu
+                ustawia sie np. zmienne środowiskowe
+.bashrc - jest wykonywany zawsze kiedy nowa powłoka jest odpalana
+          ustawia się np. aliasy i funkcję ponieważ nie są one standardowo exportowane
+
+Podstawowe/przydatne polecenia:
+echo - wyświetla na standarowym wyjsciu podany tekst odzielony spacją i zakończony nową linią
+			-n  nie dodaje znaku nowej linia na końcu
+      -e  włącza interpretacje znaków specjalnych, np. znaki nowej lini \n
+	        \b - backspace
+	        \n - nowa linia
+	        \r - powrót karetki
+	        \t - tabulator
+	        \\ - backslash
+      -E  wyłącza interpretację znaków specjalnych (domyślne włączone)
+      TIP: echo * - wylistuje wszystkie pliki w katalogu odzielone spacją
 printf	- Prints the arguments as specified by a format string
 read 	- czyta input, moze byc popiete pod zmienna, np. read var; read a b c d
-#dokładniejsze info nt. poleceń na końcu dokumentu
+source (lub . ) - wykonuje polecenia podanego pliku w bieżącej powłoce! 
+                  Uzywane często do importowania zemiennych i funkcji z pliku do bieżącej powłoki.
+                  Jeśli uruchomilibyśmy skrypt standardowo -> ./skrypt.sh to uruchomiłby się on w nowej
+                  powłoce i po zakończeniu zmienne i funkcje nie były by widoczne w bieżącej powłoce.
+            ./ and source are not quite the same:
+              ./script runs the script as an executable file, launching a new shell to run it
+              source script reads and executes commands from filename in the current shell environment
+alias - przypisywanie aliasu dla poleceń, np. alias ll='ls -la'
+// więcej poleceń na koncu
+
+Zmienna $HOME
+~ -gives value of the current user's $HOME environment variable, np. /home/bartek
+~user_name -gives specific user's home director
+~- - path of the preivous directory you were working on
+~+ - path of the current directory
+  
+Info o shellu:
+enable - wyswietla wbudowane polecenia Basha
+compgen -k - wyswietla słowa kluczowe w Bashu
+shopt - wyswietla/ustawia opcje shella
 
 
 =====================================================================================================
@@ -528,14 +559,15 @@ batch shell_script - run script as soon as system load levels are low. The shell
  
 ##########################przydatne polecenia###############################
 finger - info o uzytkowniku
-echo
-printf
 last - ostatnio zalogowani userzy
 id 	- podaje info uzytkownika - uid=501(bartosz) gid=502(bartosz) groups=502(bartosz) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 type - Displays information about a command
 time <polecenie> - pokazuje ile czasu trwało działanie polecenia
 w - Show who is logged on and what they are doing.
-apropos jakies_polecenie - daje rozdzialy manuala ktore zawieraja to polecenie
+who - 
+apropos <polecenie> - daje rozdzialy manuala ktore zawieraja to polecenie
+man -
+info - 
 dmidecode - Dmidecode tool read DMI (some say SMBIOS) table to fetch data and displays useful system informations 
 			like hardware details, serial numbers and BIOS version, Processor etc. in human readable format.
 chsh -s /sciezka/do/shella - zmiana shella (dla sesji?)
@@ -544,27 +576,10 @@ tee	- kopiuje standardowe wyjscie na standarowe wyjscie i do jednego lub wiecej 
 	  przydatne kiedy chcemy wiedziec jaki jest output miedzy potokami,
 	  np. $ ... uniq | tee /tmp/x.x | awk -f transform.awk ... (tee przekazuje wyjscie do pliku x.x i to samo na stnd wyjscie)
 tr
+uname - 
 
-info o shelu:
-enable - wyswietla wbudowane polecenia Basha
-compgen -k - wyswietla słowa kluczowe w Bashu
-shopt - wyswietla/ustawia opcje shella
 
-zmienna home	
-~ -gives value of the current user's $HOME environment variable, np. /home/bartek
-~user_name -gives specific user's home director
-~- -path of the preivous directory you were working on
-~+ -path of the current directory
 
-echo
-	echo -e "An apple a day keeps away \a\t\tdoctor\n" away
-	echo $'\n' - pusta linia
-	-e powoduje ze interpretowane sa znaki:
-	\b - backspace
-	\n - nowa linia
-	\r - powrót karetki
-	\t - tabulator
-	\\ - backslash
 	
 read	- The read command is a built-in shell that reads from the standard input. By default, it reads until a
 		  newline is received. The input is stored in one or more variables given as arguments:
@@ -618,7 +633,7 @@ while read p; do echo $p done < peptides.txt
 ==========================doczytac==============================
 
 
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\  TIPSY  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\  TIPS  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 1. najprostsze tworzenie pliku
 	> nazwa_pliku - przekierowanie "niczego" do pliku :)
 2. szybka kopia pliku
@@ -637,4 +652,5 @@ http://wiki.bash-hackers.org/
 
 Ćwiczenia:
 https://michalis.ii.uni.wroc.pl/~michalis/teaching/linux/
-https://www.hackerrank.com/
+hhttp://bash.0x1fff.com
+/ttps://www.hackerrank.com/
