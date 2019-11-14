@@ -7,7 +7,7 @@ git remote add origin remote repository URL
 
 git add -> sledzenie plikow (dodanie do indexu)
 git commit - zatwierdzenie zmian (bedzie pytal o komentarz)
-	     plik jest zatwierdzony w HEAD, ale nie w zdalnym repozytorium. 
+	     plik jest zatwierdzony w HEAD, ale nie w zdalnym repozytorium.
 git commit -m "jakis komentarz" - zatwierdzenie zmian i dodanie komentarza
 git commit -a -> pomija git add
 git status - sprawdzenie stanu plików
@@ -15,7 +15,7 @@ git status - sprawdzenie stanu plików
 
 git diff 	-> zmiany spoza poczekalni
 git diff -stage	-> zmiany wysłane dotąd do poczekalni
-git rm - usuniecie pliku 
+git rm - usuniecie pliku
 git mv file_from file_to -> zmiana nazwt pliku w repozytorium
 
 
@@ -27,7 +27,7 @@ git checkout -b <galaz> - tworzy i przelacza sie na nowa galaz (to samo co git b
 git checkout <galaz> - przelaczenie na inna galaz
 git branch --merged - sprawdzanie ktore galezie zostaly zmerdzowane z galezia biezaca
 git branch --no-merged -  pokazuje wszystkie gałęzie zawierające zmiany, których jeszcze nie scaliłeś z biezaca
-		
+
 
 MERGE
 git diff <branch> - pokazuje roznice miedzy galezia aktywna a <branch>. przydatne przed mergem
@@ -45,10 +45,10 @@ git log --name-status - pokazuje tylko zmienione pliki
 
 REMOTE REPOSITORY
 git remote -v - wyswietlanie podlaczonych zdalnych repozytoriow
-git clone <url> - ustawia twoją lokalną gałąź główną master tak aby śledziła zmiany w zdalnej gałęzi master na serwerze z którego sklonowałeś repozytorium 
+git clone <url> - ustawia twoją lokalną gałąź główną master tak aby śledziła zmiany w zdalnej gałęzi master na serwerze z którego sklonowałeś repozytorium
 			(zakładając, że zdalne repozytorium posiada gałąź master). Git clone pobiera każda rewizja, każdego pliku w historii projektu
 git remote add <name> <url> - dodanie zdalnego repozytorium (domysla nazwa pierwszego repo - origin)
-git fetch - pobiera dane do lokalnego repozytorium,nie scala jednak automatycznie zmian z żadnym z twoich plików roboczych jak i w żaden inny sposób tych plików nie modyfikuje.
+git fetch - pobiera dane do lokalnego repozytorium, NIE scala jednak automatycznie zmian z żadnym z twoich plików roboczych jak i w żaden inny sposób tych plików nie modyfikuje.
 git pull - aktualizujacja lokalnego repo do ostatniego commita ze zdalnego repo.  pobiera i scala dane z lokalnym repo
 			pobiera dane ze zdalnego repozytorium i próbuje automatycznie scalić zmiany z lokalnym repo
 git push <nazwa-zdalnego-repo> <nazwa-gałęzi> - wysyla zmiany do zdalnego repo, jesli beda konfliktu to trzeba zrobic pierw git pull
@@ -56,7 +56,7 @@ git push <nazwa-zdalnego-repo> <nazwa-gałęzi> - wysyla zmiany do zdalnego repo
 git push [nazwa zdalnego repozytorium] :[gałąź] - usuwa zdalna galaz, np. git push origin :serverfix
 git remote show <gałąź> - pokazuje info o zdalnej galezi
 git request-pull <nazwa repo>/<galaz repo> myfork  //DOCZYTAC
-		np. git request-pull origin/master myfork 
+		np. git request-pull origin/master myfork
 		https://git-scm.com/docs/git-request-pull
 		https://git-scm.com/book/pl/v1/Rozproszony-Git-Wgrywanie-zmian-do-projektu
 
@@ -71,11 +71,11 @@ pull request:
 			master - galaz zdalnego repo z ktora chcemy zcalic galaz
 			nazwa_galaz - nazwa galezi lokalnej ktora wyslalismy pushem w pkt.5
 7. create merge request z poziomu strony git.dcwp.pl  albo jakos z konsoli
-    albo prosciej w gwp: 
+    albo prosciej w gwp:
 			1. git up
 			2. utworzyc nowego brancha dla zmian, na brancu robic wszystkie zmiany
 			3. po edycji (bez git add, git commit) dać export GITLAB_TOKEN=haslotoken -> ./create_merge_request.py
-						
+
 
 COFANIE/ZMIANA COMMITA
 https://git-scm.com/book/pl/v1/Podstawy-Gita-Cofanie-zmian
@@ -87,23 +87,23 @@ git commit --amend -> zmienia/nadpisuje ostatniego commita, mozna odac nowe zmia
 					nie stosowac kiedy po commicie byl zrobiony push
 git reset HEAD <plik> - usuwanie pliku z poczekalni
 git checkout -- <nazwa pliku>  - cofanie lokalnych zmian
-git rebase -i - zmiana starszych commitow, niebezpieczne!!! 
+git rebase -i - zmiana starszych commitow, niebezpieczne!!!
 						usuniecie commita jesli byl juz wyslany do repo spowoduje desynchronizacje z lokalnymi repo innych uzytkownikow
 git revert <commit> - cofniecie zmiany do ktoregos tam commita
-git reset - discard commits  (sa 3 tryby: mixed, soft, and hard) , usuwa commity??	
-git reset --hard ORIG_HEAD - odkreca git reset - odtwarza pierwotna historie 
+git reset - discard commits  (sa 3 tryby: mixed, soft, and hard) , usuwa commity??
+git reset --hard ORIG_HEAD - odkreca git reset - odtwarza pierwotna historie
 			https://backlogtool.com/git-guide/en/stepup/stepup6_3.html
-git fetch origin; git reset --hard origin/master - porzucić wszystkie lokalne zmiany i commity pobierz ostatnią 
+git fetch origin; git reset --hard origin/master - porzucić wszystkie lokalne zmiany i commity pobierz ostatnią
 								historię z serwera i ustaw na nią swoją gałąź lokalną.
 git cherry-pick - zatwirdzenie commita z innej galezi
 
 cofniecie merga -> https://stackoverflow.com/questions/7099833/how-to-revert-a-merge-commit-thats-already-pushed-to-remote-branch
-git revert -m 1 <commit-hash> 
+git revert -m 1 <commit-hash>
 git commit -m "Reverting the last commit which messed the repo."
 git push -u origin master
 
 GIT CLEAN - usuwanie untracked (niesledzonych) plikow
-git clean -n - pokazuje co bedzie usuniete 
+git clean -n - pokazuje co bedzie usuniete
 git clean -x - usuwa (moze byc potrzebne -f zeby wywalic)
 
 GIT STASH (schowek)
@@ -126,3 +126,15 @@ Reset local repository branch to be just like remote repository HEAD
 -------------------
 git fetch origin
 git reset --hard origin/master
+
+
+TODO:
+obejrzec prezentacje, link w slajdach
+learninggitbranching.js.org
+git checkout //doczytac jakie zmiany robi
+git reflog //doczytac
+
+
+git reset --soft <hash> - przesuniecie HEADA na inny commitow
+git reset [--mixed] - plik wraca do poprzedniego staga (wywala plik do momentu git add ?)
+git reset --hard

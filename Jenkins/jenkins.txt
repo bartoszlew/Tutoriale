@@ -1,0 +1,59 @@
+Let us look at the types of build jobs available in Jenkins.
+
+1. Freestyle Project:
+  Freestyle build jobs are general-purpose build jobs, which provides maximum flexibility. The freestyle build job is the most flexible and configurable option,
+  and can be used for any type of project. It is relatively straightforward to set up, and many of the options we configure here also appear in other build jobs.
+
+2. Multiconfiguration Job:
+  The “multiconfiguration project” (also referred to as a “matrix project”) allows you run the same build job on different environments. It is used for testing an
+  application in different environments, with different databases, or even on different build machines.
+
+3.Monitor an External Job:
+  The “Monitor an external job” build job lets you keep an eye on non-interactive processes, such as cron jobs.
+
+4. Maven Project:
+  The “maven2/3 project” is a build job specially adapted to Maven projects. Jenkins understands Maven pom files and project structures,
+  and can use the information gleaned from the pom file to reduce the work you need to do to set up your project.
+
+
+multipipeline job przyklady
+-------------------
+https://build.viacom.com/view/UP Services/job/up-auth-dependencies-web
+
+
+pipeline
+-----------
+https://jenkins.io/doc/book/pipeline/
+https://jenkins.io/doc/book/pipeline/jenkinsfile/
+https://www.youtube.com/watch?v=3R5xh4oeDg0
+
+pipeline {
+  agent
+  environment {
+  }
+  stages {
+
+
+  }
+
+}
+
+
+Debugowanie buildow declarative Pipeline
+-----------------------------
+Log
+Build -> Pipeline steps - log builda podzielony na stepy, nie trzeba przeglądać całego loga
+Build -> Thread dump (tylko uruchomione buildy) - wyświetla dokładnie na jakim etapie jest i co wykonuje build
+          Thread #12 - oznacza 12 linię Jenkinsfila ?
+
+
+Shared Libraries
+-----------
+https://jenkins.io/doc/book/pipeline/shared-libraries/
+
+
+
+
+przenoszenie jobow miedzy instancjami jenkinsa
+------------------------------------------------
+https://staxmanade.com/2015/01/how-to-migrate-a-jenkins-job-to-new-jenkins-server/ #opcja 2

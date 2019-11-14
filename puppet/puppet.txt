@@ -1,0 +1,335 @@
+srodowisko testowe:
+--------------------
+skonfigurowac Vagranta
+- vagrant init
+- vim Vagrantfile
+Vagrant.configure("2") do |config|
+config.vm.provider "virtualbox" do |v|
+  v.memory = 2048
+  v.cpus  = 2
+end
+
+config.vm.define "puppetmaster" do |pm|
+  pm.vm.box = "centos/7"
+  pm.vm.network "private_network", ip: "192.168.33.10
+  pm.vm.hostname = "pupptemaster"
+end
+
+config.vm.define "puppet-agent-centos" do |pac|
+  pac.vm.box = "centos/7"
+  pac.vm.network "private_network", ip: "192.168.33.11
+  pac.vm.hostname = "centos-agent"
+end
+
+ config.vm.define "puppet-agent-ubuntu" do |pau|
+  pau.vm.box = "ubuntu/xenial64"
+  pau.vm.network "private_network", ip: "192.168.33.12
+  pau.vm.hostname = "ubuntu-agent"
+end
+end
+- vagrant status
+- vagrant up //stawia wirtualki
+
+
+--------
+
+podstawy/komponenty/terminologia:
+------------
+puppet master - glowny server puppeta, kompiluje dane z agenta, autoryzuje certy nodow
+puppet servera - provides high performance Puppet master service
+puppetDB - przechowuje i buforuje dane puppeta
+puppet agents - klient dzialajacy na nodach
+facter - narzedzie instalowane z agentem, zbiera info o nodzie
+facts - info/dane o nodzie
+puppet run - odpalanie puppeta na nodzie, łączy się z masterem, pobiera dane i odpala na nodzie
+pupopet language - jezyk DSL puppeta, pliki zapisane z rozszerzeniem .pp, kompilowane sa przez puppet mastera podczas "puppet run"
+External Node Classifiers (ENC) - skrypty albo dane (ldap db, puppetdb) ktore mowia puppetowi ktore manifesty maja byc odpalane na nodzie
+manifests  puppet program files written in Puppet DLS language
+resource -
+tyes -
+providers -
+
+/etc/puppetlabs/code/environments/production/ - The standard place for Puppet manifests in a production environment
+
+Puppet moze dzialac jaka master/client albo standalone. Jako standalone korzysta z gita i crona.
+
+konfiguracja serwera
+---------------
+/etc/sysconfig/puppetserver
+/etc/puppetlabs/
+
+
+agent puppeta
+-------------
+trzeba skonfigurowac polaczenie do puppet mastera, wystarczy np. wpis w /etc/hosts
+
+puppet agent --test --server nazwa_puppet_mastera - przy pierwszym polaczeniu stworzy certa, ktorego trzeba podpisac na masterze
+na masterze:
+puppet cert list - listuje certy czekajace na podpisanie
+puppet cert sign nazwa_noda - podpisuje certa dla noda
+
+puppet apply examples/file_hello.pp --noop --show_diff  - odpala lokalnie manifest "file_hello.pp"
+    --noop - dry run, odpali bez zmiany
+    --show_diff - pokaze jakie zmiany faktycznie dokona
+
+puppet resource package nazwa_paczki - version of a package Puppet thinks you have installed
+puppet resource TYPE TITLE - will output a Puppet manifest representing the current state of the named resource on the system
+puppet describe nazwa_zasobu - help na temat zasobu
+
+
+manifests
+--------------
+notify - informuje np.podany serwis, ze cos sie zmienilo, co powoduje jakas akcje na tym serwisie, przewaznie restart
+    np. file { '/etc/mysql/mysql.cnf':
+            source => '/examples/files/mysql.cnf',
+            notify => Service['mysql'],
+          }
+    informuje mysql, ze plik z konfiguracja sie zmienil, spowoduje to restart mysql
+require - mowi, ze by odpalic zasob dopiero po innych zdefiniiowanych
+    np. require => [Package['mysql-server'], File['/etc/mysql/mysql.cnf']] - odpali dopiero po zasobie instalujacym mysql-server i pliku myswl.cnf
+    !! Puppet zasadnioczo dpala zasoby wg,. kolejnosci w manifescie, wiec jak mysql-server i mysql.cnf beda wczesniej to nie trzeba wrzucac 'require"
+fqdn_rand() - funkcja puppeta, ustawia losowa wartosc jakiegos atrybutu (np. job corna -> hour    => fqdn_rand(24, 'run daily backup sync'),)
+unless -
+onlyif -
+refreshonly - If refreshonly is true, the exec will never be applied unless another resource triggers it with notify.
+  np. file { '/etc/aliases': ..., notify  => Exec['newaliases'],}   exec { 'newaliases': refreshonly => true,}
+  ale nie powinien byc uzywany ->  http://ffrank.github.io/misc/2015/05/26/friends-don't-let-friends-use-refreshonly/
+
+
+-----------------------------------
+zmienne, wyrazenia, facts
+-----------------------------------
+zmienne
+------------
+$zmienna
+${my_name} - sposob na wrzucenie zmiennej w stringu,
+np.
+  $my_name = 'John'
+  notice("Hello, ${my_name}! It's great to meet you!")
+
+Variable names must begin with a lowercase letter or an underscore, though the rest of the name can also contain uppercase letters or numbers.
+np.
+  $php_package = 'php7.0-cli'
+
+  package { $php_package:
+    ensure => installed,
+    }
+
+Variable can be String, Number or Boolean (true or false),np.
+  $my_name = 'traalala lalala'
+  $answer = 44
+  $scheduled_for_demolition = false
+
+Definiowanie zmiennych tablicowych w puppecie:
+---
+np.
+  $dependencies = [
+    'php7.0-cgi',
+    'php7.0-cli',
+    'php7.0-common',
+    ]
+Wywołanie:
+  package { $dependencies:
+    ensure => installed,
+  }
+
+hash arrey - zmienna tablicowa typu klucz-wartosci
+---
+np.
+  $heights = {
+    'john'    => 193,
+    'rabiah'  => 120,
+    'abigail' => 181,
+    'melina'  => 164,
+    'sumiko'  => 172,
+  }
+
+notice("John's height is ${heights['john']}cm.")
+
+wykorzystanie wszystkich wartosci z hash tablicy:
+  $attributes = {
+    'owner' => 'ubuntu',
+    'group' => 'ubuntu',
+    'mode'  => '0644',
+  }
+
+  file { '/tmp/test':
+    ensure => present,
+    *      => $attributes,
+  }
+
+
+expressions (wyrażenia)
+------------------------
+operatory arytmetyczne: +, -, *, and /
+---
+uzycie, np.
+  $costam = (17 * 8) + (12 / 4) - 1
+
+comparison operators:
+---
+== and != (równe , różne)
+>, >=, <, and <= (greater than, greater than or equal to, less than, less than or equal to)
+A in B (A is a substring of B, A is an element of the array B, or A is a key of the hash B), np.
+    notice('foo' in 'foobar
+    notice('foo' in ['foo', 'bar'])
+    notice('foo' in { 'foo' => 'bar' })
+A =~ B (A is matched by the regular expression B, or A is a value of data type B.
+     Na przykykład, the expression 'tralalala' =~ String is true, because the value 'tralalala' is of type String.)
+  notice('foo' =~ /oo/)
+  notice('foo' =~ String)
+
+boolean operators
+---
+użycie, np.
+  notice(10 <= 10)
+  notice('foo' == 'foo')
+  notice('foo' in 'foobar')
+  notice('foo' in ['foo', 'bar'])
+
+
+regular expressions (wyrazenia regularne)
+---
+=~ operator tries to match a given value against a regular expression
+The slash characters // delimit a regular expression in Puppet.
+Puppet's regular expression syntax is the same as that used in the Ruby language.
+http://ruby-doc.org/core/Regexp.html
+np.
+  $costam = 'goo'
+  notice($costam =~ /g.*/) # g followed by zero or more characters
+  notice($costam =~ /g.o/) # g, any character, o
+  notice($costam =~ /go+/) # g followed by one or more 'o's
+  notice($costam =~ /[ghi]oo/) # g or i or h followed by 'oo'
+
+
+instrukcja if
+---
+np.
+$install_perl = true
+if $install_perl {
+  package { 'perl':
+    ensure => installed,
+  }
+} else {
+  package { 'perl':
+    ensure => absent,
+  }
+}
+
+instrukcja case
+---
+np.
+$webserver = 'nginx'
+case $webserver {
+  'nginx': {
+    notice("Looks like you're using Nginx! Good choice!")
+  }
+  'apache': {
+    notice("Ah, you're an Apache fan, eh?")
+  }
+  'IIS': {
+    notice('Well, somebody has to.')
+  }
+  default: {
+    notice("I'm not sure which webserver you're using!")
+  }
+}
+
+
+facts - info/dane o nodzie zebrane przez puppeta
+---------------------------
+informacje przechowywane sa w tabeli hash w zmiennej $facts, dostep do danych:
+np.
+  $facts['kernel']
+  $facts['fqdn']
+  $facts['os']['distro']['codename']
+  $facts['os']['selinux']['enabled']
+w starej wersji puppeta:
+  notice($::kernel)
+
+factera mozna uzyc w lini komand, wyswietla info o systemie ktore zebral puppet (facter)
+np.
+  facter os
+  facter os.release
+  facter os.release.major
+
+
+external facts
+---
+puppet szuka zewnetrznych faktow w /opt/puppetlabs/facter/facts.d/
+Mozna stworzyc doatkowy fakt dla np. hostow ktore dzialaja w chmurze,
+tworzymy plik w katalogu o dowolnej nazwie z zawartoscią:
+  cloud=aws
+Ilosc plikow i wpisow w pliku jest dowolna, ale musza miec wpis klucz=wartosc
+Do bardziej zaawansowanych rzeczy (tablice, hashe), mozna uzyc YAML or JSON.
+
+executable facts
+---
+mozna tez uzyc skryptow ktore na wyjsciu podają klucz=wartosc, np.
+  #!/bin/bash
+  echo "date=`date +%F`"
+
+
+
+iterowanie po danych tablicowych
+------------------------------------
+
+funkcja "each" dla tablicy
+---
+bierze tabele i dla kazdej wartosci wykonuje kod,
+TABLICA.each | ELEMENT_TABLICY | {
+  JAKIS KOD
+}
+
+np.
+  $tasks = ['task1', 'task2', 'task3']
+  $tasks.each | $task | {
+    file { "/usr/local/bin/${task}":
+      content => "echo I am ${task}\n",
+      mode    => '0755',
+      }
+    }
+
+funkcja "each" dla hashy
+---
+np.
+$costam = $facts['networking']['interfaces']
+$costam.each | String $interface, Hash $attributes | {
+  costam("Interfejs ${interface} ma adres IP ${attributes['ip']}")
+}
+
+
+-------------------
+Puppet Hiera
+-------------------
+Cos jak centralna baza danych która przechowuje dane konfiguracyjne, itp., np, hasla, numery wersji paczek, itp.,
+zasadniczo chodzi o to, zeby odseparowa kod od danych. Coś jak atrybuty w chefie?
+Hiera pozwala przechowywać dane konfiguracyjne w prostych plikach tekstowych (YAML, JSON lub HOCON)
+Mogą to być dane pojedyncze, tablice, hashe, booleany.
+
+lookup() - funkcja przeszukujaca dane, rowniez dane hierra
+
+Ustawienie Hiery
+---
+kazde srodowisko (environment) musi miec swoj lokalna konfiguracje hierra.yaml, np. dla srodowiska 'produkcja'
+/etc/puppetlabs/code/environments/production/hiera.yaml
+mona tez uzyc globalnych ustawien ale jest to polecane tylko w wyjatkowych przypadkach
+/etc/puppetlabs/puppet/hiera.yaml
+
+Minimalne ustawienia:
+
+---           - czesc formatu YAML
+version: 5
+
+defaults:
+  datadir: data       - mowi gdzie gdzie puppet ma szukac plikow danych
+  data_hash: yaml_data
+
+hierarchy:
+  - name: "Common defaults"
+    path: "common.yaml"
+
+
+funkcje puppeta
+------------------
+notice(argument np. zmienna) - wyswietla podany argument, przydatne do troubeshootingu
