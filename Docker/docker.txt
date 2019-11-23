@@ -25,32 +25,49 @@ docker -v
 
 uruchamianie i dzialanie na kontenerach
 ---------------------------------------
-docker container run -it -p 3000:80 --name jakas_nazwa_kontenera <obraz>	- odpala/tworzy kontener z obrazu i nadaje mu nazwe
-	-p
-	--nazwa - nadaje nazwekontenerowi (bez tego docker nada losowa nazwe)
-docker container run -it <obraz> <komenda> - tworzy kontener z obrazu, odpala komende o podlacza sie do interfejsu tty
-	-i tryb interaktywny - Keep STDIN open even if not attached
+docker run -it <obraz> <komenda> - tworzy kontener z obrazu, odpala komende o podlacza sie do interfejsu tty
+  (docker run=docker create + docker start)
+  --name jakas_nazwa_kontenera )nada losową nazwę jeśli nie podamy)
+  -p <port_hosta>:<port_kontenera>  mapuje port kontera na podany port hosta	
+  -P mapuje wszystkie otwarte  porty na porty hosta hosta. Docker przypisuje każdy  port na losowyport hosta
+  -i tryb interaktywny - Keep STDIN open even if not attached
 	-t dołączenie terminalu do jego danych wyjściowych i wejściowych (Allocate a pseudo-TTY)
-	-v bind mount volume
-docker container attach <nazwa/id-konterenara> - "podłaczenie sie" do działającego kontenera
-docker container ls	- listuje działające kontenery
-docker container ls -a - listuje wszystkie kontenery (działające, zpauzowane, niedzialajace, itd.)
-docker container rm  <nazwa/id-kontenera> - usuwa kontener
-dokcer container start <nazwa/id-kontenera> - startuje kontener
-dokcer container stop <nazwa/id-kontenera> - grzecznie zatrzymuje kontener (wysyla pierw SIGTERM a po chwili SIGKILL do procesu głównego wewnątrz kontenera)
-docker container kill <nazwa/id-kontenera> - zatrzymuje kontener (wysyla SIGKILL do kontenera, a dokładniej do procesu głównego wewnątrz kontenera)
-		--signal okresla jaki konkretnie sygnal wyslac do procesu glownego kontenera (domyslnie SIGKILL)
-docker container pause <nazwa/id-kontenera> - //doczytac
-docker container unpouse <nazwa/id-kontenera> - //doczytac
-docker container exec <nazwa/id-kontenera> - we can send a command in to the container to run by using the exec command
-docker exec -it <id_kontenera> <jakas-komenda> - podlacza sie do uruchomionego kontenera i odpala basha
-docker container top - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
-docker container stats - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
-docker container diff <id kontenera> Pokazuje różnice w plikach lub folderach między kontenerem a obrazem.
-docker container commit - zostanie utworzony nowy obraz zawierający wszystkie dokonane zmiany i gotowy do późniejszego uruchomienia
-docker container create - Tworzy nowy kontener na podstawie obrazu.
+	-v /katalog/na_serwerze:/katalog/w_kontenerze - montuje w kontenerze system plikow pochodzacy z hosta
+  -rm - usuwa kontener po zakonczeniu działania
+  --hostname - ustawia hostname kontenera
+  --mac-address - ustawia mac address kontenera
+  --restart= kontener zostanie zrestartowany jeśli zakończy działanie. docker sprobuje zrestartować 3krotnie kontener zanim się podda
+            no - nię będzie restartowany (domyślne)
+            always - zawsze (bez względu na kod wyjscia)
+            on-failre - kiedy kod wyjscia bedzie różny od zera
+docker attach <nazwa/id-konterenara> - "podłaczenie sie" do działającego kontenera
+docker ls	- listuje działające kontenery
+docker ls -a - listuje wszystkie kontenery (działające, zpauzowane, niedzialajace, itd.)
 
-interakcja z kontenerami
+docker create - Tworzy nowy kontener na podstawie obrazu ale go nie startuje
+docker start <nazwa/id-kontenera> - startuje kontener
+docker stop <nazwa/id-kontenera> - zatrzymuje kontener (wysyla SIGTERM)
+       -t <sekundy> czeka ilość sekund i ubija kontener (wysyla SIGKILL)
+       Kontener mozemy ponownie uruchomic, zawartosc pamieci bedzie utracona, ale zawartosc systemu plikow i metadane (zmienne srodowiskowe,
+       powiazania portow itp.) są zapisywane i po zrestartowaniu kontenera pozostają niezmienione.     
+docker kill <nazwa/id-kontenera> - zatrzymuje kontener (wysyla SIGKILL do kontenera, a dokładniej do procesu głównego wewnątrz kontenera)
+		--signal okresla jaki konkretnie sygnal wyslac do procesu glownego kontenera (domyslnie SIGKILL)
+docker pause <nazwa/id-kontenera> - zamraza kontener, zasadniczo wstrzymuje przydzielanie procesora procesowi do czasu jego "odmrożenia", 
+      co powoduje, że proces nie moze nic zrobic i dzieki temu mozemy zachowac pelny stan kontenera wlacznie z pamiecia
+docker unpouse <nazwa/id-kontenera> - "odmraża" zapauzowany kontener
+docker rm  <nazwa/id-kontenera> - usuwa kontener
+
+docker exec <nazwa/id-kontenera> - we can send a command in to the container to run by using the exec command
+docker exec -it <id_kontenera> <jakas-komenda> - podlacza sie do uruchomionego kontenera i odpala basha
+docker top - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
+docker stats - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
+docker diff <id kontenera> Pokazuje różnice w plikach lub folderach między kontenerem a obrazem.
+docker commit - zostanie utworzony nowy obraz zawierający wszystkie dokonane zmiany i gotowy do późniejszego uruchomienia
+
+ograniczanie zasobów
+---------------------
+
+Przesyłanie plików
 --------------------------
 kopiowanie jednego pliku na kontener:
 docker cp mycontainer:/foo.txt foo.txt
@@ -68,7 +85,7 @@ docker image pull <nazwa_obrazu> - sciaga obraz z dockera hub albo innego rejest
 docker image ls - lista obrazow w systemie
 docker image inspect <nazwa/id obrazu> - info o obrazie // dane sa w formacie json
 docker image inspect --format "{{ json .RootFS.Layers }}"  <nazwa/id obrazu> - to co wyzej ale z filtrowanym info
-docker image rm <nazwa/id-obrazu> - usuwa obraz dockera
+docker rmi (image rm) <nazwa/id-obrazu> - usuwa obraz dockera
 docker image tag
 docker image history <id kontenera> - pokazuje historię w jaki sposób budowany był konkretny obraz
 
