@@ -3,6 +3,8 @@ Docker tutorial
 for begginers:
 https://docs.docker.com/get-started
 https://www.youtube.com/watch?time_continue=35&v=M7ZBF-JJWVU
+cheatshet:
+https://github.com/wsargent/docker-cheat-sheet
 
 obraz (image) -  The file system and configuration of our application which are used to create containers.
 kontener (containers) -  Running instances of Docker images — containers run the actual applications. A container includes an application and all of its dependencies.
@@ -20,13 +22,15 @@ Ctrl+P i Ctrl+Q - wylazi z kontenera nie wylaczajac go ??
 
 info o serwerze dockera
 -----------------------
-docker -v
+docker version - wyswietla wersje serwera, klienta i modułów
+docker info - info o serwerze, liczbie kontenerow, itp.
 
 
 uruchamianie i dzialanie na kontenerach
 ---------------------------------------
-docker run -it <obraz> <komenda> - tworzy kontener z obrazu, odpala komende o podlacza sie do interfejsu tty
-  (docker run=docker create + docker start)
+docker run 
+  -it <obraz> <komenda> - tworzy kontener z obrazu, odpala komende o podlacza sie do interfejsu tty
+      (docker run=docker create + docker start)
   --name jakas_nazwa_kontenera )nada losową nazwę jeśli nie podamy)
   -p <port_hosta>:<port_kontenera>  mapuje port kontera na podany port hosta	
   -P mapuje wszystkie otwarte  porty na porty hosta hosta. Docker przypisuje każdy  port na losowyport hosta
@@ -34,16 +38,15 @@ docker run -it <obraz> <komenda> - tworzy kontener z obrazu, odpala komende o po
 	-t dołączenie terminalu do jego danych wyjściowych i wejściowych (Allocate a pseudo-TTY)
 	-v /katalog/na_serwerze:/katalog/w_kontenerze - montuje w kontenerze system plikow pochodzacy z hosta
   -rm - usuwa kontener po zakonczeniu działania
+
   --hostname - ustawia hostname kontenera
   --mac-address - ustawia mac address kontenera
   --restart= kontener zostanie zrestartowany jeśli zakończy działanie. docker sprobuje zrestartować 3krotnie kontener zanim się podda
             no - nię będzie restartowany (domyślne)
             always - zawsze (bez względu na kod wyjscia)
             on-failre - kiedy kod wyjscia bedzie różny od zera
-docker attach <nazwa/id-konterenara> - "podłaczenie sie" do działającego kontenera
-docker ls	- listuje działające kontenery
-docker ls -a - listuje wszystkie kontenery (działające, zpauzowane, niedzialajace, itd.)
 
+Tworzenie, startowanie, pauzowanie, itp.
 docker create - Tworzy nowy kontener na podstawie obrazu ale go nie startuje
 docker start <nazwa/id-kontenera> - startuje kontener
 docker stop <nazwa/id-kontenera> - zatrzymuje kontener (wysyla SIGTERM)
@@ -57,15 +60,43 @@ docker pause <nazwa/id-kontenera> - zamraza kontener, zasadniczo wstrzymuje przy
 docker unpouse <nazwa/id-kontenera> - "odmraża" zapauzowany kontener
 docker rm  <nazwa/id-kontenera> - usuwa kontener
 
+Interakacja z kontenerem:
 docker exec <nazwa/id-kontenera> - we can send a command in to the container to run by using the exec command
 docker exec -it <id_kontenera> <jakas-komenda> - podlacza sie do uruchomionego kontenera i odpala basha
-docker top - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
-docker stats - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
+docker attach <nazwa/id-konterenara> - "podłaczenie sie" do działającego kontenera
 docker diff <id kontenera> Pokazuje różnice w plikach lub folderach między kontenerem a obrazem.
 docker commit - zostanie utworzony nowy obraz zawierający wszystkie dokonane zmiany i gotowy do późniejszego uruchomienia
 
+Debugowanie kontenera:
+docker top <id_kontnera> - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
+docker stats <id_kontnera>  - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
+//tu skonczylem, str.129
+
+Info o dockerze i kontenerach:
+docker ls	- listuje działające kontenery
+docker ls -a - listuje wszystkie kontenery (działające, zpauzowane, niedzialajace, itd.)
+docker inspect <id_kontenera> - wyswietla info o kontenerze
+
 ograniczanie zasobów
 ---------------------
+https://docs.docker.com/config/containers/resource_constraints/
+
+Przykładowe ustawienia:
+docker run
+  -m, --memory="" - limit pamięci
+  --memory-reservation="" - memory soft limit
+  --cpus=0.000 - ilosc cpu
+  --device-read-iops=""
+  --device-write-iops=""
+  --oom-score-adj=0 - OOM killer waga
+  
+
+ograniczenia zasobów przez ulimit:
+----------------------------------
+docker daemon --default-ulimit <wartosc ulimit> - domyslne dla wszystkich kontenerow
+docker run -d --ulimit <wartosc ulimit> <kontener> - dla konkretnego kontenera
+ulimit -a - wyswietla dostepne typy limitów ulimit
+
 
 Przesyłanie plików
 --------------------------
@@ -79,15 +110,135 @@ docker cp mycontainer:/src/. target
 
 działanie na obrazach
 -----------------------------
-docker imaes - listuje lokalną lista obrazow
+docker images - listuje lokalną lista obrazow
 	-q pokazuje tylko id obrazu
 docker image pull <nazwa_obrazu> - sciaga obraz z dockera hub albo innego rejestru obrazów
 docker image ls - lista obrazow w systemie
 docker image inspect <nazwa/id obrazu> - info o obrazie // dane sa w formacie json
 docker image inspect --format "{{ json .RootFS.Layers }}"  <nazwa/id obrazu> - to co wyzej ale z filtrowanym info
 docker rmi (image rm) <nazwa/id-obrazu> - usuwa obraz dockera
+docker image rmi $(docker ps -q -) - usuwa wszystkie obraz z serwera
 docker image tag
 docker image history <id kontenera> - pokazuje historię w jaki sposób budowany był konkretny obraz
+
+
+Udostępnianie i mapowanie portów
+---------------------------------
+EXPOSE - Sygnalizuje, że na określonym porcie dostępna jest usługa. Instrukcja używana jest w pliku Dockerfile,
+		 który zapewnia, że udostępnione porty są otwarte dla innych kontenerów.
+--expose - Są to równorzędne polecenia, choć opcja --expose pozwala również podać zakres portów jakoargument (na przykład --expose=1000-2000 )
+-p - Opcja określa regułę mapowania portów, mapując port kontenera na port komputera hosta. W ten sposób port jest dostępny poza obrębem Dockera.
+	 Jeśli nie określono żadnego portu hosta, Docker automatycznie go przydzieli.
+		np. docker run -p<port_hosta>:<port_kontenera> <identyfikator lub nazwa obrazu>
+-P - Opcja mapuje dynamicznie (losowo	) przydzielony port komputera hosta na wszystkie porty udostępnione za pomocą instrukcji EXPOSE lub opcji -expose.
+--expose roznica -p - W przprzypadku udostępniania portu za pomocą instrukcji EXPOSE usługa w kontenerze jest niedostęp-
+	na poza obrębem Dockera, lecz jest dostępna z poziomu innych kontenerów Dockera. Opcja -p zawiera w sobie --expose.
+
+
+Wolumeny dockera
+-----------------
+docker run -it -v /Users/jarek/testDir/:/data ubuntu
+docker run -it -v /data2 ubuntu
+docker run --name docker-nginx -p 80:80 -d --volumes-from myWebsiteData nginx
+docker volume create
+VOLUME w Dockerfile
+info o volumenie:
+	docker run -it -v /data2 ubuntu
+docker run -it -v /data2 ubuntuw - podłaczenie volumenu o nazwie data do katalogu w kontenerze /data
+docker rm -v <nazwa_kontenera> - usuwa wolumen bez pytania, nawet jesli jakies kontenery uzywaja tego wolumenu
+docker volume rm - usuwa wolumen ale tylko wtedy kiedy żaden kontener go nie uzuwa
+docker volume rm $(docker volume ls -qf dangling=true) - usuwa wszystkie wolumeny, do których nie odwołuje się żaden kontener
+--driver; -d - sterownik wolumenu,  (domyslnie "local")
+
+
+konfigurowanie sieci w dockerze
+----------------------------------
+http://training.play-with-docker.com/docker-networking-hol/
+
+docker network ls	- command to view existing container networks on the current Docker host
+docker network inspect <nazwa/id sieci> - info o konfiguracji sieci
+docker info | grep Network - list network driver plugins
+
+Bridge Networking:
+Every clean installation of Docker comes with a pre-built network called bridge.
+docker run -p 8080:80 nginx - odpala kontener i mapuje port 80(docker) na 8080(serwer)
+    -p 8080:80  i natuje port 8080 serwera dockera na 80 kontenera (The port mapping is actually port address translation (PAT)).
+Po odpaleniu kontenera domyslnie podlacza sie on do interfejsu bridge, brctl show - pojawi sie w kolumnie interfaces pod docker0
+
+
+Docker logs
+-----------------
+Istnieje wiele sterowników które pozwalają na przesyłanie logów do konkretnych frameworków, np.
+syslog, awslogs, splunk, journald, 
+docker logs <id_kontenera> - wyswietla logi kontenera (działa tylko przy domyslnym sterowniku logowaniu -plikujson)
+            -f podglad live
+
+Monitoring dockera
+------------------
+API dockera podaje więcej informacjeprzez węzeł 'stats', przyklad mozna wyciagnac curlem z adresu kontenera,
+np. curl http://localhost:2375/v1/containers/56gty8768yum/stats | head -1
+docker stats - info o wykorzystaniu zasobow przez kontenery
+docker events
+
+
+Docker security
+------------------------
+http://training.play-with-docker.com/security-seccomp/
+http://training.play-with-docker.com/security-capabilities/
+https://www.projectatomic.io/blog/2015/08/why-we-dont-let-non-root-users-run-docker-in-centos-fedora-or-rhel/
+
+jak wpakowac sie na hosta z poziomu dockera: docker run -ti --privileged -v /:/host fedora chroot /host
+bindujemy / hosta na /host i chrootujemy z poziomu dockera na /host z uprawnieniami roota :)
+
+
+Docker logowanie
+------------------------
+docker login --username <dockerId> --password <hasło>
+
+
+Docker Swarm Mode
+--------------------
+http://training.play-with-docker.com/ops-stage2/
+http://training.play-with-docker.com/ops-s1-swarm-intro/
+http://training.play-with-docker.com/orchestration-hol/
+
+Swarm: Stos, Serwisy, Zadania
+stos (stack) - group of interrelated services and dependencies. Orchestrated as a unit. Production applications are one stack, and sometimes more.
+				w skrocie grupa serwisów powiazanych ze soba, skladających się na całość stosu.
+serwis (service) - a stack component, including a container image, numbers of repolicas (tasks), ports, and update policy
+				jeden lub wiecej takich samych kontenerów tworzących jedna aplikację?
+zadanie (task) - unit of services and scheduling in Docker. One container instance per task
+
+
+docker swarm init --advertise-addr $(hostname -i) - Initializing Docker Swarm Manager
+docker swarm join --token <hash z outputu docker dwarm init> <ip:port z outputu docker swarm init> - dodanie workera do docker swarm
+docker swarm ls - wyswietla wszystkie nody w swarmie (managery i workery)
+
+Tworzenie "stosu" serwisow - czyli wdrazanie/tworzenie/konfigurowanie/uruchamianie grup serwisow w swarmie:
+docker-stack.yml - plik yaml z konfiguracja swarma. Definiuje nasz cały stos (stack): architekturę usług, liczbę instancji, sposób połączenia wszystkiego,
+					obsługę aktualizacji dla każdej usługi. Jest to kod źródłowy do naszego projektu aplikacji.
+					Przykładowy plik zawiera m.in. wpisy
+						services - zawiera poszczególne składniki dla aplikacji, wewnatrz
+									*image: obraz dockera użyty do budowania serwisu
+									*ports: port na ktorym ma dzialac serwis
+									*networks: wiadomix
+									*deploy: konfiguracja rozmieszczania, liczby kontenerow itp.
+										replicas:
+										...
+
+
+docker stack deploy --compose-file=docker-stack.yml jakis_stos
+docker stack ls	- wyswietla  "zdelpoyowane" stosy i liczbe serwisów (aplikacji) nalezących do stosu
+docker stack services <jakis_stos> - wyswietla info o serwisach(aplikacjach) w stocku (Id obrazu, nazwa, porty, liczba replik)
+docker service ps <jakis_serwis_ze_stosu> - listuje zadania (repliki?) danego serwisu, np. na jakim nodzie dziala
+docker service scale <jakis_serwis_ze_stosu> =5 - dorzucenie taskow do serwisu (skalowanie, zmiana liczby konenerów(taskow) w serwisie dla np. zwiekszenia wydajnosci)
+
+
+Kubernetes // wydzielic do osobnego pliku
+---------------------
+https://kubernetes.io/docs/tutorials/kubernetes-basics/
+http://cockpit-project.org/
+cockpit-kubernetes.x86_64 : Cockpit user interface for Kubernetes cluster
 
 
 
@@ -129,109 +280,3 @@ COPY <ścieżka miejsca źródłowego> <ścieżka miejsca docelowego> - skopiuje
 	- preferowana nad ADD (jeśli nie trzeba korzystać z dodatkowych funkcji ktore posiada ADD)
 CMD - moze byc tylko jedna uinstrukcja w Dockerfile, jesli jest wiecej, uruchamia sie tylko ostatnia.
 
-
-
-
-konfigurowanie sieci w dockerze
-----------------------------------
-http://training.play-with-docker.com/docker-networking-hol/
-
-docker network ls	- command to view existing container networks on the current Docker host
-docker network inspect <nazwa/id sieci> - info o konfiguracji sieci
-docker info | grep Network - list network driver plugins
-
-Bridge Networking:
-Every clean installation of Docker comes with a pre-built network called bridge.
-docker run -p 8080:80 nginx - odpala kontener i mapuje port 80(docker) na 8080(serwer)
-		-p 8080:80  i natuje port 8080 serwera dockera na 80 kontenera (The port mapping is actually port address translation (PAT)).
-Po odpaleniu kontenera domyslnie podlacza sie on do interfejsu bridge, brctl show - pojawi sie w kolumnie interfaces pod docker0
-
-
-Udostępnianie i mapowanie portów
----------------------------------
-EXPOSE - Sygnalizuje, że na określonym porcie dostępna jest usługa. Instrukcja używana jest w pliku Dockerfile,
-		 który zapewnia, że udostępnione porty są otwarte dla innych kontenerów.
---expose - Są to równorzędne polecenia, choć opcja --expose pozwala również podać zakres portów jakoargument (na przykład --expose=1000-2000 )
--p - Opcja określa regułę mapowania portów, mapując port kontenera na port komputera hosta. W ten sposób port jest dostępny poza obrębem Dockera.
-	 Jeśli nie określono żadnego portu hosta, Docker automatycznie go przydzieli.
-		np. docker run -p<port_hosta>:<port_kontenera> <identyfikator lub nazwa obrazu>
--P - Opcja mapuje dynamicznie (losowo	) przydzielony port komputera hosta na wszystkie porty udostępnione za pomocą instrukcji EXPOSE lub opcji -expose.
---expose roznica -p - W przprzypadku udostępniania portu za pomocą instrukcji EXPOSE usługa w kontenerze jest niedostęp-
-	na poza obrębem Dockera, lecz jest dostępna z poziomu innych kontenerów Dockera. Opcja -p zawiera w sobie --expose.
-
-
-Wolumeny dockera
------------------
-docker run -it -v /Users/jarek/testDir/:/data ubuntu
-docker run -it -v /data2 ubuntu
-docker run --name docker-nginx -p 80:80 -d --volumes-from myWebsiteData nginx
-docker volume create
-VOLUME w Dockerfile
-info o volumenie:
-	docker run -it -v /data2 ubuntu
-docker run -it -v /data2 ubuntuw - podłaczenie volumenu o nazwie data do katalogu w kontenerze /data
-docker rm -v <nazwa_kontenera> - usuwa wolumen bez pytania, nawet jesli jakies kontenery uzywaja tego wolumenu
-docker volume rm - usuwa wolumen ale tylko wtedy kiedy żaden kontener go nie uzuwa
-docker volume rm $(docker volume ls -qf dangling=true) - usuwa wszystkie wolumeny, do których nie odwołuje się żaden kontener
---driver; -d - sterownik wolumenu,  (domyslnie "local")
-
-Docker security
-------------------------
-http://training.play-with-docker.com/security-seccomp/
-http://training.play-with-docker.com/security-capabilities/
-https://www.projectatomic.io/blog/2015/08/why-we-dont-let-non-root-users-run-docker-in-centos-fedora-or-rhel/
-
-jak wpakowac sie na hosta z poziomu dockera: docker run -ti --privileged -v /:/host fedora chroot /host
-bindujemy / hosta na /host i chrootujemy z poziomu dockera na /host z uprawnieniami roota :)
-
-Docker logowanie
-------------------------
-docker login --username <dockerId> --password <hasło>
-
-
-
-Docker Swarm Mode
---------------------
-http://training.play-with-docker.com/ops-stage2/
-http://training.play-with-docker.com/ops-s1-swarm-intro/
-http://training.play-with-docker.com/orchestration-hol/
-
-Swarm: Stos, Serwisy, Zadania
-stos (stack) - group of interrelated services and dependencies. Orchestrated as a unit. Production applications are one stack, and sometimes more.
-				w skrocie grupa serwisów powiazanych ze soba, skladających się na całość stosu.
-serwis (service) - a stack component, including a container image, numbers of repolicas (tasks), ports, and update policy
-				jeden lub wiecej takich samych kontenerów tworzących jedna aplikację?
-zadanie (task) - unit of services and scheduling in Docker. One container instance per task
-
-
-docker swarm init --advertise-addr $(hostname -i) - Initializing Docker Swarm Manager
-docker swarm join --token <hash z outputu docker dwarm init> <ip:port z outputu docker swarm init> - dodanie workera do docker swarm
-docker swarm ls - wyswietla wszystkie nody w swarmie (managery i workery)
-
-Tworzenie "stosu" serwisow - czyli wdrazanie/tworzenie/konfigurowanie/uruchamianie grup serwisow w swarmie:
-docker-stack.yml - plik yaml z konfiguracja swarma. Definiuje nasz cały stos (stack): architekturę usług, liczbę instancji, sposób połączenia wszystkiego,
-					obsługę aktualizacji dla każdej usługi. Jest to kod źródłowy do naszego projektu aplikacji.
-					Przykładowy plik zawiera m.in. wpisy
-						services - zawiera poszczególne składniki dla aplikacji, wewnatrz
-									*image: obraz dockera użyty do budowania serwisu
-									*ports: port na ktorym ma dzialac serwis
-									*networks: wiadomix
-									*deploy: konfiguracja rozmieszczania, liczby kontenerow itp.
-										replicas:
-										...
-
-
-docker stack deploy --compose-file=docker-stack.yml jakis_stos
-docker stack ls	- wyswietla  "zdelpoyowane" stosy i liczbe serwisów (aplikacji) nalezących do stosu
-docker stack services <jakis_stos> - wyswietla info o serwisach(aplikacjach) w stocku (Id obrazu, nazwa, porty, liczba replik)
-docker service ps <jakis_serwis_ze_stosu> - listuje zadania (repliki?) danego serwisu, np. na jakim nodzie dziala
-docker service scale <jakis_serwis_ze_stosu> =5 - dorzucenie taskow do serwisu (skalowanie, zmiana liczby konenerów(taskow) w serwisie dla np. zwiekszenia wydajnosci)
-
-
-
-
-Kubernetes // wydzielic do osobnego pliku
----------------------
-https://kubernetes.io/docs/tutorials/kubernetes-basics/
-http://cockpit-project.org/
-cockpit-kubernetes.x86_64 : Cockpit user interface for Kubernetes cluster
