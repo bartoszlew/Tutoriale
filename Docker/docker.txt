@@ -168,18 +168,45 @@ Po odpaleniu kontenera domyslnie podlacza sie on do interfejsu bridge, brctl sho
 
 Docker logs
 -----------------
-Istnieje wiele sterowników które pozwalają na przesyłanie logów do konkretnych frameworków, np.
-syslog, awslogs, splunk, journald, 
+Istnieje kilka sterowników które pozwalają na przesyłanie logów do konkretnych frameworków, np.
+syslog, awslogs, splunk, journald, json (domyslny)
 docker logs <id_kontenera> - wyswietla logi kontenera (działa tylko przy domyslnym sterowniku logowaniu -plikujson)
             -f podglad live
 
 Monitoring dockera
 ------------------
 API dockera podaje więcej informacjeprzez węzeł 'stats', przyklad mozna wyciagnac curlem z adresu kontenera,
-np. curl http://localhost:2375/v1/containers/56gty8768yum/stats | head -1
+np. curl --unix-socket /var/run/docker.sock http://v1/containers/<id_kontenera>/stats | head -1 | python -m json.tool
+    curl http://localhost:<docker_api_port>/v1/containers/<id_kontenera>/stats/ | head -1 | python -m json.tool 
+    (you need to expose the Docker API on a TCP port) 
 docker stats - info o wykorzystaniu zasobow przez kontenery
-docker events
+docker events - podłącza się pod stream wyswietlajacy zmiany statusu kontenerów, obrazów, wolumenow, sieci, itp.
+    np. start/stop kontenera, pull nowego obrazu, nowy tag, zainstalowanie pluginu dockera, itp.
+    wyjscie można filtrować po czasie, statusie, nazwie, id
 
+Health Checks:
+Docker ma swoj mechanizm healt checkow ktory mozna wrzucic do obrazu lub odpalic z lini komend
+HEALTHCHECK <options> CMD <command>
+  --interval=DURATION (default 30s)
+  --timeout=DURATION (default 30s)
+  --retries=N (default 3)
+np. HEALTHCHECK --interval=5s --timeout=4s CMD curl --fail http://localhost:7041/pools || exit 1
+    docker run -d --health-cmd "curl --fail http://localhost:9095/cos || exit 1" --health-interval=5s --timeout=3s jakis_obraz
+Exit status moze być:
+  0 – container is healthy
+  1 – container is not healthy
+Kontener moze byc w trzech stanach:
+  starting – status początkowy, kiedy kontener startuje
+  healthy –  kiedy komenda zwraca 0
+  unhealthy - jesli pojedyncze uruchomienie trwa dłużej niż określony timeout, jest to uważane unhealthy. 
+              jesli health check sfailuje to, jest ponowiony wg. ustawienia w --retries i dopiero jesli sie nie powiedzie N razy, zostanie oznaczony jako unhealthy
+  Ostatnie 5 health checks konkretnego kontenera mozna odczytac przez docker inspect <id/nazwa_kontenera>
+
+Sprawdzenie statusu:
+docker inspect --format='{{json .State.Health}}' <id/nazwa_kontenera>
+docker ps
+... IMAGE                ... STATUS                         PORTS     ...
+... mongo-with-check:3.2 ... Up 1 second (health: starting) 27017/tcp ...
 
 Docker security
 ------------------------
