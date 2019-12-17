@@ -57,3 +57,10 @@ https://jenkins.io/doc/book/pipeline/shared-libraries/
 przenoszenie jobow miedzy instancjami jenkinsa
 ------------------------------------------------
 https://staxmanade.com/2015/01/how-to-migrate-a-jenkins-job-to-new-jenkins-server/ #opcja 2
+
+
+Dobre praktyki
+------------
+Unikaj "czystego" Groovy - dodaje dodatkowy poziom skomplikowania
+Jenkinsfila trzymac razem z kodem aplikacji
+Uzywac Shared Libraries tylko w ostatecznosci - dodaje skomplikowania, kod w innym repo
