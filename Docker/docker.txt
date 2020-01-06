@@ -19,14 +19,13 @@ skróty klawiszowe
 Ctrl+P i Ctrl+Q - wylazi z kontenera nie wylaczajac go ??
 
 
-
-info o serwerze dockera
+Info o serwerze dockera
 -----------------------
 docker version - wyswietla wersje serwera, klienta i modułów
 docker info - info o serwerze, liczbie kontenerow, itp.
 
 
-uruchamianie i dzialanie na kontenerach
+Uruchamianie i dzialanie na kontenerach
 ---------------------------------------
 docker run 
   -it <obraz> <komenda> - tworzy kontener z obrazu, odpala komende o podlacza sie do interfejsu tty
@@ -64,20 +63,63 @@ Interakacja z kontenerem:
 docker exec <nazwa/id-kontenera> - we can send a command in to the container to run by using the exec command
 docker exec -it <id_kontenera> <jakas-komenda> - podlacza sie do uruchomionego kontenera i odpala basha
 docker attach <nazwa/id-konterenara> - "podłaczenie sie" do działającego kontenera
-docker diff <id kontenera> Pokazuje różnice w plikach lub folderach między kontenerem a obrazem.
+docker diff <id kontenera> Pokazuje różnice w plikach lub folderach między obrazem a kontenerem od kiedy zosał utworzony
 docker commit - zostanie utworzony nowy obraz zawierający wszystkie dokonane zmiany i gotowy do późniejszego uruchomienia
-
-Debugowanie kontenera:
-docker top <id_kontnera> - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
-docker stats <id_kontnera>  - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
-//tu skonczylem, str.129
 
 Info o dockerze i kontenerach:
 docker ls	- listuje działające kontenery
 docker ls -a - listuje wszystkie kontenery (działające, zpauzowane, niedzialajace, itd.)
 docker inspect <id_kontenera> - wyswietla info o kontenerze
 
-ograniczanie zasobów
+
+Debugowanie kontenerów
+-----------------------
+docker top <id_kontnera> - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
+docker stats <id_kontnera>  - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
+
+Na hoscie:
+(procesy dockera mozna zdebugowac tak samo jak kazdy inny proces w systemie) 
+//zeby łatwiej było znalesc procesy mozna odpalac kontenery z nadana numeryczna nazwą usera, np. -u 5000
+ps axlfww - pokazuje drzewo polecen (kontenerow mozna szukac po containerd)
+pstree `pidof dockerd` - drzewo procesow dockera na hoscie
+lsof -p <pid_procesu>
+strace -p <pid_procesu> //sciezki do plikow pokazuje relatywnie do kontenera
+
+Sieć:
+docker network ls
+docker network inspect <NETWORK>
+netstat -anp 
+
+Kontner:
+docker diff <kontener> - Wyświetl listę zmienionych plików i katalogów w systemie plików kontenera od momentu utworzenia kontenera.
+                         Przydatne, zeby sprawdzić czy jakieś logi albo inne niepotrzebne pliki tworzą się na filesystemie kontenera.
+A - file or directory was added
+D - file or directory was deleted
+C - file or directory was changed 
+np. docker diff 564nj4345h4 
+  C /var/log/redis
+  A /var/log/redis/redis.log
+  C /var/run
+  A /var/run/cron.reboot
+  A /var/run/crond.pid
+  C /var/lib/logrotate.status
+  C /var/lib/redis
+  A /var/lib/redis/dump.rdb
+  C /var/spool/cron
+  A /var/spool/cron/root
+
+/var/lib/docker/containers/<id_kontenera> - this directory contains some files that are bind-mounted directly into your container, like hosts, resolv.conf, and hostname.
+
+//tu skonczylem, Chapter 9
+
+Kontrolowanie procesow w kontenerze:
+docker run --init - odpala w kontenerze system init (tiny init), ktory dostaje PID 1 i zarządza procesami.
+You can use the --init flag to indicate that an init process should be used as the PID 1 in the container. 
+Specifying an init process ensures the usual responsibilities of an init system, such as reaping zombie processes, 
+are performed inside the created container
+
+
+Ograniczanie zasobów
 ---------------------
 https://docs.docker.com/config/containers/resource_constraints/
 
@@ -91,8 +133,7 @@ docker run
   --oom-score-adj=0 - OOM killer waga
   
 
-ograniczenia zasobów przez ulimit:
-----------------------------------
+Ograniczenia zasobów przez ulimit:
 docker daemon --default-ulimit <wartosc ulimit> - domyslne dla wszystkich kontenerow
 docker run -d --ulimit <wartosc ulimit> <kontener> - dla konkretnego kontenera
 ulimit -a - wyswietla dostepne typy limitów ulimit
@@ -108,7 +149,7 @@ docker cp src/. mycontainer:/target
 docker cp mycontainer:/src/. target
 
 
-działanie na obrazach
+Działanie na obrazach
 -----------------------------
 docker images - listuje lokalną lista obrazow
 	-q pokazuje tylko id obrazu
@@ -151,7 +192,7 @@ docker volume rm $(docker volume ls -qf dangling=true) - usuwa wszystkie wolumen
 --driver; -d - sterownik wolumenu,  (domyslnie "local")
 
 
-konfigurowanie sieci w dockerze
+Konfigurowanie sieci w dockerze
 ----------------------------------
 http://training.play-with-docker.com/docker-networking-hol/
 
