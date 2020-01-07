@@ -67,14 +67,9 @@ docker attach <nazwa/id-konterenara> - "podłaczenie sie" do działającego kont
 docker diff <id kontenera> Pokazuje różnice w plikach lub folderach między kontenerem a obrazem.
 docker commit - zostanie utworzony nowy obraz zawierający wszystkie dokonane zmiany i gotowy do późniejszego uruchomienia
 
-Debugowanie kontenera:
-docker top <id_kontnera> - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
-docker stats <id_kontnera>  - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
-//tu skonczylem, str.129
-
 Info o dockerze i kontenerach:
-docker ls	- listuje działające kontenery
-docker ls -a - listuje wszystkie kontenery (działające, zpauzowane, niedzialajace, itd.)
+docker ps	- listuje działające kontenery
+docker ps -a - listuje wszystkie kontenery (działające, zpauzowane, niedzialajace, itd.)
 docker inspect <id_kontenera> - wyswietla info o kontenerze
 
 ograniczanie zasobów
@@ -172,6 +167,21 @@ Istnieje kilka sterowników które pozwalają na przesyłanie logów do konkretn
 syslog, awslogs, splunk, journald, json (domyslny)
 docker logs <id_kontenera> - wyswietla logi kontenera (działa tylko przy domyslnym sterowniku logowaniu -plikujson)
             -f podglad live
+
+
+Debugowanie kontenera
+--------------------------
+docker top <id_kontnera> - wyswietla uruchomione procesy na kontenrze, cos jak komenda "ps" (UID, PID, STIME, TTY, CMD)
+docker stats <id_kontnera>  - wyswieta statyskyki kontenera live, cos jak komenda "top" (CPU, MEM, NET I/O, BLOCK I/O, PIDS)
+Procesami z kontenerów mozna zadządzac na hoscie tak samo jak zwyklymi procesy, dotyczy to m.in. 
+debugowania,np.
+  ps axlfww
+  pstree `pidof dockerd`
+  strace -p <pid>
+  lsof -p <pid>
+przesyłania sygnałów SIGTERM,SIGKILL
+//tu skonczylem, str.129
+
 
 Monitoring dockera
 ------------------
