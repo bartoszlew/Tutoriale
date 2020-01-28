@@ -88,6 +88,7 @@ strace -p <pid_procesu> //sciezki do plikow pokazuje relatywnie do kontenera
 Sieć:
 docker network ls
 docker network inspect <NETWORK>
+docker port <id/nazwa_kontenera> - pokazuje mapowanie portów danego kontenera
 netstat -anp 
 
 Kontner:
