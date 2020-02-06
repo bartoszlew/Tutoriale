@@ -590,7 +590,8 @@ tee	- kopiuje standardowe wyjscie na standarowe wyjscie i do jednego lub wiecej 
 	  np. $ ... uniq | tee /tmp/x.x | awk -f transform.awk ... (tee przekazuje wyjscie do pliku x.x i to samo na stnd wyjscie)
 tr
 uname -
-
+trap - Trap allows you to catch signals and execute code when they occur.
+  https://www.linuxjournal.com/content/bash-trap-command
 
 
 
