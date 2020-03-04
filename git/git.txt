@@ -12,6 +12,9 @@ git commit -m "jakis komentarz" - zatwierdzenie zmian i dodanie komentarza
 git commit -a -> pomija git add
 git status - sprawdzenie stanu plików
 
+# nadpisuje wiadomosc osatniego commita ? //doczytac https://help.github.com/en/github/committing-changes-to-your-project/changing-a-commit-message
+git commit --amend
+git push --force
 
 git diff 	-> zmiany spoza poczekalni
 git diff -stage	-> zmiany wysłane dotąd do poczekalni
