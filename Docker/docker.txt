@@ -1,10 +1,11 @@
 Docker tutorial
 ============================
-for begginers:
+!!! Cheatshet: !!!
+https://github.com/wsargent/docker-cheat-sheet
+
+For begginers:
 https://docs.docker.com/get-started
 https://www.youtube.com/watch?time_continue=35&v=M7ZBF-JJWVU
-cheatshet:
-https://github.com/wsargent/docker-cheat-sheet
 
 obraz (image) -  The file system and configuration of our application which are used to create containers.
 kontener (containers) -  Running instances of Docker images — containers run the actual applications. A container includes an application and all of its dependencies.
