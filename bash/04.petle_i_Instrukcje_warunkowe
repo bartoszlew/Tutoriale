@@ -111,6 +111,10 @@ Operatory:
 	    $ [[ $string =~ h[aeiou] ]]
 	    $ echo $?
 	    0
+	 np. VAR='BSD/Linux is an operating system'
+	    if [[ $VAR == *"Linux"* ]]; then
+  		echo "Yes it is"
+	    fi
 
 < is less than, in ASCII alphabetical order
   (Note that the "<" needs to be escaped within a [ ] construct.)
