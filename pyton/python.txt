@@ -185,18 +185,57 @@ np.
 
 Useful Functions and Methods for Lists
 ---
+Functions:
 len() - zlicza liczbe elementow listy
 Wiekszość funckcji działa tylko jeśli wartości listy są tego samego typu, np.
 min() - zwraca najmniejszą wartość z listy
 max() - zwraca nawiekszą wartość z listy
-sort() - sortuje wartosci od najwiekszej do najmniejszej (stringi alfabrtycznie)
-sort(atrybut,reverse=True) - 'reverse=True' odwraca sortowanie
-joint() - Join is a string method that takes a list of strings as an argument, and returns a string consisting of the list elements joined by a separator string. 
+
+Methonds:
+sorted() - sortuje wartosci od najwiekszej do najmniejszej (stringi alfabrtycznie)
+sorted(atrybut,reverse=True) - 'reverse=True' odwraca sortowanie
+join() - Join is a string method that takes a list of strings as an argument, and returns a string consisting of the list elements joined by a separator string. Works only on string list. 
   some_strng = "\n".join(["winter", "alf", "snow", "port"])
   print(new_str) => 
     winter
     alf
     snow
     port
- name = "-".join(["Bułka","z", "masłem"])
- print(name) => Bułka-z-masłem
+  name = "-".join(["Bułka","z", "masłem"])
+  print(name) => Bułka-z-masłem
+append() -  adds an element to the end of a list, np. fruits.append('lemon')
+
+Tuples (krotki)
+---
+https://pl.wikibooks.org/wiki/Zanurkuj_w_Pythonie/Krotki
+http://www.oprojektowaniu.pl/python-dla-inzynierow-krotki/
+
+Kontener danych podobny do listy, są indeksowane ale w przeciwieństwie do list są niezmienne.
+Zawartość krotki określamy tylko podczas jej tworzenia. Potem nie możemy już jej zmienić. 
+Tuples definiujemy jak listy ale bez nawiasów nawiasach okrągłych (), np.
+  wymiary = 34, 55, 678
+lub opcjonalnie w nawiasach okrągłych, np.
+  owoce = ('banan','jablko','cytryna','kiwi')
+Krotki, podobnie jak listy, mogą zawierać mieszane typy danych, np.
+  mixed = (1, 'dwa', [3, 4.1])
+Krotki są przydatne kiedy mamy zmienne które zawsze występują razem, np. wymiary jak wysokość i szerokość.
+Bardzo przydatn kiedy chcemy przypisac wiele zmiennych w kompaktowy sposób, np.
+  wymiary = 34, 55, 678
+  dlugosc, wysokosc, szerokosc = wymiary  # Tuple unpackig
+  print(dlugosc, wysokosc, szerokosc) => 34 55 678
+
+Sets (zbiory)
+---
+A set is a data type for mutable unordered collections of unique elements.
+Set to nieindeksowany kontener unikalnych danych w których nie ma dwóch lub więcej identycznych elementów.
+Dane poukładane sa losowo, z tego względu nie można wyświetlić ostatniego elementu.
+set() - usuwa duplikaty, np.
+  numbers = [1, 2, 6, 3, 1, 1, 6]
+  unique_nums = set(numbers)
+  print(unique_nums) => { 1, 2, 3, 4 }
+
+Metody dla setów:
+add() - add elements to sets (in random place), np.
+  fruit.add("watermelon") 
+pop() - removes random element from set and returns the removed element
+
