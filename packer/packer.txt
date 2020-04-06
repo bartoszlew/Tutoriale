@@ -1,0 +1,62 @@
+https://packer.io/docs/index.htmlhttps://packer.io/docs/index.html
+
+$ packer
+Usage: packer [--version] [--help] <command> [<args>]
+
+Available commands are:
+    build       build image(s) from template
+    console     creates a console for testing variable interpolation
+    fix         fixes templates from old versions of packer
+    inspect     see components of a template
+    validate    check that a template is valid
+    version     Prints the Packer version
+
+
+podstawy
+--------
+- packer buduje obraz na podstawie innego obrazu
+- zmienne definiujemy w sekcji 'variables', //dokonczyc
+    "variables" : {
+        "nazwa_zmiennej1": "wartość_domyślna" - uzywa wartosci domyslnej, moze byc nadpisana z cli
+        "nazwa_zmiennej2": "{{env `ZMIENNA_SRODOWISKOWA`}} - pobiera zmienna srodowiskowa z systemu
+    }
+  wywołanie zmiennej z 'variables':
+    "{{user `nazwa_zmiennej`}}"
+  podanie zmiennej w cli: (nadpisuje wartość_domyślną z 'variables' )
+    -var "nazwa_zmiennej=wartosc"
+      np. packer build -var "nazwa_zmiennej=wartosc"  template.json
+    -var-file plik_ze_zmiennymi.json 
+      w pliku podane wszystkie zmienne i wartosci w formacie json
+      przydatne jak chcemy np. jak chcemy podac osobne zmienne dla dev/qa/prod
+
+hardening system/ssh 
+----
+https://dev-sec.io/sekcje
+
+
+testowanie buildu packera
+-----
+https://testinfra.readthedocs.io/en/latest/#
+
+
+-------
+1.variables
+    "variables" : {
+        "nazwa_zmiennej1": "wartość_domyślna",
+        "nazwa_zmiennej2": "{{env `ZMIENNA_SRODOWISKOWA`}},
+        "nazwa_zmiennej2": null
+    }
+2.builders
+  "ami_name": "name-{{timestamp}}"
+3.provisioners
+  "type": ansible, puppet, chef, shell, etc.
+4.post-processors
+- po zbudowaniu obrazu tworzy plik 'manifest.json' z info obrazu (nazwa,id,itp.) 
+    {
+      "type": "manifest",
+      "output": "manifest.json",
+      "strip_path": true,
+      "custom_data": {
+        "my_custom_data": "example"
+      }
+    }
