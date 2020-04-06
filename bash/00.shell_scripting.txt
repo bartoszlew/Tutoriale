@@ -4,17 +4,19 @@ BASH SHELL SCRIPTING
 Documentation:
 - man bash
 - info bash
-- https://www.gnu.org/software/bash/manual/
 
+- https://www.gnu.org/software/bash/manual/
 - http://wiki.bash-hackers.org/start
 - http://bash.0x1fff.com/if-else - przejrzec srone
 
-=====================================================================================================
+
 Podstawy basha
 =====================================================================================================
+#! - shebang, kernel odpala komende po #!
+#!/bin/bash 
 
 Start/Konfiguracja Basha:
-.bash_profile - jest czytany, gdy Bash jest uruchamiany po zalogowaniu
+.bash_profile - jest czytany, gdy bash jest wywoływany jako powłoka logowania (czyli kiedy odpalany jest przez proces login),
                 ustawia sie np. zmienne środowiskowe
 .bashrc - jest wykonywany zawsze kiedy nowa powłoka jest odpalana
           ustawia się np. aliasy i funkcję ponieważ nie są one standardowo exportowane

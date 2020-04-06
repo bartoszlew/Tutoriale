@@ -1,0 +1,202 @@
+Przydatne linki:
+https://docs.python.org/3/tutorial/errors.html
+https://docs.python.org/3/library/stdtypes.html
+https://docs.python.org/3/library/string.html
+
+1.Data Types and Operators
+==========================
+Arytmetyka
+---
+kolejność obliczeń matematyczna, najpierw mnożenie * i dzielenie /
++
+-
+*
+**  potenga,np. 4 ** 2 = 16
+/   dzielenie
+//  dzielenie, zwraca tylko liczbe całkowitą
+%   modulo - reszta z dzielenia
+
+Zmienne
+---
+The pythonic way to name variables is to use all lowercase letters and underscores to separate words, which is called snake casei, eg. my_variable
+
+x = 2 -> przypisanie zmiennej x
+x, y, z = 2, 3, 5 -> przypisanie kilku zmiennych na raz, zamiast x = 2, y = 3, z = 5, przydatne jak chcemy przpisać np. wysokosc i szerokosc jakiegogos obiektu
+print(x) -> wyswietlenie zmiennej x
+
+Assignment Operators (Operatory przypisania) 
+---
+https://www.programiz.com/python-programming/operators
+x += 2 to samo co x = x + 2 czyli do wartosci zmiennej dodaje 2
+x -= 2 to samo co x = x - 2 od wartosci zmiennej odejmuje 2
+itd. * / // % ...
+
+Liczby całkowite i ziennoprzecinkowe (integers and float)
+---
+liczby zmiennoprzecinkowe w pythonie są zakrągleniem liczb które reprezentuja, bo np. 1/3 nie da sie zmiescic w pamieci 0.3333333333...itd. wiec python musi to zakrąglić, czasami daje to dziwne wyniki, np. 
+  print(0.1 + 0.1 + 0.1) zwróci 0.30000000000000004
+  >>> print(.1 + .1 + .1 == .3)
+  False
+type - wbudowana funkcja zwracajaca typ obiektu
+print(type(4.3)) - zwroci float
+print(type(4)) - zwroci integer
+zmiana typu obiektu:
+  x = int(4.7)   # x na całkowitą 4
+  y = float(4)   # y na zmienną przecinkową  4.0
+print(int(31/4)) - konwertuje wynik na liczbe calkowita bez zaokrąglenia
+
+Booleans, Comparison Operators & Logical Operators
+--------
+Comoparison Operators: 
+---
+<,>,<=,>=,==,!=
+5 < 3 	False 	Less Than
+5 > 3 	True 	Greater Than
+3 <= 3 	True 	Less Than or Equal To
+3 >= 5 	False 	Greater Than or Equal To
+3 == 5 	False 	Equal To
+3 != 5 	True 	Not Equal To
+
+Logical Operators: 
+---
+and, or,not
+  np.
+  5 < 3 and 5 == 5 	False 	and - Evaluates if all provided statements are True
+  5 < 3 or 5 == 5 	True 	or - Evaluates if at least one of many statements is True
+  not 5 < 3 	True 	not - Flips the Bool Value
+
+  x = 5 > 3
+  print(x)  => True
+
+  age = 12
+  is_teen = age > 12 and age < 20 
+  print(is_teen) => True
+
+Strings
+---
+escaping:
+\ 
+'""'
+"''"
+
+operations on strings:
++ combine strings
+* repeat strings
+np. print("Hello" * 2) -> HelloHello 
+
+len() - funkcja zwracajaca ilość znaków podanego stringa
+  np. len("tralala") => 7
+
+Type and Type Conversion
+------------
+Pisząc program komputerowy trzeba wybrac typ danych typ   podstawie tego jak bedziemy ich uzywac.
+Typy danych warto odpowiednio ustawić, poniewaz kazdy typ danych w pythonie ma osobne atrybuty i specjalne zaprojektowane funkcje do pracy dla każdego typu danych.
+type() - zwraca typ danych
+Data type | Constructor | Example 
+-----------------------------------
+int       |    int()    |    6
+float     |    float()  |   6.5
+string    | '',"",str() | "some string"
+bool      |    bool()   |  True, False
+
+int() - zmienia typ danych na całkowite
+float()  - zmienia typ danych na zmiennoprzecinkowe
+str() - zamienia typ danych na string, np. type(str(333)) => <class 'str'>
+
+
+Methods
+-----------
+Methods actually are functions for specific data type, that are called using dot notation. So there are some built-in methods that are available for all strings, different methods that are available for all integers, etc.
+Różne typy danych mają różne metody.
+Metody jako pierwszy argument biorą wartość przed kropką, czyli np. 
+  zmienna_zawierajaca_jakis_string.lower()
+  "jakis tekst".capitalize()
+dodatkowe argumenty można podać w nawiasach (), np.
+  my_string = "one two four one six nine one"
+  my_string.count("one") => podliczy występowanie słowa "one" w zmiennej my_string 
+Niektóre metody przyjmują tylko jeden argument, np.
+  my_string.islower() => True 
+ 
+String methods list and documentation: 
+https://docs.python.org/3/library/stdtypes.html#string-methods
+https://docs.python.org/3/library/string.html
+format() - metoda do podstawiania i formatowaniu stringów
+           https://www.geeksforgeeks.org/python-format-function/
+  np. animal = "pies"
+      action "bites"  
+      print("Does your {} {}?".format(animal, action)) => Does your dog bite?
+
+      print("Mohammed has {} balloons".format(27)) => Mohammed has 27 balloons
+
+
+Style Guide for Python Code
+-----------------------------
+https://www.python.org/dev/peps/pep-0008/
+do Atoma jest wtycznak linter-python-pep8 która poprawia syntax kodu
+poprawny syntax,np.
+  print(4 + 5)
+  print(4*5 - 4)
+Pojedyncza linia kodu powinna zawierać do 80 znaków, w niektórych przypadkach max do 99.
+
+Debugging
+----------
+
+
+2.Data Structures
+=================
+Data structures are containers that organize and group data types together in different ways. 
+
+Lists
+-----
+Lista moze zawierac różne typy danych, np.
+  listof_random_things = [1, 3.4, 'a string', True]
+Jest zmiennym i uporządkowanym typem danych - warości listy możeny zmienić. Wartości listy możemy wyświetlić po indeksie (liczonym od zera) :
+  fruits = ['orange', 'apple', 'pear', 'banana', 'kiwi', 'apple', 'banana']
+  print(fruits[0]) => orange
+  print(fruits[4]) => kiwi
+Możemy wyświetlić indeks od konca listy:
+  print(fruits[-1]) => banana
+
+Zmiena wartośći indeksu
+fruits[4] = 'strawberry'
+  print(fruits) => ['orange', 'apple', 'pear', 'banana', 'strawberry', 'apple', 'banana']
+
+
+Slicing
+---
+Slicing umozliwia wybieranie wiecej niż jednej wartości z listy.
+Remember that the lower index is inclusive and the upper index is exclusive.
+Slice zwraca listę.
+  fruits[1:2] => ['apple']
+  fruits[3:6] => ['banana', 'kiwi', 'apple']
+  fruits[:2]  => ['orange', 'apple']  # od pierwszego indeksu do drugiego
+  fruits[4:]  => ['kiwi', 'apple', 'banana']  # od czwartego indeksu do ostatniego
+  fruits[-3:0] => ['kiwi', 'apple', 'banana'] 
+
+Slicing działa tak samo na stringach.
+
+Membership Operators 
+---
+'in' and 'not in' sprawdza czy wartosc podana po lewej stronie zawiera sie w wartosci podanej stronie, np. stringu lub liscie
+np.
+  'this' in 'this is a string' => True
+  5 not in [1, 2, 3, 4, 6] => True
+  5 in [1, 2, 3, 4, 6] => Fals
+
+Useful Functions and Methods for Lists
+---
+len() - zlicza liczbe elementow listy
+Wiekszość funckcji działa tylko jeśli wartości listy są tego samego typu, np.
+min() - zwraca najmniejszą wartość z listy
+max() - zwraca nawiekszą wartość z listy
+sort() - sortuje wartosci od najwiekszej do najmniejszej (stringi alfabrtycznie)
+sort(atrybut,reverse=True) - 'reverse=True' odwraca sortowanie
+joint() - Join is a string method that takes a list of strings as an argument, and returns a string consisting of the list elements joined by a separator string. 
+  some_strng = "\n".join(["winter", "alf", "snow", "port"])
+  print(new_str) => 
+    winter
+    alf
+    snow
+    port
+ name = "-".join(["Bułka","z", "masłem"])
+ print(name) => Bułka-z-masłem
