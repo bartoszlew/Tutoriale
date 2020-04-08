@@ -82,7 +82,7 @@ escaping:
 operations on strings:
 + combine strings
 * repeat strings
-np. print("Hello" * 2) -> HelloHello 
+np. print("Hello" * 2) => HelloHello 
 
 len() - funkcja zwracajaca ilość znaków podanego stringa
   np. len("tralala") => 7
@@ -224,14 +224,15 @@ http://www.oprojektowaniu.pl/python-dla-inzynierow-krotki/
 
 Kontener danych podobny do listy, są indeksowane ale w przeciwieństwie do list są niezmienne.
 Zawartość krotki określamy tylko podczas jej tworzenia. Potem nie możemy już jej zmienić. 
+
 Tuples definiujemy jak listy ale bez nawiasów nawiasach okrągłych (), np.
   wymiary = 34, 55, 678
 lub opcjonalnie w nawiasach okrągłych, np.
   owoce = ('banan','jablko','cytryna','kiwi')
 Krotki, podobnie jak listy, mogą zawierać mieszane typy danych, np.
   mixed = (1, 'dwa', [3, 4.1])
-Krotki są przydatne kiedy mamy zmienne które zawsze występują razem, np. wymiary jak wysokość i szerokość.
-Bardzo przydatn kiedy chcemy przypisac wiele zmiennych w kompaktowy sposób, np.
+Krotki są przydatne kiedy mamy zmienne które zawsze występują razem, np. wymiary jak wysokość i szerokość,
+albo kiedy chcemy przypisac wiele zmiennych w kompaktowy sposób, np.
   wymiary = 34, 55, 678
   dlugosc, wysokosc, szerokosc = wymiary  # Tuple unpackig
   print(dlugosc, wysokosc, szerokosc) => 34 55 678
@@ -242,7 +243,7 @@ A set is a data type for mutable unordered collections of unique elements.
 Set to nieindeksowany kontener unikalnych danych w których nie ma dwóch lub więcej identycznych elementów.
 Dane poukładane sa losowo, z tego względu nie można wyświetlić ostatniego elementu.
 set() - usuwa duplikaty, np.
-  numbers = [1, 2, 6, 3, 1, 1, 6]
+  numbers = {1, 2, 6, 3, 1, 1, 6}   # nawet jak bysmy podali zduplikowane wartości to python zwroci unikatowe wartości
   unique_nums = set(numbers)
   print(unique_nums) => { 1, 2, 3, 4 }
 
@@ -251,3 +252,42 @@ add() - add elements to sets (in random place), np.
   fruit.add("watermelon") 
 pop() - removes random element from set and returns the removed element
 
+
+Dictionaries
+---
+Stores pairs of elements -> 'keys' and 'values'.
+Dictionary can have keys of any inmutable type can be different data types in one dictionary.
+
+Create dictionary:
+element = {'klucz': 'wartosc', 'ktos': 1, 'ziemniak': 4}  -> define dictionary 'element'
+
+Print key value:
+print(element['klucz']  # prints 'klucz' key value
+
+Add element to dict
+element['burak'] = 'czerwony'   #  adds new element to 'element' dictionary
+
+Check if element is in dictionary
+print(element.get('dith')   # also checks if key is in dictionary,  but returns None (or a default value of your choice) if the key isn't found
+print('mitmit' in element)  # check whether a value is in a dictionary (checks for key)
+print(n is not None) 
+
+
+Compound Data Structures (Zlozone struktury danych)
+---
+We can include containers in other containers to create compound data structures. 
+For example, this dictionary maps keys to values that are also dictionaries!
+
+eles = {"nogory": {"number": 1,
+                   "weight": 1.004,
+                   "symbol": "G"},
+        "hella": {"number": 2,
+                  "weight": 5.00260,
+                  "symbol": "Hel"}}
+View element:
+hella_dict = eles["hella"]  # get the hella dictionary
+nogory_weight = eles["nogory"]["weight"]  # get nogory's weight
+
+Add new key:
+oxygen = {"number":8,"weight":15.999,"symbol":"O"}  # create a new oxygen dictionary 
+eles["oxygen"] = oxygen  # assign 'oxygen' as a key to the 'eles' dictionary
