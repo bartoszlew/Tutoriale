@@ -309,3 +309,32 @@ Identity Operators
 ---
 is - evaluates if both sides have the same identity
 is not - 	evaluates if both sides have different identities
+=======
+
+
+3.Conditional Statemnts
+=========================
+
+If Statement
+---
+If:
+if phone_balance < 5:
+    phone_balance += 10
+    bank_balance -= 10
+
+If, Elif, Else:
+if season == 'spring':
+    print('plant the garden!')
+elif season == 'summer':
+    print('water the garden!')
+elif season == 'fall':
+    print('harvest the garden!')
+elif season == 'winter':
+    print('stay indoors!')
+else:
+    print('unrecognized season')
+
+
+Loops 
+---
+For:
