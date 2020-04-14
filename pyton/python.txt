@@ -160,16 +160,21 @@ Dictionary 	      No 	        No** 	  { } or dict() 	{'Jun': 75, 'Jul': 89}
 
 Lists
 -----
+Definiowanie:
+list()
+lista = [3,4,5,6,6,'string', True]
+
 Lista moze zawierac różne typy danych, np.
   listof_random_things = [1, 3.4, 'a string', True]
 Jest zmiennym i uporządkowanym typem danych - warości listy możeny zmienić. Wartości listy możemy wyświetlić po indeksie (liczonym od zera) :
   fruits = ['orange', 'apple', 'pear', 'banana', 'kiwi', 'apple', 'banana']
   print(fruits[0]) => orange
   print(fruits[4]) => kiwi
+
 Możemy wyświetlić indeks od konca listy:
   print(fruits[-1]) => banana
 
-Zmiena wartośći indeksu
+Zmiana wartośći indeksu:
 fruits[4] = 'strawberry'
   print(fruits) => ['orange', 'apple', 'pear', 'banana', 'strawberry', 'apple', 'banana']
 
@@ -222,20 +227,28 @@ Tuples (krotki)
 https://pl.wikibooks.org/wiki/Zanurkuj_w_Pythonie/Krotki
 http://www.oprojektowaniu.pl/python-dla-inzynierow-krotki/
 
+Tuples are often used to store related pieces of information.
+Tuples are similar to lists in that they store an ordered collection of objects which can be accessed by their indices. 
 Kontener danych podobny do listy, są indeksowane ale w przeciwieństwie do list są niezmienne.
 Zawartość krotki określamy tylko podczas jej tworzenia. Potem nie możemy już jej zmienić. 
 
-Tuples definiujemy jak listy ale bez nawiasów nawiasach okrągłych (), np.
-  wymiary = 34, 55, 678
-lub opcjonalnie w nawiasach okrągłych, np.
+Tuples definiujemy jak listy ale w nawiasach okrągłych () lub opcjonalnie bez, np.
   owoce = ('banan','jablko','cytryna','kiwi')
+  wymiary = 34, 55, 678
+
 Krotki, podobnie jak listy, mogą zawierać mieszane typy danych, np.
   mixed = (1, 'dwa', [3, 4.1])
-Krotki są przydatne kiedy mamy zmienne które zawsze występują razem, np. wymiary jak wysokość i szerokość,
-albo kiedy chcemy przypisac wiele zmiennych w kompaktowy sposób, np.
+
+Krotki są przydatne kiedy mamy zmienne które zawsze występują razem, np. wymiary jak wysokość i szerokość, albo kiedy chcemy przypisac wiele zmiennych w kompaktowy sposób, np.
+
+location = (11.2225, 111.226667)
+  print("Latitude:", location[0])
+  print("Longitude:", location[1])
+
   wymiary = 34, 55, 678
   dlugosc, wysokosc, szerokosc = wymiary  # Tuple unpackig
   print(dlugosc, wysokosc, szerokosc) => 34 55 678
+
 
 Sets (zbiory)
 ---
@@ -264,10 +277,10 @@ element = {'klucz': 'wartosc', 'ktos': 1, 'ziemniak': 4}  -> define dictionary '
 Print key value:
 print(element['klucz']  # prints 'klucz' key value
 
-Add element to dict
+Add element to dict:
 element['burak'] = 'czerwony'   #  adds new element to 'element' dictionary
 
-Check if element is in dictionary
+Check if element is in dictionary:
 print(element.get('dith')   # also checks if key is in dictionary,  but returns None (or a default value of your choice) if the key isn't found
 print('mitmit' in element)  # check whether a value is in a dictionary (checks for key)
 print(n is not None) 
@@ -291,3 +304,8 @@ nogory_weight = eles["nogory"]["weight"]  # get nogory's weight
 Add new key:
 oxygen = {"number":8,"weight":15.999,"symbol":"O"}  # create a new oxygen dictionary 
 eles["oxygen"] = oxygen  # assign 'oxygen' as a key to the 'eles' dictionary
+
+Identity Operators
+---
+is - evaluates if both sides have the same identity
+is not - 	evaluates if both sides have different identities
