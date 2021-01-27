@@ -7,7 +7,7 @@ https://docs.python.org/3/library/string.html
 ==========================
 Arytmetyka
 ---
-kolejność obliczeń matematyczna, najpierw mnożenie * i dzielenie /
+kolejność obliczeń matematyczna, najpierw mnożenie i dzielenie /
 +
 -
 *
