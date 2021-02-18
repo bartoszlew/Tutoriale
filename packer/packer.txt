@@ -14,7 +14,7 @@ Available commands are:
 
 podstawy
 --------
-- packer buduje obraz na podstawie innego obrazu
+- packer buduje obraz na podstawie innego obrazu (iso, ami, itp.)
 - zmienne definiujemy w sekcji 'variables', //dokonczyc
     "variables" : {
         "nazwa_zmiennej1": "wartość_domyślna" - uzywa wartosci domyslnej, moze byc nadpisana z cli
