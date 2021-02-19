@@ -1,0 +1,6 @@
+Basics command line
+--------------------
+ansible [pattern] -m [module] -a "[module options]"
+
+Gathering facts: 
+ansible all -m ansible.builtin.setup
