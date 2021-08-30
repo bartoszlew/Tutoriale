@@ -1,6 +1,126 @@
+links:
+https://serversforhackers.com/c/an-ansible2-tutorial
+https://www.youtube.com/watch?v=HX3AIfLf_EA&list=PLnFWJCugpwfzTlIJ-JtuATD2MBBD7_m3u&index=6
+
+YAML
+---
+> po tym znaku caly strng bedzie brany jako jedna linia
+| po tym znaku mozna wrzucac dluzszy string na kilka linii
+- lista
+slownik:wartosc
+
 Basics command line
 --------------------
 ansible [pattern] -m [module] -a "[module options]"
 
+Syntax check
+  ansible-playbook --syntax-check <filename>
+
+Running against localhost
+  ansible localhost -m ping 
+
+Facts
+---
 Gathering facts: 
-ansible all -m ansible.builtin.setup
+  ansible all -m ansible.builtin.setup
+  ansible -m ansible.builtin.setup --connection=local localhost //na lokalnym hoscie
+  ansible localhost -m ansible.builtin.setup -a filter=ansible_distribution - pojedyncze facty
+  ansible <hostsy> -m ansible.builtin.setup -a gather_subset=hardware - wyswietla tylko facty o danej podgrupie
+    !nerwork - wyswietla facty bez grupy network
+
+Playbook
+- name: Print variable 'zmienna' and system os distribution
+  debug:
+    msg: 
+      - "{{ zmienna }}"
+      - "{{ ansible_facts[distribution] }}"
+
+Custom Facts
+  Dodaje zmienne do facts.
+  Pliki wykonywalny z roszerzeniem '.fact' zwaracajacy klucz - wartosc w formacie json lub ini, katalogu ustawionym parametrem 'fact_path',
+  domyslnie '/etc/ansible/facts.d', np.
+    #!/bin/bash
+    echo [date]
+    echo date=`date`
+  lub
+    #!/bin/bash
+    echo {\""date\"" : \""`date`\""}
+
+  Wyniki pojawią się pod kategoria:
+    "ansible_local": {
+      "nazwa_pliku_bez_rozszerzenia": {
+        "klucz":"wartosc"
+      }
+    }
+
+Magic variables
+  hostvars - mozna uzyc zmiennej z innego hosta z pliku inventory 
+    {{ hostvars['test.example.com']['ansible_facts']['distribution'] }}
+  groups
+  groups_names
+  inventory_hostname  
+
+Vars
+---
+vars_prompt - zapyta o wpisanie zmiennej w konsoli podczas wykonywania playbooka
+| default('wartosc') - ustawia domyslna wartosc, jesli nic nie jest przypisane do zmiennej
+
+
+Jinja2 templating
+---
+https://docs.ansible.com/ansible/latest/user_guide/playbooks_templating.html
+
+Filters
+---
+https://docs.ansible.com/ansible/latest/user_guide/playbooks_filters.html
+
+
+Role
+-------------------
+
+Tworzenie roli:
+---
+https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html
+https://inleo.pl/blog/ansible-metadane/
+
+w katalogu roles:
+ansible-galaxy init <nazwa roli>  - tworzy strukture katalogow dla roli wraz z przykladowymi plikami
+
+glowny plik to meta/main.yml ?
+By default Ansible will look in each directory within a role for a main.yml file for relevant content (also main.yaml and main)
+glowne pliki w katalogach powinny miec nazwe main.yml ?
+
+struktura:
+  defaults - set role default variables
+  files
+  handlers
+  library
+  meta  - eg. add role dependencies
+  tasks
+  templates
+  test
+  vars
+
+
+Wersjonowanie
+-------------------
+https://galaxy.ansible.com/docs/using/installing.html#role-versions
+
+Vault
+-------------------
+
+Tasks
+-------------------
+
+Conditional run:
+    tasks:
+  - include_role:
+      name: some_role
+    when: "ansible_facts['os_family'] == 'RedHat'"
+
+
+
+
+Tags:
+
+
